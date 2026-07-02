@@ -59,6 +59,12 @@ const allRows = computed(() => tableRooms.flatMap((room) => room.rows))
 const totalRows = computed(() => allRows.value.length)
 const totalRooms = computed(() => allRows.value.reduce((s, r) => s + r.quantity, 0))
 const totalPrice = computed(() => allRows.value.reduce((s, r) => s + r.quantity * r.price, 0))
+const totalPeople = computed(() => totalRooms.value * 2)
+const totalWas = computed(() => allRows.value.reduce((s, r) => s + r.quantity * r.priceWas, 0))
+const totalSaved = computed(() => totalWas.value - totalPrice.value)
+const savedPct = computed(() =>
+  totalWas.value ? Math.round((totalSaved.value / totalWas.value) * 100) : 0,
+)
 
 // Truncate the description to max 300 characters.
 function shortDescription(text: string) {
@@ -109,10 +115,10 @@ const arrangementIncludes = [
       <thead>
         <tr>
           <th class="rt__th rt__th--type">Kamertype</th>
-          <th class="rt__th">Aantal gasten</th>
+          <th class="rt__th rt__th--guests">Aantal gasten</th>
           <th class="rt__th">Prijs voor 2 nachten</th>
           <th class="rt__th rt__th--options">Je opties</th>
-          <th class="rt__th">Kies kamers</th>
+          <th class="rt__th rt__th--select">Kies kamers</th>
           <th class="rt__th rt__th--reserve" />
         </tr>
       </thead>
@@ -154,7 +160,6 @@ const arrangementIncludes = [
           <td class="rt__td rt__price">
             <CheckoutPriceTag :value="row.priceWas" :show-cents="false" size="sm" bold strike color="var(--c-medium-grey)" />
             <CheckoutPriceTag :value="row.price" :show-cents="false" size="md" bold color="var(--c-via-orange)" />
-            <p class="t-caption c-mgrey">Inclusief belastingen en toeslagen</p>
           </td>
 
           <!-- Je opties -->
@@ -178,7 +183,7 @@ const arrangementIncludes = [
                 <svg class="rt__check rt__check--nonref" width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" /><path d="M8 8l8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
                 Niet-terugbetaalbaar
               </p>
-              <p class="rt__optsub">Betaal het volledige bedrag, ook bij annuleren</p>
+              <p class="rt__optsub">Je betaalt het volledige bedrag, ook als je annuleert.</p>
             </template>
             <p v-if="row.scarcity" class="rt__scarcity">{{ row.scarcity }}</p>
           </td>
@@ -191,8 +196,10 @@ const arrangementIncludes = [
               :aria-label="`Aantal kamers ${room.name}`"
               @change="setRowQty(row, Number(($event.target as HTMLSelectElement).value))"
             >
+              <!-- Het gesloten veld toont alleen het getal: het geselecteerde
+                   option-label bevat geen bedrag, de rest in het menu wel. -->
               <option :value="0">0</option>
-              <option v-for="n in 5" :key="n" :value="n">{{ n }} (€{{ n * row.price }})</option>
+              <option v-for="n in 5" :key="n" :value="n">{{ row.quantity === n ? n : `${n} (€${n * row.price})` }}</option>
             </select>
           </td>
 
@@ -215,9 +222,21 @@ const arrangementIncludes = [
             </div>
 
             <div v-if="totalRooms > 0" class="rt__totals">
-              <p class="t-body">{{ totalRooms }} {{ totalRooms === 1 ? 'kamer' : 'kamers' }} voor</p>
+              <p class="t-body t-bold">{{ totalRooms }} {{ totalRooms === 1 ? 'kamer' : 'kamers' }} voor 2 nachten</p>
+              <p class="t-body c-grey">Max {{ totalPeople }} personen</p>
               <CheckoutPriceTag :value="totalPrice" :show-cents="false" size="lg" bold color="var(--c-via-orange)" />
-              <p class="t-caption c-mgrey">Inclusief belastingen en toeslagen</p>
+              <p class="rt__saved">
+                <CheckoutSmileyIcon />
+                <span class="t-body">Je hebt al</span>
+                <CheckoutPriceTag :value="totalSaved" :show-cents="false" size="sm" bold color="var(--c-via-orange)" />
+                <span class="t-caption c-grey">({{ savedPct }}%)</span>
+                <span class="t-body">bespaard.</span>
+              </p>
+              <p class="rt__smallprint">
+                Je dient ter plaatse alleen de lokale belastingen, eventuele
+                service-/administratiekosten van het hotel en parkeerkosten te betalen
+                (indien dit niet is inbegrepen in het arrangement).
+              </p>
             </div>
 
             <button class="btn-primary rt__book" type="button">Ik ga boeken</button>
@@ -253,7 +272,7 @@ const arrangementIncludes = [
   table-layout: fixed;
 }
 .rt__th {
-  background: var(--c-via-black);
+  background: #00675f; /* donkergroene tabelheader */
   color: var(--c-white);
   text-align: left;
   font-size: var(--t-body-lg);
@@ -262,8 +281,10 @@ const arrangementIncludes = [
   border-right: 1px solid rgba(255, 255, 255, 0.15);
 }
 .rt__th--type { width: 280px; }
+.rt__th--guests { width: 90px; }
 .rt__th--options { width: 22%; }
-.rt__th--reserve { width: 230px; }
+.rt__th--select { width: 96px; }
+.rt__th--reserve { width: 310px; }
 .rt__td {
   border: 1px solid var(--c-light-grey);
   padding: 16px;
@@ -349,11 +370,11 @@ const arrangementIncludes = [
 .rt__dropdown {
   border: 1px solid var(--c-dark-grey);
   border-radius: var(--radius-sm);
-  padding: 8px 10px;
+  padding: 8px 6px;
   font-family: inherit;
   font-size: var(--t-body);
   background: var(--c-white);
-  min-width: 110px;
+  width: 64px;
 }
 
 /* Reserveringspaneel */
@@ -372,7 +393,21 @@ const arrangementIncludes = [
 .rt__totals {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
+}
+.rt__saved {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  color: var(--c-via-black);
+  margin-top: 2px;
+}
+.rt__smallprint {
+  font-size: 11px;
+  line-height: 15px;
+  color: var(--c-medium-grey);
+  margin-top: 4px;
 }
 .rt__book {
   padding: 16px 20px;
