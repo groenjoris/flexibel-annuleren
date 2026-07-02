@@ -108,7 +108,23 @@ const arrangementIncludes = [
 </script>
 
 <template>
-  <div class="rt">
+  <div class="rt-wrap">
+    <!-- Datum-widget boven de tabel, met wijzig-link rechts ernaast -->
+    <div class="rt__datesbar">
+      <div class="rt__dates">
+        <div class="rt__datecell">
+          <p class="t-caption c-mgrey">Inchecken</p>
+          <p class="t-body t-bold">{{ hotel.checkInDate }}</p>
+        </div>
+        <div class="rt__datecell">
+          <p class="t-caption c-mgrey">Uitchecken</p>
+          <p class="t-body t-bold">{{ hotel.checkOutDate }}</p>
+        </div>
+      </div>
+      <a class="rt__changedates t-body" href="#">Wijzig data</a>
+    </div>
+
+    <div class="rt">
     <table class="rt__table">
       <thead>
         <tr>
@@ -224,19 +240,6 @@ const arrangementIncludes = [
             :rowspan="totalRows"
           >
             <div class="rt__reserve-inner">
-            <!-- Zelfde datum-widget als de sidebar van de andere varianten -->
-            <div class="rt__dates">
-              <div class="rt__datecell">
-                <p class="t-caption c-mgrey">Inchecken</p>
-                <p class="t-body t-bold">{{ hotel.checkInDate }}</p>
-              </div>
-              <div class="rt__datecell">
-                <p class="t-caption c-mgrey">Uitchecken</p>
-                <p class="t-body t-bold">{{ hotel.checkOutDate }}</p>
-              </div>
-            </div>
-            <a class="rt__changedates t-body" href="#">Wijzig data</a>
-
             <div v-if="totalRooms > 0" class="rt__totals">
               <p class="t-body">{{ totalRooms }} {{ totalRooms === 1 ? 'kamer' : 'kamers' }} voor 2 nachten</p>
               <p class="t-body">Max {{ totalPeople }} personen</p>
@@ -273,11 +276,24 @@ const arrangementIncludes = [
         </tr>
       </tbody>
     </table>
-
+    </div>
   </div>
 </template>
 
 <style scoped>
+.rt-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.rt__datesbar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.rt__datesbar .rt__dates {
+  min-width: 300px;
+}
 .rt {
   background: var(--c-white);
   border: 1px solid var(--c-light-grey);
@@ -440,7 +456,6 @@ const arrangementIncludes = [
   position: absolute;
   inset: 0;
   padding: 16px;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -463,10 +478,9 @@ const arrangementIncludes = [
   border-left: 1px solid var(--c-light-grey);
 }
 .rt__changedates {
-  align-self: center;
   color: var(--c-via-black);
   text-decoration: underline;
-  margin-top: -4px;
+  white-space: nowrap;
 }
 .rt__pricerow {
   display: flex;
