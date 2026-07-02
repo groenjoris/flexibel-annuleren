@@ -244,6 +244,7 @@ const arrangementIncludes = [
             :rowspan="totalRows"
           >
             <div class="rt__reserve-inner">
+            <div class="rt__reserve-sticky">
             <div v-if="totalRooms > 0" class="rt__totals">
               <p class="t-body">{{ totalRooms }} {{ totalRooms === 1 ? 'kamer' : 'kamers' }} voor 2 nachten</p>
               <p class="t-body">Max {{ totalPeople }} personen</p>
@@ -273,6 +274,7 @@ const arrangementIncludes = [
                 <svg class="rt__check" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
                 {{ item }}
               </p>
+            </div>
             </div>
             </div>
           </td>
@@ -322,7 +324,8 @@ const arrangementIncludes = [
   font-size: var(--t-body-lg);
   font-weight: var(--w-black);
   padding: 14px 16px;
-  border-right: 1px solid rgba(255, 255, 255, 0.15);
+  /* Blend tussen headergroen (#00675F) en het grijs van de tabellijnen */
+  border-right: 1px solid #6ca09c;
   /* Header blijft aan de bovenkant van het venster plakken bij scrollen */
   position: sticky;
   top: 0;
@@ -464,8 +467,14 @@ const arrangementIncludes = [
   border-top: none; /* geen divider tussen headercel en paneel */
 }
 .rt__reserve-inner {
+  /* Absolute shell: vult de kolom zonder de rijhoogtes te beïnvloeden */
   position: absolute;
   inset: 0;
+}
+.rt__reserve-sticky {
+  /* Inhoud plakt onder de sticky header zodat de CTA zichtbaar blijft */
+  position: sticky;
+  top: 68px;
   padding: 16px;
   display: flex;
   flex-direction: column;
