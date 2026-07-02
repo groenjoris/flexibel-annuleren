@@ -71,28 +71,41 @@ function shortDescription(text: string) {
   return text.length > 300 ? `${text.slice(0, 297)}…` : text
 }
 
-// One cancellation policy per booking. Selecting a row deselects the same
-// room's other-policy row; selections of other rooms move to their sibling
-// row with the chosen policy. No explainer popup needed — the swap is
-// directly visible in the table.
-function selectRow(row: TableRow) {
-  if (row.quantity === 0) row.quantity = 1
-  for (const other of allRows.value) {
-    if (other === row || other.quantity === 0 || other.rateKey === row.rateKey) continue
-    if (other.baseId === row.baseId) {
-      other.quantity = 0
-    } else {
-      const sibling = allRows.value.find(
-        (c) => c.baseId === other.baseId && c.rateKey === row.rateKey,
-      )
-      if (sibling) sibling.quantity += other.quantity
-      other.quantity = 0
-    }
-  }
+// One cancellation policy per booking. Once a policy has a selection, the
+// selectors of the other policy turn inactive; clicking one anyway opens a
+// popup that lets the guest pick the policy for ALL rooms.
+const activePolicy = computed<'nonrefundable' | 'flexible' | null>(() => {
+  const selected = allRows.value.find((r) => r.quantity > 0)
+  return selected ? selected.rateKey : null
+})
+
+function isInactive(row: TableRow) {
+  return activePolicy.value !== null && row.rateKey !== activePolicy.value
 }
 
-function deselectRow(row: TableRow) {
-  row.quantity = 0
+const policyPopupOpen = ref(false)
+
+function onDropdownMousedown(row: TableRow, event: Event) {
+  if (!isInactive(row)) return
+  // Laat Tab e.d. met rust; alleen interacties die het menu zouden openen.
+  if (event instanceof KeyboardEvent) {
+    const opens = ['Enter', ' ', 'ArrowDown', 'ArrowUp'].includes(event.key)
+    if (!opens) return
+  }
+  event.preventDefault()
+  policyPopupOpen.value = true
+}
+
+// Popup choice: switch every selection to the chosen policy (or keep as is).
+function applyPolicy(policy: 'flexible' | 'nonrefundable') {
+  policyPopupOpen.value = false
+  if (activePolicy.value === policy) return
+  for (const row of allRows.value) {
+    if (row.quantity === 0 || row.rateKey === policy) continue
+    const sibling = allRows.value.find((c) => c.baseId === row.baseId && c.rateKey === policy)
+    if (sibling) sibling.quantity += row.quantity
+    row.quantity = 0
+  }
 }
 
 const arrangementIncludes = [
@@ -205,32 +218,23 @@ const arrangementIncludes = [
             </p>
           </td>
 
-          <!-- Kies kamers: selecteer-knop; daarna verschijnt de hoeveelheid-dropdown -->
+          <!-- Kies kamers: dropdown 0-5. Bij een selectie van de andere policy
+               wordt de dropdown inactief; klikken opent dan de keuze-popup. -->
           <td class="rt__td rt__select">
-            <button
-              v-if="row.quantity === 0"
-              class="rt__selectbtn"
-              type="button"
-              @click="selectRow(row)"
+            <select
+              class="rt__dropdown"
+              :class="{ 'rt__dropdown--inactive': isInactive(row) }"
+              :value="row.quantity"
+              :aria-label="`Aantal kamers ${room.name}`"
+              @mousedown="onDropdownMousedown(row, $event)"
+              @keydown="onDropdownMousedown(row, $event)"
+              @change="row.quantity = Number(($event.target as HTMLSelectElement).value)"
             >
-              Selecteer
-            </button>
-            <template v-else>
-              <button class="rt__selectbtn rt__selectbtn--on" type="button" @click="deselectRow(row)">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
-                Gekozen
-              </button>
-              <select
-                class="rt__dropdown"
-                :value="row.quantity"
-                :aria-label="`Aantal kamers ${room.name}`"
-                @change="row.quantity = Number(($event.target as HTMLSelectElement).value)"
-              >
-                <!-- Het gesloten veld toont alleen het getal: het geselecteerde
-                     option-label bevat geen bedrag, de rest in het menu wel. -->
-                <option v-for="n in 5" :key="n" :value="n">{{ row.quantity === n ? n : `${n} (€${n * row.price})` }}</option>
-              </select>
-            </template>
+              <!-- Het gesloten veld toont alleen het getal: het geselecteerde
+                   option-label bevat geen bedrag, de rest in het menu wel. -->
+              <option :value="0">0</option>
+              <option v-for="n in 5" :key="n" :value="n">{{ row.quantity === n ? n : `${n} (€${n * row.price})` }}</option>
+            </select>
           </td>
 
           <!-- Reserveringspaneel (één cel over de hele tabel) -->
@@ -277,6 +281,12 @@ const arrangementIncludes = [
       </tbody>
     </table>
     </div>
+
+    <CheckoutPolicyChoicePopup
+      v-if="policyPopupOpen"
+      @choose="applyPolicy"
+      @close="policyPopupOpen = false"
+    />
   </div>
 </template>
 
@@ -409,28 +419,8 @@ const arrangementIncludes = [
   text-align: center;
 }
 
-/* Selecteer-knop + hoeveelheid-dropdown */
-.rt__selectbtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  width: 100%;
-  padding: 10px 8px;
-  border-radius: var(--radius-sm);
-  background: var(--c-via-orange);
-  color: var(--c-white);
-  font-size: var(--t-body);
-  font-weight: var(--w-black);
-  transition: background 0.15s ease;
-}
-.rt__selectbtn:hover { background: var(--c-via-orange-hover); }
-.rt__selectbtn--on {
-  background: var(--c-via-green);
-}
-.rt__selectbtn--on:hover { background: #2db07d; }
+/* Hoeveelheid-dropdown */
 .rt__dropdown {
-  margin-top: 8px;
   border: 1px solid var(--c-dark-grey);
   border-radius: var(--radius-sm);
   padding: 8px 20px 8px 8px;
@@ -443,6 +433,14 @@ const arrangementIncludes = [
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M6 9l6 6 6-6' stroke='%231a1e1e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 4px center;
+}
+/* Andere policy geselecteerd: uitgegrijsd, klik opent de keuze-popup */
+.rt__dropdown--inactive {
+  border-color: var(--c-light-grey);
+  color: var(--c-medium-grey);
+  background-color: var(--c-surface);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M6 9l6 6 6-6' stroke='%23888989' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  cursor: not-allowed;
 }
 
 /* Reserveringspaneel: absoluut gepositioneerd zodat de inhoud de
