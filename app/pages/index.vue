@@ -22,6 +22,8 @@ const rateList = reactive(
     {
       ...r,
       id: `${r.id}-nonref`,
+      baseId: r.id,
+      rateKey: 'nonrefundable' as const,
       rateLabel: 'Niet-restitueerbaar',
       subtitle: 'Bij annuleren betaal je het volledige bedrag',
       priceNow: r.priceNow,
@@ -30,6 +32,8 @@ const rateList = reactive(
     {
       ...r,
       id: `${r.id}-flex`,
+      baseId: r.id,
+      rateKey: 'flexible' as const,
       rateLabel: 'Flexibel annuleren',
       subtitle: 'Volledige teruggave van de arrangementsprijs bij annuleren voor 17 mei.',
       priceNow: r.priceNow + pricing.flexibilityPerRoom,
@@ -37,6 +41,50 @@ const rateList = reactive(
     },
   ]),
 )
+
+// 1a/1b: cancellation policies can't be mixed within one booking — switching
+// one room switches them all. The first time that happens we explain it once.
+const mixPopupOpen = ref(false)
+const mixExplained = ref(false)
+function maybeExplainMix() {
+  if (!mixExplained.value) {
+    mixExplained.value = true
+    mixPopupOpen.value = true
+  }
+}
+
+// 1a: selecting a quantity on a rate card pulls every other selected room to
+// that same cancellation policy (same room: policy swap; other rooms: move
+// the quantity to their sibling card with the chosen rate).
+function setRateQty(card: (typeof rateList)[number], qty: number) {
+  card.quantity = qty
+  if (qty === 0) return
+  let switched = false
+  for (const other of rateList) {
+    if (other === card || other.quantity === 0 || other.rateKey === card.rateKey) continue
+    if (other.baseId === card.baseId) {
+      other.quantity = 0
+    } else {
+      const sibling = rateList.find((c) => c.baseId === other.baseId && c.rateKey === card.rateKey)
+      if (sibling) sibling.quantity += other.quantity
+      other.quantity = 0
+    }
+    switched = true
+  }
+  if (switched) maybeExplainMix()
+}
+
+// 1b: the in-card switch applies to ALL rooms at once.
+function setIncardRate(rate: 'nonrefundable' | 'flexible') {
+  let changed = false
+  for (const r of incardList) {
+    if (r.selectedRate !== rate) {
+      r.selectedRate = rate
+      changed = true
+    }
+  }
+  if (changed) maybeExplainMix()
+}
 
 // Variant "incard": two rooms, each with an in-card rate switch. Non-refundable is
 // €15 cheaper than the (standard) flexible price and selected by default.
@@ -62,6 +110,8 @@ watch(variant, () => {
   forcedStep.value = 1
   forcedChoice.value = null
   popupOpen.value = false
+  mixPopupOpen.value = false
+  mixExplained.value = false
 })
 function continueFromRooms() {
   if ((variant.value === 'forcedstep' || variant.value === 'laststep') && forcedStep.value === 1) {
@@ -171,7 +221,7 @@ const summaryRooms = computed(() => {
                   :room="card"
                   :rate-label="card.rateLabel"
                   :subtitle="card.subtitle"
-                  @update:quantity="card.quantity = $event"
+                  @update:quantity="setRateQty(card, $event)"
                 />
               </template>
               <template v-else-if="variant === 'incard'">
@@ -182,7 +232,7 @@ const summaryRooms = computed(() => {
                   :rates="{ nonRef: room.nonRefPrice, flex: room.flexPrice, deadline: 'Tot 23 mei 23:59' }"
                   :selected-rate="room.selectedRate"
                   @update:quantity="room.quantity = $event"
-                  @update:rate="room.selectedRate = $event"
+                  @update:rate="setIncardRate($event)"
                 />
               </template>
               <template v-else>
@@ -233,6 +283,9 @@ const summaryRooms = computed(() => {
       @choose="chooseFromPopup"
       @close="popupOpen = false"
     />
+
+    <!-- 1a/1b: one-time explainer that the cancellation choice applies to all rooms -->
+    <CheckoutMixInfoPopup v-if="mixPopupOpen" @close="mixPopupOpen = false" />
   </div>
 </template>
 
