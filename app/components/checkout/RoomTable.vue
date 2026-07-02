@@ -185,7 +185,10 @@ const arrangementIncludes = [
               </p>
               <p class="rt__optsub">Je betaalt het volledige bedrag, ook als je annuleert.</p>
             </template>
-            <p v-if="row.scarcity" class="rt__scarcity">{{ row.scarcity }}</p>
+            <p v-if="row.scarcity" class="rt__scarcity">
+              <span class="rt__bullet" aria-hidden="true">•</span>
+              {{ row.scarcity }}
+            </p>
           </td>
 
           <!-- Kies kamers -->
@@ -210,21 +213,26 @@ const arrangementIncludes = [
             :rowspan="totalRows"
           >
             <div class="rt__reserve-inner">
+            <!-- Zelfde datum-widget als de sidebar van de andere varianten -->
             <div class="rt__dates">
-              <div>
+              <div class="rt__datecell">
                 <p class="t-caption c-mgrey">Inchecken</p>
                 <p class="t-body t-bold">{{ hotel.checkInDate }}</p>
               </div>
-              <div>
+              <div class="rt__datecell">
                 <p class="t-caption c-mgrey">Uitchecken</p>
                 <p class="t-body t-bold">{{ hotel.checkOutDate }}</p>
               </div>
             </div>
+            <a class="rt__changedates t-body" href="#">Wijzig data</a>
 
             <div v-if="totalRooms > 0" class="rt__totals">
-              <p class="t-body t-bold">{{ totalRooms }} {{ totalRooms === 1 ? 'kamer' : 'kamers' }} voor 2 nachten</p>
-              <p class="t-body c-grey">Max {{ totalPeople }} personen</p>
-              <CheckoutPriceTag :value="totalPrice" :show-cents="false" size="lg" bold color="var(--c-via-orange)" />
+              <p class="t-body">{{ totalRooms }} {{ totalRooms === 1 ? 'kamer' : 'kamers' }} voor 2 nachten</p>
+              <p class="t-body">Max {{ totalPeople }} personen</p>
+              <div class="rt__pricerow">
+                <CheckoutPriceTag :value="totalWas" :show-cents="false" size="sm" bold strike color="var(--c-medium-grey)" />
+                <CheckoutPriceTag :value="totalPrice" :show-cents="false" size="lg" bold color="var(--c-via-orange)" />
+              </div>
               <p class="rt__saved">
                 <CheckoutSmileyIcon />
                 <span class="t-body">Je hebt al</span>
@@ -292,7 +300,7 @@ const arrangementIncludes = [
 }
 /* Dikke divider tussen kamertypes */
 .rt__tr--divide .rt__td {
-  border-top: 4px solid var(--c-via-black);
+  border-top: 3px solid var(--c-light-grey);
 }
 
 /* Kamertype */
@@ -360,10 +368,19 @@ const arrangementIncludes = [
   margin: -2px 0 6px 20px;
 }
 .rt__scarcity {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
   font-size: var(--t-body);
   font-weight: 500;
   color: #d32f2f;
   margin-top: 4px;
+}
+/* Bullet even breed als de optie-iconen zodat de teksten uitlijnen */
+.rt__bullet {
+  width: 14px;
+  flex-shrink: 0;
+  text-align: center;
 }
 
 /* Dropdown */
@@ -377,18 +394,50 @@ const arrangementIncludes = [
   width: 64px;
 }
 
-/* Reserveringspaneel */
+/* Reserveringspaneel: absoluut gepositioneerd zodat de inhoud de
+   rijhoogtes van de andere kolommen nooit beïnvloedt. */
 .rt__reserve {
   background: var(--c-surface);
+  position: relative;
+  padding: 0;
 }
 .rt__reserve-inner {
+  position: absolute;
+  inset: 0;
+  padding: 16px;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
 .rt__dates {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid var(--c-light-grey);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--c-white);
+}
+.rt__datecell {
+  padding: 10px 14px;
   display: flex;
-  gap: 20px;
+  flex-direction: column;
+  gap: 2px;
+}
+.rt__datecell + .rt__datecell {
+  border-left: 1px solid var(--c-light-grey);
+}
+.rt__changedates {
+  align-self: center;
+  color: var(--c-via-black);
+  text-decoration: underline;
+  margin-top: -4px;
+}
+.rt__pricerow {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 2px;
 }
 .rt__totals {
   display: flex;
