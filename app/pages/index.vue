@@ -179,7 +179,7 @@ const summaryRooms = computed(() => {
     <main class="page__main container">
       <!-- 1c: Booking-style room table — no sidebar, reservation panel in the table -->
       <div v-if="variant === 'roomtable'" class="page__table">
-        <h1 class="t-display">Controleer je boeking</h1>
+        <h1 class="t-display">Kies je kamer(s)</h1>
         <CheckoutRoomTable />
       </div>
 
