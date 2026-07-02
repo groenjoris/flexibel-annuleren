@@ -1,0 +1,44 @@
+/* ViaLuxury CHECKOUT design tokens — sourced from the "Checkout" Figma
+   (page "Flexible Cancellation"). Deliberately distinct from the marketing
+   site's tokens: this is the checkout's own design system. */
+
+:root {
+  /* Colors */
+  --c-white: #ffffff;
+  --c-black: #000000;
+  --c-via-black: #1a1e1e;      /* primary text / dark surfaces */
+  --c-via-orange: #fb862b;     /* primary CTA */
+  --c-via-orange-hover: #ec7716;
+  --c-via-green: #36c890;      /* accent / recommended / discount */
+  --c-dark-grey: #515454;      /* secondary text, radio outline */
+  --c-medium-grey: #888989;    /* tertiary text */
+  --c-light-grey: #d9d9d9;     /* borders */
+  --c-surface: #f7f7f7;        /* subtle backgrounds */
+  --c-green-soft: #eaf9f2;     /* soft green background */
+  --c-green-pale: #d7f1e4;     /* badge background (Figma) */
+
+  /* Typography */
+  --font-body: 'Basis Grotesque', 'Inter', system-ui, sans-serif;
+
+  /* Type scale (size / line-height) — weights applied inline */
+  --t-display: 32px;   --lh-display: 48px;   /* DT_Headline  900 */
+  --t-h1: 24px;        --lh-h1: 36px;        /* Headline 1   900 */
+  --t-h2: 20px;        --lh-h2: 24px;        /* Subhead BOLD 900 */
+  --t-body-lg: 16px;   --lh-body-lg: 24px;   /* Description 1 500/900 */
+  --t-body: 14px;      --lh-body: 20px;      /* Description 2 500/900 */
+  --t-caption: 12px;   --lh-caption: 16px;   /* Caption      500 */
+
+  --w-medium: 500;
+  --w-black: 900;
+
+  /* Layout */
+  --radius: 8px;
+  --radius-sm: 4px;
+  --card-border: 1px solid var(--c-light-grey);
+  --card-pad: 48px;
+  --section-gap: 36px;
+  --page-max: 1440px;
+  --content-max: 1200px;
+  --shadow-card: 0 1px 2px rgba(26, 30, 30, 0.04);
+  --shadow-pop: 0 8px 24px rgba(26, 30, 30, 0.12);
+}

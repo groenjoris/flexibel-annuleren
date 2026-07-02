@@ -1,0 +1,37 @@
+/* Basis Grotesque — checkout font.
+   Only Regular (400), Medium (500) and Bold (700) files exist locally.
+   The Figma uses "Black" (900) for headings; we map 800/900 to the bold file
+   so headings still render heavy. Acceptable for a prototype. */
+
+@font-face {
+  font-family: 'Basis Grotesque';
+  src: url('/fonts/basis-grotesque/basisgrotesque-regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Basis Grotesque';
+  src: url('/fonts/basis-grotesque/basisgrotesque-medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Basis Grotesque';
+  src: url('/fonts/basis-grotesque/basisgrotesque-bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Map Figma "Black" (900) and 800 to the bold file. */
+@font-face {
+  font-family: 'Basis Grotesque';
+  src: url('/fonts/basis-grotesque/basisgrotesque-bold.ttf') format('truetype');
+  font-weight: 800 900;
+  font-style: normal;
+  font-display: swap;
+}

@@ -1,0 +1,111 @@
+/* Marketing-site (R1) base + typography, SCOPED under .fr-scope so it never
+   leaks into the checkout pages. Copied from code-vialuxury
+   app/assets/css/{base,typography}.css with selectors prefixed. */
+
+/* --- base --- */
+/* :where() keeps specificity at (0,1,0) like the source project's bare
+   `a`/`a:hover` rules, so component classes (e.g. the white deal-card CTA)
+   keep winning — otherwise CTA text turns orange-on-orange on hover. */
+.fr-scope :where(a) {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+.fr-scope :where(a:hover) {
+  color: var(--color-primary-hover);
+}
+.fr-scope img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+.fr-scope button {
+  font-family: var(--font-body);
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-size: inherit;
+}
+.fr-scope ul,
+.fr-scope ol {
+  list-style: none;
+}
+.fr-scope .container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 var(--space-lg);
+}
+.fr-scope .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.fr-scope .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 24px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 16px;
+  transition: all var(--transition-fast);
+  line-height: 1.4;
+}
+.fr-scope .btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+  width: 100%;
+}
+.fr-scope .btn-primary:hover {
+  background-color: var(--color-primary-hover);
+  color: white;
+}
+.fr-scope .btn-secondary {
+  background-color: var(--color-background-secondary);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+}
+.fr-scope .btn-secondary:hover {
+  background-color: var(--color-border-light);
+}
+
+/* --- typography --- */
+.fr-scope h1,
+.fr-scope h2,
+.fr-scope h3,
+.fr-scope h4,
+.fr-scope h5,
+.fr-scope h6 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: 1.3;
+  margin: 0;
+}
+.fr-scope h1 { font-size: 32px; }
+.fr-scope h2 { font-size: 24px; }
+.fr-scope h3 { font-size: 20px; }
+.fr-scope h4 { font-size: 18px; }
+.fr-scope h5 { font-size: 16px; }
+.fr-scope h6 { font-size: 14px; }
+
+.fr-scope {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--color-text-primary);
+  background-color: var(--color-background);
+}
+.fr-scope .text-sm { font-size: 14px; line-height: 1.5; }
+.fr-scope .text-xs { font-size: 13px; line-height: 1.4; }
+.fr-scope .text-lg { font-size: 18px; line-height: 1.6; }
+.fr-scope .text-muted { color: var(--color-text-muted); }
+.fr-scope .text-secondary { color: var(--color-text-secondary); }
+.fr-scope .font-semibold { font-weight: 600; }
+.fr-scope .font-bold { font-weight: 700; }
