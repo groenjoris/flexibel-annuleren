@@ -13,6 +13,7 @@ export const pageVariants: PageVariant[] = [
   { key: 'incard', label: 'Switch binnen de room card' },
   { key: 'forcedstep', label: 'Extra stap, forced choice' },
   { key: 'forcedpopup', label: 'Pop-up, forced choice' },
+  { key: 'laststep', label: 'Laatste stap, forced choice' },
   { key: 'flexonly', label: 'Alleen maar flex aanbieden (homepage)', path: '/home' },
 ]
 

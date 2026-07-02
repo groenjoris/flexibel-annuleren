@@ -64,7 +64,7 @@ watch(variant, () => {
   popupOpen.value = false
 })
 function continueFromRooms() {
-  if (variant.value === 'forcedstep' && forcedStep.value === 1) {
+  if ((variant.value === 'forcedstep' || variant.value === 'laststep') && forcedStep.value === 1) {
     forcedStep.value = 2
     if (import.meta.client) window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -72,6 +72,11 @@ function continueFromRooms() {
     popupOpen.value = true
   }
 }
+
+// The three forced-choice variants share the same summary wiring.
+const isForcedFamily = computed(() =>
+  ['forcedstep', 'forcedpopup', 'laststep'].includes(variant.value),
+)
 function chooseFromPopup(choice: 'flexible' | 'nonrefundable') {
   forcedChoice.value = choice
   popupOpen.value = false
@@ -96,7 +101,7 @@ const summaryRooms = computed(() => {
       cancelLabel: r.selectedRate === 'flexible' ? 'Flexibel annuleren' : 'Niet-restitueerbaar',
     }))
   }
-  if (variant.value === 'forcedstep' || variant.value === 'forcedpopup') {
+  if (isForcedFamily.value) {
     return roomList.map((r) => ({ ...r, cancelLabel: forcedChoiceLabel.value }))
   }
   return roomList
@@ -108,7 +113,7 @@ const summaryRooms = computed(() => {
     <CheckoutTopNav />
 
     <div class="page__stepper">
-      <CheckoutStepper />
+      <CheckoutStepper :active="variant === 'laststep' && forcedStep === 2 ? 3 : 2" />
     </div>
 
     <main class="page__main container">
@@ -124,6 +129,26 @@ const summaryRooms = computed(() => {
             <button class="btn-back t-body" type="button" @click="forcedStep = 1">← Terug naar kamers</button>
             <button class="btn-primary btn-primary--auto" type="button" :disabled="forcedChoice === null">
               {{ forcedChoice === null ? 'Maak eerst een keuze' : 'Verder' }}
+            </button>
+          </div>
+        </div>
+
+        <div v-else-if="variant === 'laststep' && forcedStep === 2" class="col-form">
+          <!-- Last-step variant: forced choice at the top of the details form -->
+          <h1 class="t-display">Gegevens en betaalwijze</h1>
+
+          <CheckoutForcedChoice
+            v-model="forcedChoice"
+            title="1 — Hoe flexibel wil je zijn?"
+            subtitle="Maak een keuze om je boeking af te ronden."
+          />
+
+          <CheckoutGegevensForm />
+
+          <div class="col-form__cta col-form__cta--split">
+            <button class="btn-back t-body" type="button" @click="forcedStep = 1">← Terug naar kamers</button>
+            <button class="btn-primary btn-primary--auto" type="button" :disabled="forcedChoice === null">
+              {{ forcedChoice === null ? 'Maak eerst een keuze' : 'Boek nu' }}
             </button>
           </div>
         </div>
@@ -189,9 +214,10 @@ const summaryRooms = computed(() => {
             :includes="includes"
             :pricing="pricing"
             :trustpilot="trustpilot"
-            :selected="variant === 'current' ? flexibility : variant === 'forcedstep' || variant === 'forcedpopup' ? forcedChoice : null"
-            :show-flex-line="variant === 'current' || ((variant === 'forcedstep' || variant === 'forcedpopup') && forcedChoice === 'flexible')"
-            :cta-disabled="variant === 'forcedstep' && forcedStep === 2 && forcedChoice === null"
+            :selected="variant === 'current' ? flexibility : isForcedFamily ? forcedChoice : null"
+            :show-flex-line="variant === 'current' || (isForcedFamily && forcedChoice === 'flexible')"
+            :cta-disabled="(variant === 'forcedstep' || variant === 'laststep') && forcedStep === 2 && forcedChoice === null"
+            :cta-label="variant === 'laststep' && forcedStep === 2 ? 'Boek nu' : undefined"
             @cta="continueFromRooms"
           />
         </div>

@@ -1,14 +1,19 @@
 <script setup lang="ts">
+const props = withDefaults(defineProps<{ active?: number }>(), { active: 2 })
+
 interface Step {
   label: string
   state: 'done' | 'active' | 'todo'
 }
 
-const steps: Step[] = [
-  { label: 'Kies datum', state: 'done' },
-  { label: 'Pakket en kamers', state: 'active' },
-  { label: 'Gegevens en betaling', state: 'todo' },
-]
+const labels = ['Kies datum', 'Arrangement en kamers', 'Gegevens en betaalwijze']
+
+const steps = computed<Step[]>(() =>
+  labels.map((label, i) => ({
+    label,
+    state: i + 1 < props.active ? 'done' : i + 1 === props.active ? 'active' : 'todo',
+  })),
+)
 </script>
 
 <template>

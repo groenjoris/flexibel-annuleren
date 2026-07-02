@@ -11,6 +11,7 @@ const props = defineProps<{
   selected: CancelChoice
   showFlexLine?: boolean // hide when cancellation is baked into the room price
   ctaDisabled?: boolean // e.g. forced-choice step: continue only after choosing
+  ctaLabel?: string // default "Opslaan en doorgaan"; last step uses "Boek nu"
 }>()
 const emit = defineEmits<{ cta: [] }>()
 
@@ -122,7 +123,7 @@ const savedPct = computed(() => (roomsWas.value ? Math.round((saved.value / room
     </p>
 
     <button class="btn-primary" type="button" :disabled="ctaDisabled" @click="emit('cta')">
-      {{ ctaDisabled ? 'Maak eerst een keuze' : 'Opslaan en doorgaan' }}
+      {{ ctaDisabled ? 'Maak eerst een keuze' : ctaLabel ?? 'Opslaan en doorgaan' }}
     </button>
 
     <div class="summary__trust">

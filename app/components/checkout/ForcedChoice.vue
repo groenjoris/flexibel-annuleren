@@ -4,15 +4,22 @@
 // until a choice is made. Flexible is nudged (green, benefits, "Meest gekozen").
 import type { CancelChoice } from '~/data/cancellation'
 
-defineProps<{ modelValue: CancelChoice }>()
+withDefaults(defineProps<{
+  modelValue: CancelChoice
+  title?: string
+  subtitle?: string
+}>(), {
+  title: 'Hoe flexibel wil je zijn?',
+  subtitle: 'Maak een keuze om verder te gaan.',
+})
 const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
 </script>
 
 <template>
   <section class="card fc">
     <header class="fc__head">
-      <h2 class="t-h1">Hoe flexibel wil je zijn?</h2>
-      <p class="t-body c-grey">Maak een keuze om verder te gaan.</p>
+      <h2 class="t-h1">{{ title }}</h2>
+      <p class="t-body c-grey">{{ subtitle }}</p>
     </header>
 
     <div class="fc__opts">
