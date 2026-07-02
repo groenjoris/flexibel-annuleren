@@ -177,7 +177,13 @@ const summaryRooms = computed(() => {
     </div>
 
     <main class="page__main container">
-      <div class="page__grid">
+      <!-- 1c: Booking-style room table — no sidebar, reservation panel in the table -->
+      <div v-if="variant === 'roomtable'" class="page__table">
+        <h1 class="t-display">Controleer je boeking</h1>
+        <CheckoutRoomTable />
+      </div>
+
+      <div v-else class="page__grid">
         <!-- Form column -->
         <div
           v-if="(variant === 'forcedstep' || variant === 'forcedtotal') && forcedStep === 2"
@@ -323,6 +329,11 @@ const summaryRooms = computed(() => {
   grid-template-columns: minmax(0, 1fr) 350px;
   gap: 48px;
   align-items: start;
+}
+.page__table {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 .col-form {
   display: flex;

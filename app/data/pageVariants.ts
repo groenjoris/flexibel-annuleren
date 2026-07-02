@@ -11,6 +11,7 @@ export const pageVariants: PageVariant[] = [
   { key: 'current', label: 'Huidige versie (niet compliant)' },
   { key: 'twocards', label: '1a — 2 room cards' },
   { key: 'incard', label: '1b — Switch binnen de room card' },
+  { key: 'roomtable', label: '1c — Room table' },
   { key: 'forcedstep', label: '2a — Forced choice, extra stap' },
   { key: 'forcedpopup', label: '2b — Forced choice, pop-up' },
   { key: 'laststep', label: '2c — Forced choice, laatste stap' },
