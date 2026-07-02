@@ -150,7 +150,10 @@ const arrangementIncludes = [
         </tr>
       </thead>
 
-      <tbody v-for="(room, roomIndex) in tableRooms" :key="room.id">
+      <!-- Eén tbody: het rowspan-paneel in de rechterkolom mag niet over een
+           tbody-grens heen, anders stopt het bij het tweede kamertype. -->
+      <tbody>
+        <template v-for="(room, roomIndex) in tableRooms" :key="room.id">
         <tr
           v-for="(row, rowIndex) in room.rows"
           :key="row.id"
@@ -279,6 +282,7 @@ const arrangementIncludes = [
             </div>
           </td>
         </tr>
+        </template>
       </tbody>
     </table>
     </div>
@@ -337,11 +341,10 @@ const arrangementIncludes = [
 .rt__th--guests { width: 90px; }
 .rt__th--options { width: 22%; }
 .rt__th--select { width: 96px; }
-/* Rechterkolom is één doorlopend grijs paneel: ook de (lege) headercel
-   grijs, zonder horizontale dividers in de kolom. */
+/* Rechterkolom: groene headercel (band loopt door), daaronder één
+   doorlopend grijs paneel zonder dividers. */
 .rt__th--reserve {
   width: 310px;
-  background: var(--c-surface);
   border-right: none;
 }
 .rt__td {
