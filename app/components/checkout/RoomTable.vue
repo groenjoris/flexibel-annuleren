@@ -308,7 +308,7 @@ const arrangementIncludes = [
   background: var(--c-white);
   border: 1px solid var(--c-light-grey);
   border-radius: var(--radius);
-  overflow: hidden;
+  /* geen overflow:hidden — dat zou de sticky header breken */
 }
 .rt__table {
   width: 100%;
@@ -319,11 +319,18 @@ const arrangementIncludes = [
   background: #00675f; /* donkergroene tabelheader */
   color: var(--c-white);
   text-align: left;
+  vertical-align: top;
   font-size: var(--t-body-lg);
   font-weight: var(--w-black);
   padding: 14px 16px;
   border-right: 1px solid rgba(255, 255, 255, 0.15);
+  /* Header blijft aan de bovenkant van het venster plakken bij scrollen */
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
+.rt__th:first-child { border-top-left-radius: var(--radius); }
+.rt__th:last-child { border-top-right-radius: var(--radius); }
 .rt__th--type { width: 280px; }
 .rt__th--guests { width: 90px; }
 .rt__th--options { width: 22%; }
