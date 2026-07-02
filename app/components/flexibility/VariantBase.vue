@@ -3,13 +3,16 @@ import { cancellation, type CancelChoice } from '~/data/cancellation'
 
 defineProps<{ modelValue: CancelChoice }>()
 const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
+
+// "Meer over deze opties ⓘ" opens the cancellation-policy explainer.
+const showPolicyInfo = ref(false)
 </script>
 
 <template>
   <section class="card flexi">
     <header class="flexi__head">
       <h2 class="t-h1">Kies je flexibiliteit</h2>
-      <button class="flexi__learn t-body" type="button">
+      <button class="flexi__learn t-body" type="button" @click="showPolicyInfo = true">
         <span>Meer over deze opties</span>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
           <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" />
@@ -42,6 +45,7 @@ const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
         <span class="opt__price t-body c-grey">- <CheckoutPriceTag :value="cancellation.upgradeDelta" :show-cents="false" size="sm" /> per kamer</span>
       </button>
     </div>
+    <CheckoutPolicyInfoPopup v-if="showPolicyInfo" @close="showPolicyInfo = false" />
   </section>
 </template>
 

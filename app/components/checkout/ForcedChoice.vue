@@ -8,9 +8,12 @@ withDefaults(defineProps<{
   modelValue: CancelChoice
   title?: string
   subtitle?: string
+  // 2d: compare complete arrangement totals instead of +€0 / +€15 deltas.
+  totals?: { nonRef: number; flex: number }
 }>(), {
   title: 'Hoe flexibel wil je zijn?',
   subtitle: 'Maak een keuze om verder te gaan.',
+  totals: undefined,
 })
 const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
 </script>
@@ -35,7 +38,11 @@ const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
           <span class="t-body-lg t-bold">Niet-restitueerbaar</span>
           <span class="t-body c-grey">Bij annuleren of wijzigen betaal je het volledige bedrag.</span>
         </span>
-        <span class="fc__price t-body-lg t-bold">+ €0</span>
+        <span v-if="totals" class="fc__price fc__price--total">
+          <CheckoutPriceTag :value="totals.nonRef" :show-cents="false" size="lg" bold />
+          <span class="t-caption c-mgrey">totaalprijs</span>
+        </span>
+        <span v-else class="fc__price t-body-lg t-bold">+ €0</span>
       </button>
 
       <!-- Flexible (nudged) -->
@@ -64,7 +71,11 @@ const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
             </span>
           </span>
         </span>
-        <span class="fc__price t-body-lg t-bold c-green">+ €15 <span class="t-body c-grey">per kamer</span></span>
+        <span v-if="totals" class="fc__price fc__price--total">
+          <CheckoutPriceTag :value="totals.flex" :show-cents="false" size="lg" bold color="var(--c-via-green)" />
+          <span class="t-caption c-mgrey">totaalprijs</span>
+        </span>
+        <span v-else class="fc__price t-body-lg t-bold c-green">+ €15 <span class="t-body c-grey">per kamer</span></span>
       </button>
     </div>
   </section>
@@ -147,6 +158,12 @@ const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
   align-items: baseline;
   gap: 4px;
   margin-top: 2px;
+}
+/* 2d: complete arrangement totals stacked above a small caption */
+.fc__price--total {
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
 }
 .fc__radio {
   width: 20px;

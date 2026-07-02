@@ -114,7 +114,10 @@ watch(variant, () => {
   mixExplained.value = false
 })
 function continueFromRooms() {
-  if ((variant.value === 'forcedstep' || variant.value === 'laststep') && forcedStep.value === 1) {
+  if (
+    ['forcedstep', 'laststep', 'forcedtotal'].includes(variant.value) &&
+    forcedStep.value === 1
+  ) {
     forcedStep.value = 2
     if (import.meta.client) window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -123,10 +126,17 @@ function continueFromRooms() {
   }
 }
 
-// The three forced-choice variants share the same summary wiring.
+// The forced-choice variants share the same summary wiring.
 const isForcedFamily = computed(() =>
-  ['forcedstep', 'forcedpopup', 'laststep'].includes(variant.value),
+  ['forcedstep', 'forcedpopup', 'laststep', 'forcedtotal'].includes(variant.value),
 )
+
+// 2d: complete arrangement totals for the selected rooms (instead of +€0/+€15).
+const forcedTotals = computed(() => {
+  const nonRef = roomList.reduce((s, r) => s + r.quantity * r.priceNow, 0)
+  const rooms = roomList.reduce((s, r) => s + r.quantity, 0)
+  return { nonRef, flex: nonRef + rooms * pricing.flexibilityPerRoom }
+})
 function chooseFromPopup(choice: 'flexible' | 'nonrefundable') {
   forcedChoice.value = choice
   popupOpen.value = false
@@ -169,11 +179,18 @@ const summaryRooms = computed(() => {
     <main class="page__main container">
       <div class="page__grid">
         <!-- Form column -->
-        <div v-if="variant === 'forcedstep' && forcedStep === 2" class="col-form">
-          <!-- Forced-choice step: extra screen after room selection -->
+        <div
+          v-if="(variant === 'forcedstep' || variant === 'forcedtotal') && forcedStep === 2"
+          class="col-form"
+        >
+          <!-- Forced-choice step: extra screen after room selection.
+               2d shows complete arrangement totals instead of +€0/+€15. -->
           <h1 class="t-display">Kies extra's</h1>
 
-          <CheckoutForcedChoice v-model="forcedChoice" />
+          <CheckoutForcedChoice
+            v-model="forcedChoice"
+            :totals="variant === 'forcedtotal' ? forcedTotals : undefined"
+          />
 
           <div class="col-form__cta col-form__cta--split">
             <button class="btn-back t-body" type="button" @click="forcedStep = 1">← Terug naar kamers</button>
@@ -266,7 +283,7 @@ const summaryRooms = computed(() => {
             :trustpilot="trustpilot"
             :selected="variant === 'current' ? flexibility : isForcedFamily ? forcedChoice : null"
             :show-flex-line="variant === 'current' || (isForcedFamily && forcedChoice === 'flexible')"
-            :cta-disabled="(variant === 'forcedstep' || variant === 'laststep') && forcedStep === 2 && forcedChoice === null"
+            :cta-disabled="['forcedstep', 'laststep', 'forcedtotal'].includes(variant) && forcedStep === 2 && forcedChoice === null"
             :cta-label="variant === 'laststep' && forcedStep === 2 ? 'Boek nu' : undefined"
             @cta="continueFromRooms"
           />

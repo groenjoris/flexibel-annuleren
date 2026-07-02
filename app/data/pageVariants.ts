@@ -14,6 +14,7 @@ export const pageVariants: PageVariant[] = [
   { key: 'forcedstep', label: '2a — Forced choice, extra stap' },
   { key: 'forcedpopup', label: '2b — Forced choice, pop-up' },
   { key: 'laststep', label: '2c — Forced choice, laatste stap' },
+  { key: 'forcedtotal', label: '2d — Forced choice, totaalprijzen' },
   { key: 'flexonly', label: '3 — Alleen maar flex aanbieden', path: '/home' },
 ]
 
