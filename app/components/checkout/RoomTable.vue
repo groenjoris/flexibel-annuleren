@@ -266,7 +266,6 @@ const arrangementIncludes = [
             </div>
 
             <button class="btn-primary rt__book" type="button">Ik ga boeken</button>
-            <p class="t-caption c-mgrey">Er wordt nog niets in rekening gebracht</p>
 
             <div v-if="totalRooms > 0" class="rt__includes">
               <p class="t-body t-bold">Jouw arrangement bevat</p>
@@ -335,7 +334,13 @@ const arrangementIncludes = [
 .rt__th--guests { width: 90px; }
 .rt__th--options { width: 22%; }
 .rt__th--select { width: 96px; }
-.rt__th--reserve { width: 310px; }
+/* Rechterkolom is één doorlopend grijs paneel: ook de (lege) headercel
+   grijs, zonder horizontale dividers in de kolom. */
+.rt__th--reserve {
+  width: 310px;
+  background: var(--c-surface);
+  border-right: none;
+}
 .rt__td {
   border: 1px solid var(--c-light-grey);
   padding: 16px;
@@ -456,6 +461,7 @@ const arrangementIncludes = [
   background: var(--c-surface);
   position: relative;
   padding: 0;
+  border-top: none; /* geen divider tussen headercel en paneel */
 }
 .rt__reserve-inner {
   position: absolute;
