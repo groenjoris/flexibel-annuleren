@@ -55,15 +55,26 @@ const incardList = reactive(
 // until the guest actively chooses.
 const forcedStep = ref(1)
 const forcedChoice = ref<CancelChoice>(null)
+// Variant "forcedpopup": same forced choice, but as a modal after
+// "Opslaan en doorgaan" instead of an extra step.
+const popupOpen = ref(false)
 watch(variant, () => {
   forcedStep.value = 1
   forcedChoice.value = null
+  popupOpen.value = false
 })
 function continueFromRooms() {
   if (variant.value === 'forcedstep' && forcedStep.value === 1) {
     forcedStep.value = 2
     if (import.meta.client) window.scrollTo({ top: 0, behavior: 'smooth' })
   }
+  if (variant.value === 'forcedpopup') {
+    popupOpen.value = true
+  }
+}
+function chooseFromPopup(choice: 'flexible' | 'nonrefundable') {
+  forcedChoice.value = choice
+  popupOpen.value = false
 }
 
 const forcedChoiceLabel = computed(() =>
@@ -85,7 +96,7 @@ const summaryRooms = computed(() => {
       cancelLabel: r.selectedRate === 'flexible' ? 'Flexibel annuleren' : 'Niet-restitueerbaar',
     }))
   }
-  if (variant.value === 'forcedstep') {
+  if (variant.value === 'forcedstep' || variant.value === 'forcedpopup') {
     return roomList.map((r) => ({ ...r, cancelLabel: forcedChoiceLabel.value }))
   }
   return roomList
@@ -178,8 +189,8 @@ const summaryRooms = computed(() => {
             :includes="includes"
             :pricing="pricing"
             :trustpilot="trustpilot"
-            :selected="variant === 'current' ? flexibility : variant === 'forcedstep' ? forcedChoice : null"
-            :show-flex-line="variant === 'current' || (variant === 'forcedstep' && forcedChoice === 'flexible')"
+            :selected="variant === 'current' ? flexibility : variant === 'forcedstep' || variant === 'forcedpopup' ? forcedChoice : null"
+            :show-flex-line="variant === 'current' || ((variant === 'forcedstep' || variant === 'forcedpopup') && forcedChoice === 'flexible')"
             :cta-disabled="variant === 'forcedstep' && forcedStep === 2 && forcedChoice === null"
             @cta="continueFromRooms"
           />
@@ -189,6 +200,13 @@ const summaryRooms = computed(() => {
 
     <CheckoutSiteFooter />
     <CheckoutVariantSwitcher />
+
+    <!-- Pop-up, forced choice -->
+    <CheckoutForcedChoicePopup
+      v-if="popupOpen"
+      @choose="chooseFromPopup"
+      @close="popupOpen = false"
+    />
   </div>
 </template>
 
