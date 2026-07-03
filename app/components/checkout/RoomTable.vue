@@ -6,6 +6,26 @@
 // selected row to that same rate (one-time explainer popup).
 import { rooms as roomsData, hotel, pricing } from '~/data/deal'
 
+const props = withDefaults(defineProps<{
+  // 1d: hide the built-in reservation column (the sidebar takes its place)
+  showReserve?: boolean
+  // 1d: start with the cheapest room preselected
+  initialCheapest?: boolean
+}>(), {
+  showReserve: true,
+  initialCheapest: false,
+})
+
+const emit = defineEmits<{
+  'update:selection': [rows: {
+    baseId: string
+    rateKey: 'nonrefundable' | 'flexible'
+    price: number
+    priceWas: number
+    quantity: number
+  }[]]
+}>()
+
 interface TableRow {
   id: string
   baseId: string
@@ -56,6 +76,32 @@ const tableRooms = reactive<TableRoom[]>(
 )
 
 const allRows = computed(() => tableRooms.flatMap((room) => room.rows))
+
+// 1d: start with the cheapest row selected.
+if (props.initialCheapest) {
+  const cheapest = allRows.value.reduce((min, r) => (r.price < min.price ? r : min))
+  cheapest.quantity = 1
+}
+
+// Report every selection change to the parent (drives the sidebar in 1d).
+watch(
+  allRows,
+  (rows) => {
+    emit(
+      'update:selection',
+      rows
+        .filter((r) => r.quantity > 0)
+        .map(({ baseId, rateKey, price, priceWas, quantity }) => ({
+          baseId,
+          rateKey,
+          price,
+          priceWas,
+          quantity,
+        })),
+    )
+  },
+  { deep: true, immediate: true },
+)
 const totalRows = computed(() => allRows.value.length)
 const totalRooms = computed(() => allRows.value.reduce((s, r) => s + r.quantity, 0))
 const totalPrice = computed(() => allRows.value.reduce((s, r) => s + r.quantity * r.price, 0))
@@ -122,8 +168,9 @@ const arrangementIncludes = [
 
 <template>
   <div class="rt-wrap">
-    <!-- Datum-widget boven de tabel, met wijzig-link rechts ernaast -->
-    <div class="rt__datesbar">
+    <!-- Datum-widget boven de tabel, met wijzig-link rechts ernaast
+         (vervalt in 1d: de sidebar toont de data al) -->
+    <div v-if="showReserve" class="rt__datesbar">
       <div class="rt__dates">
         <div class="rt__datecell">
           <p class="t-caption c-mgrey">Inchecken</p>
@@ -146,7 +193,7 @@ const arrangementIncludes = [
           <th class="rt__th">Prijs voor 2 nachten</th>
           <th class="rt__th rt__th--options">Je opties</th>
           <th class="rt__th rt__th--select">Kies kamers</th>
-          <th class="rt__th rt__th--reserve" />
+          <th v-if="showReserve" class="rt__th rt__th--reserve" />
         </tr>
       </thead>
 
@@ -242,7 +289,7 @@ const arrangementIncludes = [
 
           <!-- Reserveringspaneel (één cel over de hele tabel) -->
           <td
-            v-if="roomIndex === 0 && rowIndex === 0"
+            v-if="showReserve && roomIndex === 0 && rowIndex === 0"
             class="rt__td rt__reserve"
             :rowspan="totalRows"
           >

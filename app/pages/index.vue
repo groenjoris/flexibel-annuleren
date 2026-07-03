@@ -137,6 +137,29 @@ const forcedTotals = computed(() => {
   const rooms = roomList.reduce((s, r) => s + r.quantity, 0)
   return { nonRef, flex: nonRef + rooms * pricing.flexibilityPerRoom }
 })
+
+// 1d "Room table + sidebar": the table reports its selection; the sidebar
+// prices follow (rate price is baked into the row price, so no flex line).
+interface TableSelectionRow {
+  baseId: string
+  rateKey: 'nonrefundable' | 'flexible'
+  price: number
+  priceWas: number
+  quantity: number
+}
+const tableSelection = ref<TableSelectionRow[]>([])
+const tableSummaryRooms = computed(() =>
+  tableSelection.value.map((s) => {
+    const base = roomsData.find((r) => r.id === s.baseId)!
+    return {
+      ...base,
+      quantity: s.quantity,
+      priceNow: s.price,
+      priceWas: s.priceWas,
+      cancelLabel: s.rateKey === 'flexible' ? 'Flexibel annuleren' : 'Niet-terugbetaalbaar',
+    }
+  }),
+)
 function chooseFromPopup(choice: 'flexible' | 'nonrefundable') {
   forcedChoice.value = choice
   popupOpen.value = false
@@ -181,6 +204,29 @@ const summaryRooms = computed(() => {
       <div v-if="variant === 'roomtable'" class="page__table">
         <h1 class="t-display">Kies je kamer(s)</h1>
         <CheckoutRoomTable />
+      </div>
+
+      <!-- 1d: room table zonder reserveringskolom + de bekende sidebar -->
+      <div v-else-if="variant === 'tablesidebar'" class="page__grid">
+        <div class="col-form">
+          <h1 class="t-display">Kies je kamer(s)</h1>
+          <CheckoutRoomTable
+            :show-reserve="false"
+            :initial-cheapest="true"
+            @update:selection="tableSelection = $event"
+          />
+        </div>
+        <div class="col-summary">
+          <CheckoutOrderSummary
+            :hotel="hotel"
+            :rooms="tableSummaryRooms"
+            :includes="includes"
+            :pricing="pricing"
+            :trustpilot="trustpilot"
+            :selected="null"
+            :show-flex-line="false"
+          />
+        </div>
       </div>
 
       <div v-else class="page__grid">
