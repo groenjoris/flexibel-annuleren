@@ -6,7 +6,7 @@
 // the reservation panel lives in the last column instead of a sidebar.
 // Cancellation policies can't be mixed: selecting a rate moves every other
 // selected row to that same rate (one-time explainer popup).
-import { rooms as roomsData, hotel, pricing } from '~/data/deal'
+import { rooms as roomsData, hotel, pricing, dealName } from '~/data/deal'
 
 const props = withDefaults(defineProps<{
   // 1d: hide the built-in reservation column (the sidebar takes its place)
@@ -184,23 +184,29 @@ const arrangementIncludes = [
   <div class="rt-wrap" :class="{ 'rt-wrap--hybrid': hybrid }">
     <!-- Datum-widget boven de tabel, met wijzig-link rechts ernaast
          (vervalt in 1d: de sidebar toont de data al) -->
-    <div v-if="showReserve" class="rt__datesbar">
-      <!-- 1e: hotel-thumb + naam links van de data -->
-      <div v-if="hybrid" class="rt__hotel">
+    <div v-if="showReserve" class="rt__tophead">
+      <!-- Deal-header: thumb + dealnaam met hotelnaam als subtitel -->
+      <div class="rt__hotel">
         <img class="rt__hotelthumb" :src="hotel.thumb" :alt="hotel.name" />
-        <p class="t-body t-bold">{{ hotel.name }}</p>
-      </div>
-      <div class="rt__dates">
-        <div class="rt__datecell">
-          <p class="t-caption c-mgrey">Inchecken</p>
-          <p class="t-body t-bold">{{ hotel.checkInDate }}</p>
-        </div>
-        <div class="rt__datecell">
-          <p class="t-caption c-mgrey">Uitchecken</p>
-          <p class="t-body t-bold">{{ hotel.checkOutDate }}</p>
+        <div>
+          <p class="rt__dealname t-body-lg t-bold">{{ dealName }}</p>
+          <p class="t-body c-mgrey">{{ hotel.name }}</p>
         </div>
       </div>
-      <a class="rt__changedates t-body" href="#">Wijzig data</a>
+      <!-- Data links uitgelijnd onder de titel -->
+      <div class="rt__datesbar">
+        <div class="rt__dates">
+          <div class="rt__datecell">
+            <p class="t-caption c-mgrey">Inchecken</p>
+            <p class="t-body t-bold">{{ hotel.checkInDate }}</p>
+          </div>
+          <div class="rt__datecell">
+            <p class="t-caption c-mgrey">Uitchecken</p>
+            <p class="t-body t-bold">{{ hotel.checkOutDate }}</p>
+          </div>
+        </div>
+        <a class="rt__changedates t-body" href="#">Wijzig data</a>
+      </div>
     </div>
 
     <div class="rt">
@@ -394,6 +400,11 @@ const arrangementIncludes = [
   flex-direction: column;
   gap: 16px;
 }
+.rt__tophead {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
 .rt__datesbar {
   display: flex;
   align-items: center;
@@ -403,7 +414,10 @@ const arrangementIncludes = [
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-right: auto;
+}
+.rt__dealname {
+  font-size: 18px;
+  line-height: 24px;
 }
 .rt__hotelthumb {
   width: 48px;

@@ -47,6 +47,10 @@ const sharedFacilities: Facility[] = [
   { label: 'Airco', icon: 'ac' },
 ]
 
+// Dealnaam zoals op de dealpagina (titel boven de hotelnaam).
+export const dealName =
+  '3-daags verblijf in een exclusief kasteelhotel incl. culinair 4-gangendiner'
+
 export const hotel: Hotel = {
   name: 'Van der Valk Hotel Kasteel TerWorm',
   location: 'Heerlen',
