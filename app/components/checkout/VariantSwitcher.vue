@@ -17,7 +17,8 @@ const activeKey = computed(() => {
 
 function select(key: string) {
   const v = pageVariants.find((x) => x.key === key)
-  router.push({ path: v?.path ?? '/', query: { variant: key } })
+  // Concept-varianten leven op /concepts (de root is het startscherm)
+  router.push({ path: v?.path ?? '/concepts', query: { variant: key } })
 }
 </script>
 
