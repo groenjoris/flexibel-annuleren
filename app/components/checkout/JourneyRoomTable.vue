@@ -324,7 +324,7 @@ const arrangementIncludes = [
                   <span class="rt__dqty t-body">{{ row.quantity }}x</span>
                   <div class="rt__dmain">
                     <p class="t-body t-bold">Arrangement</p>
-                    <p class="t-caption c-mgrey">{{ roomNameFor(row.baseId) }} · {{ row.rateKey === 'flexible' ? 'Gratis annuleren' : 'Niet-terugbetaalbaar' }}</p>
+                    <p class="t-caption c-mgrey">{{ roomNameFor(row.baseId) }}</p>
                   </div>
                   <CheckoutPriceTag :value="row.quantity * row.price" :show-cents="false" size="sm" />
                 </div>
