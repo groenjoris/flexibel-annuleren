@@ -17,6 +17,13 @@ const entries = [
     to: `/journey/${v}/deal`,
   })),
 ]
+
+// Mobiele site (apart, niet responsive): voorlopig de room-table varianten.
+const mobileEntries = ['1', '2', '3', '4'].map((v) => ({
+  title: `Variant ${v} — ${JOURNEY_NAMES[v]} (mobiel)`,
+  description: 'Mobiele journey: kalenderstap naar kamerlijst.',
+  to: `/m/journey/${v}/date`,
+}))
 </script>
 
 <template>
@@ -31,6 +38,15 @@ const entries = [
 
       <div class="start__buttons">
         <NuxtLink v-for="entry in entries" :key="entry.to" :to="entry.to" class="start__btn">
+          <span class="start__btn-title">{{ entry.title }}</span>
+          <span class="start__btn-desc t-body c-grey">{{ entry.description }}</span>
+          <svg class="start__btn-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        </NuxtLink>
+      </div>
+
+      <h2 class="start__subtitle">Mobiele site</h2>
+      <div class="start__buttons">
+        <NuxtLink v-for="entry in mobileEntries" :key="entry.to" :to="entry.to" class="start__btn">
           <span class="start__btn-title">{{ entry.title }}</span>
           <span class="start__btn-desc t-body c-grey">{{ entry.description }}</span>
           <svg class="start__btn-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
@@ -69,6 +85,11 @@ const entries = [
 }
 .start__sub {
   margin-bottom: 16px;
+}
+.start__subtitle {
+  font-size: var(--t-h1);
+  font-weight: var(--w-black);
+  margin-top: 24px;
 }
 .start__buttons {
   display: flex;
