@@ -2,8 +2,9 @@
 // Journey-checkout op basis van concept 1e (eigen kopie: JourneyRoomTable),
 // bereikt via "Ik ga boeken" op de dealpagina of via de kalenderstap.
 // Variant 3: room table zonder rechterkolom + sticky sidebar.
-import { journeyKey, journeyLabel } from '~/data/journeys'
-import { hotel, trustpilot, rooms as roomsData, dealName } from '~/data/deal'
+import { journeyKey, journeyLabel, JOURNEY_WAS_FACTOR } from '~/data/journeys'
+import { hotel, trustpilot, rooms as roomsData, dealName, includes, pricing } from '~/data/deal'
+import type { CancelChoice } from '~/data/cancellation'
 import { useStickyFit } from '~/composables/useStickyFit'
 
 const route = useRoute()
@@ -42,10 +43,50 @@ const arrangementIncludes = [
 // zodat de CTA onderin zichtbaar blijft op lagere schermen.
 const sideEl = ref<HTMLElement | null>(null)
 const sideTop = useStickyFit(sideEl, 16)
+
+// ---- Variant 5 (concept 2a): room cards + extra stap met forced choice ----
+// Kamerprijzen volgen de kalenderkeuze (zelfde patroon als de room table):
+// het goedkoopste kamertype = de dagprijs, was-prijzen via de gedeelde factor.
+const journeyDay = useState<{ price: number } | null>('journey-day', () => null)
+const CHEAPEST_BASE = Math.min(...roomsData.map((r) => r.priceNow))
+const priceDelta = computed(() => (journeyDay.value ? journeyDay.value.price - CHEAPEST_BASE : 0))
+const v5Rooms = reactive(roomsData.map((r) => ({ ...r })))
+const v5Cards = computed(() =>
+  v5Rooms.map((r) => ({
+    ...r,
+    priceNow: r.priceNow + priceDelta.value,
+    priceWas: journeyDay.value
+      ? Math.round((r.priceNow + priceDelta.value) / JOURNEY_WAS_FACTOR)
+      : r.priceWas,
+  })),
+)
+
+// Extra stap: niets voorgeselecteerd, doorgaan pas na een actieve keuze.
+const forcedStep = ref(1)
+const forcedChoice = ref<CancelChoice>(null)
+const forcedChoiceLabel = computed(() =>
+  forcedChoice.value === 'flexible'
+    ? 'Flexibel annuleren'
+    : forcedChoice.value === 'nonrefundable'
+      ? 'Niet-restitueerbaar'
+      : undefined,
+)
+const v5SummaryRooms = computed(() =>
+  v5Cards.value.map((r) => ({ ...r, cancelLabel: forcedChoiceLabel.value })),
+)
+// Zelfde boekingskosten als stap 0 (€27,50) zodat de totalen kloppen.
+const v5Pricing = { flexibilityPerRoom: pricing.flexibilityPerRoom, bookingFee: BOOKING_FEE }
+function v5Continue() {
+  if (forcedStep.value === 1) {
+    forcedStep.value = 2
+    if (import.meta.client) window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+}
 </script>
 
 <template>
-  <div class="page page--white">
+  <!-- V5 gebruikt de grijze paginakleur van de concepten (witte kaarten) -->
+  <div class="page" :class="{ 'page--white': jv !== '5' }">
     <CheckoutTopNav :label="label" />
 
     <div class="page__stepper">
@@ -156,6 +197,62 @@ const sideTop = useStickyFit(sideEl, 16)
         </div>
       </div>
 
+      <!-- Variant 5 (concept 2a): room cards + extra stap met forced choice -->
+      <div v-else-if="jv === '5'" class="page__grid">
+        <div v-if="forcedStep === 2" class="col-form">
+          <h1 class="t-display">Kies extra's</h1>
+
+          <CheckoutForcedChoice v-model="forcedChoice" />
+
+          <div class="col-form__cta col-form__cta--split">
+            <button class="btn-back t-body" type="button" @click="forcedStep = 1">← Terug naar kamers</button>
+            <button class="btn-primary btn-primary--auto" type="button" :disabled="forcedChoice === null">
+              {{ forcedChoice === null ? 'Maak eerst een keuze' : 'Verder' }}
+            </button>
+          </div>
+        </div>
+
+        <div v-else class="col-form">
+          <h1 class="t-display">Controleer je boeking</h1>
+
+          <section class="card block">
+            <header class="block__head">
+              <h2 class="t-h1">Kies je kamer(s)</h2>
+              <p class="t-body c-grey">Je krijgt één van de beste kamers, voor veel minder dan normaal!</p>
+            </header>
+
+            <div class="block__rooms">
+              <CheckoutRoomCard
+                v-for="(room, i) in v5Cards"
+                :key="room.id"
+                :room="room"
+                @update:quantity="v5Rooms[i]!.quantity = $event"
+              />
+            </div>
+          </section>
+
+          <div class="col-form__cta">
+            <button class="btn-primary btn-primary--auto" type="button" @click="v5Continue">
+              Opslaan en doorgaan
+            </button>
+          </div>
+        </div>
+
+        <div class="col-summary">
+          <CheckoutOrderSummary
+            :hotel="hotel"
+            :rooms="v5SummaryRooms"
+            :includes="includes"
+            :pricing="v5Pricing"
+            :trustpilot="trustpilot"
+            :selected="forcedChoice"
+            :show-flex-line="forcedChoice === 'flexible'"
+            :cta-disabled="forcedStep === 2 && forcedChoice === null"
+            @cta="v5Continue"
+          />
+        </div>
+      </div>
+
       <!-- Variant 1/2: volledige room table met reserveringskolom -->
       <div v-else class="page__table">
         <h1 class="t-display">Kies je kamer(s)</h1>
@@ -202,6 +299,44 @@ const sideTop = useStickyFit(sideEl, 16)
 .col-summary {
   padding-top: 72px;
   align-self: stretch;
+}
+
+/* V5 (concept 2a): room cards in een kaartblok + forced-choice stap */
+.block {
+  padding: var(--card-pad);
+  display: flex;
+  flex-direction: column;
+  gap: var(--section-gap);
+}
+.block__head {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.block__rooms {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.block__rooms :deep(.room) {
+  box-shadow: none;
+}
+.col-form__cta {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+}
+.col-form__cta--split {
+  justify-content: space-between;
+  align-items: center;
+}
+.btn-back {
+  color: var(--c-via-black);
+  text-decoration: underline;
+}
+.btn-primary--auto {
+  width: auto;
+  min-width: 254px;
 }
 
 /* Sticky sidebar (zelfde patroon als de kalenderstap) */
