@@ -11,9 +11,13 @@ const props = withDefaults(defineProps<{
   showReserve?: boolean
   // 1d: start with the cheapest room preselected
   initialCheapest?: boolean
+  // 1e: hybrid — grey header, white panel, hotel above the table,
+  // includes always visible, booking costs in the final price
+  hybrid?: boolean
 }>(), {
   showReserve: true,
   initialCheapest: false,
+  hybrid: false,
 })
 
 const emit = defineEmits<{
@@ -111,6 +115,9 @@ const totalSaved = computed(() => totalWas.value - totalPrice.value)
 const savedPct = computed(() =>
   totalWas.value ? Math.round((totalSaved.value / totalWas.value) * 100) : 0,
 )
+// 1e: boekingskosten zitten in de getoonde eindprijs.
+const displayTotal = computed(() => totalPrice.value + (props.hybrid ? pricing.bookingFee : 0))
+const displayWas = computed(() => totalWas.value + (props.hybrid ? pricing.bookingFee : 0))
 
 // Truncate the description to max 300 characters.
 function shortDescription(text: string) {
@@ -167,10 +174,15 @@ const arrangementIncludes = [
 </script>
 
 <template>
-  <div class="rt-wrap">
+  <div class="rt-wrap" :class="{ 'rt-wrap--hybrid': hybrid }">
     <!-- Datum-widget boven de tabel, met wijzig-link rechts ernaast
          (vervalt in 1d: de sidebar toont de data al) -->
     <div v-if="showReserve" class="rt__datesbar">
+      <!-- 1e: hotel-thumb + naam links van de data -->
+      <div v-if="hybrid" class="rt__hotel">
+        <img class="rt__hotelthumb" :src="hotel.thumb" :alt="hotel.name" />
+        <p class="t-body t-bold">{{ hotel.name }}</p>
+      </div>
       <div class="rt__dates">
         <div class="rt__datecell">
           <p class="t-caption c-mgrey">Inchecken</p>
@@ -299,9 +311,10 @@ const arrangementIncludes = [
               <p class="t-body">{{ totalRooms }} {{ totalRooms === 1 ? 'kamer' : 'kamers' }} voor 2 nachten</p>
               <p class="t-body">Max {{ totalPeople }} personen</p>
               <div class="rt__pricerow">
-                <CheckoutPriceTag :value="totalWas" :show-cents="false" size="sm" bold strike color="var(--c-medium-grey)" />
-                <CheckoutPriceTag :value="totalPrice" :show-cents="false" size="lg" bold color="var(--c-via-orange)" />
+                <CheckoutPriceTag :value="displayWas" :show-cents="hybrid" size="sm" bold strike color="var(--c-medium-grey)" />
+                <CheckoutPriceTag :value="displayTotal" :show-cents="hybrid" size="lg" bold color="var(--c-via-orange)" />
               </div>
+              <p v-if="hybrid" class="t-caption c-mgrey">Inclusief €24,95 boekingskosten</p>
               <p class="rt__saved">
                 <CheckoutSmileyIcon />
                 <span class="t-body">Je hebt al</span>
@@ -318,7 +331,8 @@ const arrangementIncludes = [
 
             <button class="btn-primary rt__book" type="button">Ik ga boeken</button>
 
-            <div v-if="totalRooms > 0" class="rt__includes">
+            <!-- 1e: arrangement-includes staan er vanaf het begin -->
+            <div v-if="hybrid || totalRooms > 0" class="rt__includes">
               <p class="t-body t-bold">Jouw arrangement bevat</p>
               <p v-for="item in arrangementIncludes" :key="item" class="rt__inc t-body">
                 <svg class="rt__check" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
@@ -352,6 +366,29 @@ const arrangementIncludes = [
   display: flex;
   align-items: center;
   gap: 20px;
+}
+.rt__hotel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-right: auto;
+}
+.rt__hotelthumb {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+/* 1e hybrid: grijze header, wit paneel, geen schaduwen */
+.rt-wrap--hybrid .rt__th {
+  background: var(--c-surface);
+  color: var(--c-via-black);
+  border-right-color: var(--c-light-grey);
+}
+.rt-wrap--hybrid .rt__reserve {
+  background: var(--c-white);
 }
 .rt__datesbar .rt__dates {
   min-width: 300px;

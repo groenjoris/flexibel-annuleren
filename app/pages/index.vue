@@ -192,7 +192,7 @@ const summaryRooms = computed(() => {
 </script>
 
 <template>
-  <div class="page">
+  <div class="page" :class="{ 'page--white': variant === 'tablehybrid' }">
     <CheckoutTopNav />
 
     <div class="page__stepper">
@@ -204,6 +204,12 @@ const summaryRooms = computed(() => {
       <div v-if="variant === 'roomtable'" class="page__table">
         <h1 class="t-display">Kies je kamer(s)</h1>
         <CheckoutRoomTable />
+      </div>
+
+      <!-- 1e: hybride room table — grijze header, wit, hotel boven de tabel -->
+      <div v-else-if="variant === 'tablehybrid'" class="page__table">
+        <h1 class="t-display">Kies je kamer(s)</h1>
+        <CheckoutRoomTable hybrid />
       </div>
 
       <!-- 1d: room table zonder reserveringskolom + de bekende sidebar -->
@@ -363,6 +369,13 @@ const summaryRooms = computed(() => {
   min-height: 100%;
   display: flex;
   flex-direction: column;
+}
+/* 1e: witte achtergrond, geen schaduwen */
+.page--white {
+  background: var(--c-white);
+}
+.page--white :deep(.card) {
+  box-shadow: none;
 }
 .page__stepper {
   padding: 32px 24px;
