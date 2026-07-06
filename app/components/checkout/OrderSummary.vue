@@ -12,6 +12,8 @@ const props = defineProps<{
   showFlexLine?: boolean // hide when cancellation is baked into the room price
   ctaDisabled?: boolean // e.g. forced-choice step: continue only after choosing
   ctaLabel?: string // default "Opslaan en doorgaan"; last step uses "Boek nu"
+  // v7: losse extra's (wijn, lunch, high tea) die meetellen in het totaal
+  extras?: { id: string; title: string; price: number; quantity: number }[]
 }>()
 const emit = defineEmits<{ cta: [] }>()
 
@@ -22,8 +24,17 @@ const roomsWas = computed(() => selectedRooms.value.reduce((s, r) => s + r.quant
 const flexibilityFee = computed(() =>
   props.selected === 'flexible' ? props.pricing.flexibilityPerRoom * totalRooms.value : 0,
 )
-const total = computed(() => roomsNow.value + flexibilityFee.value + props.pricing.bookingFee)
-const wasTotal = computed(() => roomsWas.value + flexibilityFee.value + props.pricing.bookingFee)
+// Extra's tellen mee in beide totalen (geen korting op extra's).
+const selectedExtras = computed(() => (props.extras ?? []).filter((e) => e.quantity > 0))
+const extrasTotal = computed(() =>
+  selectedExtras.value.reduce((s, e) => s + e.quantity * e.price, 0),
+)
+const total = computed(
+  () => roomsNow.value + extrasTotal.value + flexibilityFee.value + props.pricing.bookingFee,
+)
+const wasTotal = computed(
+  () => roomsWas.value + extrasTotal.value + flexibilityFee.value + props.pricing.bookingFee,
+)
 const saved = computed(() => roomsWas.value - roomsNow.value)
 const savedPct = computed(() => (roomsWas.value ? Math.round((saved.value / roomsWas.value) * 100) : 0))
 </script>
@@ -81,6 +92,14 @@ const savedPct = computed(() => (roomsWas.value ? Math.round((saved.value / room
           <p class="t-caption c-mgrey">{{ room.roomName }}<template v-if="room.cancelLabel"> · {{ room.cancelLabel }}</template></p>
         </div>
         <CheckoutPriceTag :value="room.quantity * room.priceNow" :show-cents="false" size="sm" />
+      </div>
+
+      <div v-for="extra in selectedExtras" :key="extra.id" class="summary__row summary__row--room">
+        <span class="summary__qty">{{ extra.quantity }}</span>
+        <div class="summary__rowmain">
+          <p class="t-body">{{ extra.title }}</p>
+        </div>
+        <CheckoutPriceTag :value="extra.quantity * extra.price" :show-cents="(extra.quantity * extra.price) % 1 !== 0" size="sm" />
       </div>
 
       <div v-if="showFlexLine !== false" class="summary__row">

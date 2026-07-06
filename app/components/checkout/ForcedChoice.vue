@@ -39,7 +39,8 @@ const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
           <span class="t-body c-grey">Bij annuleren of wijzigen betaal je het volledige bedrag.</span>
         </span>
         <span v-if="totals" class="fc__price fc__price--total">
-          <CheckoutPriceTag :value="totals.nonRef" :show-cents="false" size="lg" bold />
+          <!-- Centen alleen tonen als het totaal geen rond bedrag is (extra's) -->
+          <CheckoutPriceTag :value="totals.nonRef" :show-cents="totals.nonRef % 1 !== 0" size="lg" bold />
           <span class="t-caption c-mgrey">totaalprijs</span>
         </span>
         <span v-else class="fc__price t-body-lg t-bold">+ €0</span>
@@ -72,7 +73,7 @@ const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
           </span>
         </span>
         <span v-if="totals" class="fc__price fc__price--total">
-          <CheckoutPriceTag :value="totals.flex" :show-cents="false" size="lg" bold color="var(--c-via-green)" />
+          <CheckoutPriceTag :value="totals.flex" :show-cents="totals.flex % 1 !== 0" size="lg" bold color="var(--c-via-green)" />
           <span class="t-caption c-mgrey">totaalprijs</span>
         </span>
         <span v-else class="fc__price t-body-lg t-bold c-green">+ €15 <span class="t-body c-grey">per kamer</span></span>

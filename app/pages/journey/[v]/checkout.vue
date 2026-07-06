@@ -44,9 +44,10 @@ const arrangementIncludes = [
 const sideEl = ref<HTMLElement | null>(null)
 const sideTop = useStickyFit(sideEl, 16)
 
-// ---- Variant 5/6 (concept 2a/2d): room cards + extra stap met forced choice ----
+// ---- Variant 5/6/7 (concept 2a/2d): room cards + extra stap met forced choice ----
 // V6 toont in de keuzestap totaalprijzen i.p.v. +€0/+€15 (concept 2d).
-const isCardsVariant = computed(() => jv.value === '5' || jv.value === '6')
+// V7 = v6 + losse extra's onder het annuleringsblok ("Maak je booking compleet").
+const isCardsVariant = computed(() => jv.value === '5' || jv.value === '6' || jv.value === '7')
 // Kamerprijzen volgen de kalenderkeuze (zelfde patroon als de room table):
 // het goedkoopste kamertype = de dagprijs, was-prijzen via de gedeelde factor.
 const journeyDay = useState<{ price: number } | null>('journey-day', () => null)
@@ -78,10 +79,48 @@ const v5SummaryRooms = computed(() =>
 )
 // Zelfde boekingskosten als stap 0 (€27,50) zodat de totalen kloppen.
 const v5Pricing = { flexibilityPerRoom: pricing.flexibilityPerRoom, bookingFee: BOOKING_FEE }
-// V6 (concept 2d): complete arrangementstotalen van de geselecteerde
+// V7: losse extra's (max 2 per stuk); tellen mee in sidebar én keuzeblok.
+const v7Extras = reactive([
+  {
+    id: 'wijn',
+    title: 'Wijnarrangement bij 3-Gangendiner',
+    price: 42,
+    unit: 'Prijs per stuk',
+    image: '/images/arrangement/diner.jpg',
+    quantity: 0,
+  },
+  {
+    id: 'lunch',
+    title: '2-Gangenlunch in De Heeren van Harinxma (maandag t/m vrijdag beschikbaar)',
+    price: 62.5,
+    unit: 'Prijs per persoon',
+    image: '/images/landingpages/culinair.jpg',
+    quantity: 0,
+  },
+  {
+    id: 'hightea',
+    title: 'High tea',
+    price: 50,
+    unit: 'Prijs per stuk',
+    image: '/images/hotel-ter-zand-food.jpg',
+    quantity: 0,
+  },
+])
+const EXTRA_MAX = 2
+function setExtraQty(extra: (typeof v7Extras)[number], next: number) {
+  extra.quantity = Math.max(0, Math.min(EXTRA_MAX, next))
+}
+const extrasTotal = computed(() => v7Extras.reduce((s, e) => s + e.quantity * e.price, 0))
+function formatExtraPrice(price: number) {
+  return `+ €${price.toFixed(2).replace('.', ',')}`
+}
+
+// V6/V7 (concept 2d): complete arrangementstotalen van de geselecteerde
 // kamers in de keuzestap, o.b.v. de kalender-gekoppelde prijzen.
+// In v7 lopen de extra's mee in de totaalprijs van het keuzeblok.
 const v6Totals = computed(() => {
-  const nonRef = v5Cards.value.reduce((s, r) => s + r.quantity * r.priceNow, 0)
+  const nonRef =
+    v5Cards.value.reduce((s, r) => s + r.quantity * r.priceNow, 0) + extrasTotal.value
   const roomCount = v5Cards.value.reduce((s, r) => s + r.quantity, 0)
   return { nonRef, flex: nonRef + roomCount * pricing.flexibilityPerRoom }
 })
@@ -209,10 +248,64 @@ function v5Continue() {
       <!-- Variant 5/6 (concept 2a/2d): room cards + extra stap met forced choice -->
       <div v-else-if="isCardsVariant" class="page__grid">
         <div v-if="forcedStep === 2" class="col-form">
-          <h1 class="t-display">Kies extra's</h1>
+          <h1 class="t-display">{{ jv === '7' ? 'Maak je booking compleet' : "Kies extra's" }}</h1>
 
-          <!-- V6: totaalprijzen i.p.v. meerprijs -->
-          <CheckoutForcedChoice v-model="forcedChoice" :totals="jv === '6' ? v6Totals : undefined" />
+          <!-- V6/V7: totaalprijzen i.p.v. meerprijs -->
+          <CheckoutForcedChoice v-model="forcedChoice" :totals="jv === '6' || jv === '7' ? v6Totals : undefined" />
+
+          <!-- V7: losse extra's onder het annuleringsblok (optioneel) -->
+          <section v-if="jv === '7'" class="card block">
+            <h2 class="t-h1">Kies extra's</h2>
+
+            <div class="extras">
+              <div v-for="extra in v7Extras" :key="extra.id" class="extra">
+                <p class="extra__title t-body-lg t-bold">{{ extra.title }}</p>
+                <img class="extra__img" :src="extra.image" :alt="extra.title" />
+                <div class="extra__pricerow">
+                  <span class="extra__price">{{ formatExtraPrice(extra.price) }}</span>
+                  <span class="t-body c-via-black">{{ extra.unit }}</span>
+                </div>
+                <hr class="extra__hr" />
+                <div class="extra__stepper">
+                  <button
+                    class="extra__btn extra__btn--minus"
+                    type="button"
+                    :disabled="extra.quantity === 0"
+                    aria-label="Minder"
+                    @click="setExtraQty(extra, extra.quantity - 1)"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" /></svg>
+                  </button>
+                  <span class="extra__val">{{ extra.quantity }}</span>
+                  <button
+                    class="extra__btn extra__btn--plus"
+                    type="button"
+                    :disabled="extra.quantity >= EXTRA_MAX"
+                    aria-label="Meer"
+                    @click="setExtraQty(extra, extra.quantity + 1)"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" /></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- V7: speciale wensen (optioneel) -->
+          <section v-if="jv === '7'" class="card block">
+            <h2 class="t-h1">Speciale wensen (optioneel)</h2>
+            <p class="t-body c-grey">
+              Als je speciale wensen of behoeften hebt, zullen wij dit doorgeven aan het hotel.
+              Het hotelpersoneel zal zijn best doen om aan je wensen te voldoen. Als je niets van
+              de accommodatie hoort, kun je rechtstreeks contact met hen opnemen om dit te
+              bevestigen. De accommodatie kan een toeslag in rekening brengen voor bepaalde
+              speciale verzoeken.
+            </p>
+            <div class="wishes">
+              <span class="wishes__optional t-caption c-mgrey">OPTIONEEL</span>
+              <textarea class="wishes__field t-body" rows="6" placeholder="Beginnen met typen…" />
+            </div>
+          </section>
 
           <div class="col-form__cta col-form__cta--split">
             <button class="btn-back t-body" type="button" @click="forcedStep = 1">← Terug naar kamers</button>
@@ -258,6 +351,7 @@ function v5Continue() {
             :selected="forcedChoice"
             :show-flex-line="forcedChoice === 'flexible'"
             :cta-disabled="forcedStep === 2 && forcedChoice === null"
+            :extras="jv === '7' ? v7Extras : undefined"
             @cta="v5Continue"
           />
         </div>
@@ -347,6 +441,113 @@ function v5Continue() {
 .btn-primary--auto {
   width: auto;
   min-width: 254px;
+}
+
+/* V7: extra's in drie kaarten (screenshot-layout) */
+.extras {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  align-items: stretch;
+}
+.extra {
+  border: 1px solid var(--c-light-grey);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.extra__title {
+  line-height: 24px;
+}
+.extra__img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+}
+.extra__pricerow {
+  /* Onderin uitlijnen zodat de prijsrijen van de drie kaarten gelijk lopen */
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.extra__price {
+  background: var(--c-via-green);
+  color: var(--c-white);
+  font-weight: var(--w-black);
+  font-size: var(--t-body);
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+.extra__hr {
+  border: none;
+  border-top: 1px solid var(--c-light-grey);
+  margin: 0;
+}
+.extra__stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px;
+}
+.extra__btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--c-via-black);
+  color: var(--c-white);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.15s ease;
+}
+.extra__btn:hover { opacity: 0.85; }
+.extra__btn:disabled {
+  background: var(--c-medium-grey);
+  cursor: not-allowed;
+  opacity: 1;
+}
+.extra__val {
+  min-width: 52px;
+  text-align: center;
+  border: 1px solid var(--c-via-black);
+  border-radius: 100px;
+  padding: 4px 0;
+  font-weight: var(--w-black);
+  font-size: var(--t-body-lg);
+}
+
+/* V7: speciale wensen */
+.wishes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.wishes__optional {
+  align-self: flex-end;
+  letter-spacing: 0.06em;
+}
+.wishes__field {
+  width: 100%;
+  border: 1px solid var(--c-light-grey);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  resize: vertical;
+  font-family: inherit;
+  color: var(--c-via-black);
+  background: var(--c-white);
+}
+.wishes__field:focus {
+  outline: none;
+  border-color: var(--c-via-black);
+}
+.wishes__field::placeholder {
+  color: var(--c-medium-grey);
 }
 
 /* Sticky sidebar (zelfde patroon als de kalenderstap) */
