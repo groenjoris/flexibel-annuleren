@@ -1,8 +1,16 @@
+<script setup lang="ts">
+// Journey-checkout op basis van concept 1e (eigen kopie: JourneyRoomTable),
+// bereikt via "Ik ga boeken" op de dealpagina of via de kalenderstap.
+import { journeyKey, journeyLabel } from '~/data/journeys'
+
+const route = useRoute()
+const jv = computed(() => journeyKey(route.params.v))
+const label = computed(() => journeyLabel(jv.value))
+</script>
+
 <template>
-  <!-- Journey 1: checkout op basis van concept 1e (eigen kopie:
-       JourneyRoomTable), bereikt via "Ik ga boeken" op de dealpagina. -->
   <div class="page page--white">
-    <CheckoutTopNav />
+    <CheckoutTopNav :label="label" />
 
     <div class="page__stepper">
       <CheckoutStepper :active="2" />

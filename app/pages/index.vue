@@ -2,6 +2,8 @@
 // Startscherm: ingangen naar de verschillende manieren om flexibel
 // annuleren te implementeren. Voorlopig alleen "Concepts"; losse
 // journey-knoppen volgen later.
+import { JOURNEY_NAMES } from '~/data/journeys'
+
 const entries = [
   {
     title: 'Concepts',
@@ -9,11 +11,11 @@ const entries = [
       'Alle losse concepten voor de flexibel-annuleren keuze, schakelbaar via de variant-switcher.',
     to: '/concepts',
   },
-  {
-    title: 'Journey 1',
-    description: 'Van dealpagina naar checkout met de hybride room table (concept 1e).',
-    to: '/journey1/deal',
-  },
+  ...Object.entries(JOURNEY_NAMES).map(([v, name]) => ({
+    title: `Variant ${v} — ${name}`,
+    description: 'Journey van dealpagina via datumkeuze naar de checkout.',
+    to: `/journey/${v}/deal`,
+  })),
 ]
 </script>
 

@@ -2,7 +2,12 @@
 // Journey 1 — stap 0: datum kiezen (naar het screenshot van de live site).
 // Vanaf de dealpagina kom je hier als er nog geen datum gekozen is;
 // "Opslaan en verder" leidt naar de checkout (kopie van concept 1e).
-import { hotel, trustpilot } from '~/data/deal'
+import { hotel, trustpilot, rooms as roomsData } from '~/data/deal'
+import { journeyKey, journeyLabel } from '~/data/journeys'
+
+const route = useRoute()
+const jv = computed(() => journeyKey(route.params.v))
+const label = computed(() => journeyLabel(jv.value))
 
 const MONTH_NAMES = [
   'januari', 'februari', 'maart', 'april', 'mei', 'juni',
@@ -81,9 +86,15 @@ function cellRole(day: number): 'in' | 'mid' | 'uit' | null {
   return null
 }
 
+const tableWrap = ref<HTMLElement | null>(null)
+
 function pick(cell: CalendarCell) {
   if (!cell.day || cell.unavailable) return
   selected.value = { year: view.year, month: view.month, day: cell.day }
+  // Variant 3: scroll naar de room table onder de kalender.
+  if (jv.value === '3') {
+    nextTick(() => tableWrap.value?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
+  }
 }
 
 // Sidebar na selectie: prijsopbouw volgens het screenshot.
@@ -113,6 +124,41 @@ function formatDay(offset: number) {
 const checkInLabel = computed(() => formatDay(0))
 const checkOutLabel = computed(() => formatDay(NIGHTS))
 
+// Variant 3: kamer-selectie uit de room table drijft de sidebar-prijzen.
+interface SelRow {
+  baseId: string
+  rateKey: 'nonrefundable' | 'flexible'
+  price: number
+  priceWas: number
+  quantity: number
+}
+const tableSelection = ref<SelRow[]>([])
+const rooms3 = computed(() => tableSelection.value.reduce((s2, r) => s2 + r.quantity, 0))
+const rooms3Price = computed(() => tableSelection.value.reduce((s2, r) => s2 + r.quantity * r.price, 0))
+const rooms3Was = computed(() => tableSelection.value.reduce((s2, r) => s2 + r.quantity * r.priceWas, 0))
+const rooms3Total = computed(() => rooms3Price.value + BOOKING_FEE)
+const rooms3WasTotal = computed(() => rooms3Was.value + BOOKING_FEE)
+const rooms3Saved = computed(() => rooms3Was.value - rooms3Price.value)
+const rooms3SavedPct = computed(() =>
+  rooms3Was.value ? Math.round((rooms3Saved.value / rooms3Was.value) * 100) : 0,
+)
+function roomNameFor(baseId: string) {
+  return roomsData.find((r) => r.id === baseId)?.roomName ?? ''
+}
+
+// Sidebar-CTA per variant.
+const ctaDisabled = computed(() =>
+  jv.value === '3' ? selected.value === null || rooms3.value === 0 : selected.value === null,
+)
+const ctaText = computed(() => {
+  if (selected.value === null) return 'Selecteer eerst een datum'
+  if (jv.value === '3') return rooms3.value === 0 ? 'Selecteer een kamer' : 'Ik ga boeken'
+  return 'Opslaan en doorgaan'
+})
+function onCta() {
+  if (jv.value !== '3') navigateTo(`/journey/${jv.value}/checkout`)
+}
+
 const arrangementIncludes = [
   '2 x Overnachting',
   'Dagelijks ontbijtbuffet',
@@ -123,7 +169,7 @@ const arrangementIncludes = [
 
 <template>
   <div class="page page--white">
-    <CheckoutTopNav />
+    <CheckoutTopNav :label="label" />
 
     <div class="page__stepper">
       <CheckoutStepper :active="1" />
@@ -190,10 +236,18 @@ const arrangementIncludes = [
             </div>
           </section>
 
-          <div v-if="selected" class="cal__cta">
-            <button class="btn-primary btn-primary--auto" type="button" @click="navigateTo('/journey1/checkout')">
+          <div v-if="selected && jv !== '3'" class="cal__cta">
+            <button class="btn-primary btn-primary--auto" type="button" @click="navigateTo(`/journey/${jv}/checkout`)">
               Opslaan en doorgaan
             </button>
+          </div>
+
+          <!-- Variant 3: room table (zonder rechterkolom) onder de kalender -->
+          <div v-if="jv === '3'" ref="tableWrap" class="cal__tablewrap">
+            <CheckoutJourneyRoomTable
+              :show-reserve="false"
+              @update:selection="tableSelection = $event"
+            />
           </div>
         </div>
 
@@ -237,8 +291,8 @@ const arrangementIncludes = [
               <a v-if="selected" class="side__link side__link--center t-body" href="#">Bekijk je volledige arrangement</a>
             </div>
 
-            <!-- Na selectie: prijsopbouw volgens het screenshot -->
-            <template v-if="selected">
+            <!-- Variant 1: prijsopbouw op basis van de gekozen dag -->
+            <template v-if="jv === '1' && selected">
               <hr class="side__hr" />
 
               <div class="side__details">
@@ -285,13 +339,61 @@ const arrangementIncludes = [
               </p>
             </template>
 
+            <!-- Variant 3: prijsopbouw op basis van de geselecteerde kamers -->
+            <template v-if="jv === '3' && rooms3 > 0">
+              <hr class="side__hr" />
+
+              <div class="side__details">
+                <p class="t-body t-bold">Details</p>
+                <div v-for="row in tableSelection" :key="`${row.baseId}-${row.rateKey}`" class="side__row side__row--room">
+                  <span class="side__qty">{{ row.quantity }}x</span>
+                  <div class="side__rowmain">
+                    <p class="t-body t-bold">Arrangement</p>
+                    <p class="t-caption c-mgrey">{{ roomNameFor(row.baseId) }}</p>
+                  </div>
+                  <CheckoutPriceTag :value="row.quantity * row.price" :show-cents="false" size="sm" />
+                </div>
+                <div class="side__row">
+                  <span class="t-body">Boekingskosten</span>
+                  <CheckoutPriceTag :value="BOOKING_FEE" size="sm" />
+                </div>
+              </div>
+
+              <hr class="side__hr" />
+
+              <div class="side__total">
+                <div class="side__totalrow">
+                  <span class="t-h2">Totaalprijs</span>
+                  <div class="side__totalprices">
+                    <CheckoutPriceTag :value="rooms3WasTotal" size="sm" strike color="var(--c-medium-grey)" />
+                    <CheckoutPriceTag :value="rooms3Total" size="lg" bold color="var(--c-via-green)" />
+                  </div>
+                </div>
+                <p class="t-caption c-mgrey">{{ rooms3 }} {{ rooms3 === 1 ? 'kamer' : 'kamers' }} voor {{ NIGHTS }} nachten</p>
+              </div>
+
+              <p class="side__saved">
+                <CheckoutSmileyIcon />
+                <span class="t-body">Je hebt al</span>
+                <CheckoutPriceTag :value="rooms3Saved" :show-cents="false" size="sm" bold color="var(--c-via-orange)" />
+                <span class="t-caption c-grey">({{ rooms3SavedPct }}%)</span>
+                <span class="t-body">bespaard.</span>
+              </p>
+
+              <p class="side__smallprint">
+                Je dient ter plaatse alleen de lokale belastingen, eventuele
+                service-/administratiekosten van het hotel en parkeerkosten te betalen
+                (indien dit niet is inbegrepen in het arrangement).
+              </p>
+            </template>
+
             <button
               class="btn-primary"
               type="button"
-              :disabled="selected === null"
-              @click="navigateTo('/journey1/checkout')"
+              :disabled="ctaDisabled"
+              @click="onCta"
             >
-              {{ selected === null ? 'Selecteer eerst een datum' : 'Opslaan en doorgaan' }}
+              {{ ctaText }}
             </button>
 
             <div class="side__trust">
@@ -422,6 +524,9 @@ const arrangementIncludes = [
 .cal__cta {
   display: flex;
   justify-content: center;
+}
+.cal__tablewrap {
+  scroll-margin-top: 16px;
 }
 .btn-primary--auto {
   width: auto;

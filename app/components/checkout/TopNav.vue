@@ -1,11 +1,19 @@
+<script setup lang="ts">
+// Optioneel variant-label naast het logo (journey-pagina's).
+defineProps<{ label?: string }>()
+</script>
+
 <template>
   <header class="nav">
     <div class="nav__inner">
-      <img
-        class="nav__logo"
-        src="/images/logos/logo-vialuxury-horizontal-black.svg"
-        alt="ViaLuxury"
-      />
+      <div class="nav__brand">
+        <img
+          class="nav__logo"
+          src="/images/logos/logo-vialuxury-horizontal-black.svg"
+          alt="ViaLuxury"
+        />
+        <span v-if="label" class="nav__label">{{ label }}</span>
+      </div>
 
       <button class="nav__service" type="button">
         <span>Klantenservice</span>
@@ -43,12 +51,26 @@
   align-items: center;
   gap: 16px;
 }
+.nav__brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  justify-self: start;
+}
 .nav__logo {
   height: 15px;
   width: auto;
   /* Black wordmark -> white for the dark bar */
   filter: brightness(0) invert(1);
-  justify-self: start;
+}
+.nav__label {
+  font-size: var(--t-caption);
+  font-weight: 500;
+  color: var(--c-white);
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 100px;
+  padding: 4px 12px;
+  white-space: nowrap;
 }
 .nav__service {
   display: inline-flex;

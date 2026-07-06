@@ -1,6 +1,8 @@
 <template>
   <div class="deal-page">
     <FirstReleaseSiteHeader />
+    <!-- Journey-variantlabel naast het logo in de header -->
+    <span class="journey-badge">{{ journeyBadge }}</span>
 
     <!-- Search refresh overlay -->
     <Transition name="fade-fast">
@@ -939,6 +941,7 @@
 
 <script setup lang="ts">
 import { useFirstReleaseDealStore } from '~/stores-first-release/deal'
+import { journeyKey, journeyLabel } from '~/data/journeys'
 import { useSearchNavLock } from '~/composables-first-release/useMobileSearchModalControl'
 import { useBodyScrollLock } from '~/composables-first-release/useBodyScrollLock'
 import { usePinToViewportBottom } from '~/composables-first-release/usePinToViewportBottom'
@@ -1214,10 +1217,12 @@ function handleFavoriteClick() {
   })
 }
 
-// Journey 1: boek-CTA. Zonder gekozen datum eerst naar de kalenderpagina
+// Journey: boek-CTA. Zonder gekozen datum eerst naar de kalenderpagina
 // (stap 0); met datum direct naar de checkout (kopie van concept 1e).
+const jv = computed(() => journeyKey(route.params.v))
+const journeyBadge = computed(() => journeyLabel(jv.value))
 function goToCheckout() {
-  navigateTo(store.checkInDate ? '/journey1/checkout' : '/journey1/date')
+  navigateTo(store.checkInDate ? `/journey/${jv.value}/checkout` : `/journey/${jv.value}/date`)
 }
 
 function handleMobileBook() {
@@ -2791,5 +2796,21 @@ onMounted(() => {
   :deep(.site-footer) {
     padding-bottom: 96px;
   }
+}
+
+/* Journey-variantlabel rechts van het ViaLuxury-logo in de FR-header */
+.journey-badge {
+  position: absolute;
+  top: 40px;
+  left: 250px;
+  z-index: 60;
+  background: rgba(26, 30, 30, 0.55);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 12px;
+  border-radius: 100px;
+  white-space: nowrap;
+  pointer-events: none;
 }
 </style>
