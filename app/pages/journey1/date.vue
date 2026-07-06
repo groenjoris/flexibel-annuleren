@@ -1,0 +1,401 @@
+<script setup lang="ts">
+// Journey 1 — stap 0: datum kiezen (naar het screenshot van de live site).
+// Vanaf de dealpagina kom je hier als er nog geen datum gekozen is;
+// "Opslaan en verder" leidt naar de checkout (kopie van concept 1e).
+import { hotel, trustpilot } from '~/data/deal'
+
+const MONTH_NAMES = [
+  'januari', 'februari', 'maart', 'april', 'mei', 'juni',
+  'juli', 'augustus', 'september', 'oktober', 'november', 'december',
+]
+const WEEKDAYS = ['ma', 'di', 'wo', 'do', 'vr', 'za', 'zo']
+
+// Startmaand zoals in het screenshot.
+const view = reactive({ year: 2026, month: 7 }) // 7 = augustus (0-based)
+const selected = ref<{ year: number; month: number; day: number } | null>(null)
+
+function prevMonth() {
+  view.month -= 1
+  if (view.month < 0) {
+    view.month = 11
+    view.year -= 1
+  }
+}
+function nextMonth() {
+  view.month += 1
+  if (view.month > 11) {
+    view.month = 0
+    view.year += 1
+  }
+}
+
+// Prijs per weekdag (patroon uit het screenshot: zo het laagst, vr het hoogst).
+const PRICE_BY_WEEKDAY = [459, 469, 469, 469, 489, 509, 479] // zo, ma, di, wo, do, vr, za
+
+function priceFor(day: number) {
+  return PRICE_BY_WEEKDAY[new Date(view.year, view.month, day).getDay()]
+}
+
+// Niet-beschikbare dagen: augustus 2026 exact als het screenshot; overige
+// maanden een klein deterministisch blok zodat de kalender levendig blijft.
+function isUnavailable(day: number) {
+  if (view.year === 2026 && view.month === 7) {
+    return (day >= 2 && day <= 8) || (day >= 13 && day <= 15)
+  }
+  const start = ((view.month * 7) % 25) + 2
+  return day >= start && day <= start + 3
+}
+
+interface CalendarCell {
+  day: number | null
+  price?: number
+  unavailable?: boolean
+}
+
+const cells = computed<CalendarCell[]>(() => {
+  const daysInMonth = new Date(view.year, view.month + 1, 0).getDate()
+  const firstWeekday = (new Date(view.year, view.month, 1).getDay() + 6) % 7 // ma = 0
+  const list: CalendarCell[] = []
+  for (let i = 0; i < firstWeekday; i++) list.push({ day: null })
+  for (let d = 1; d <= daysInMonth; d++) {
+    const unavailable = isUnavailable(d)
+    list.push({ day: d, unavailable, price: unavailable ? undefined : priceFor(d) })
+  }
+  return list
+})
+
+// Laagste beschikbare prijs van de zichtbare maand (voor het sterretje).
+const lowestPrice = computed(() =>
+  Math.min(...cells.value.filter((c) => c.day && !c.unavailable).map((c) => c.price ?? Infinity)),
+)
+
+function isSelected(day: number) {
+  return (
+    selected.value?.year === view.year &&
+    selected.value?.month === view.month &&
+    selected.value?.day === day
+  )
+}
+
+function pick(cell: CalendarCell) {
+  if (!cell.day || cell.unavailable) return
+  selected.value = { year: view.year, month: view.month, day: cell.day }
+}
+
+const arrangementIncludes = [
+  '2 x Overnachting',
+  'Dagelijks ontbijtbuffet',
+  '3-Gangendiner (dag van aankomst)',
+  'Tasting uurtje 17:00 - 18:00',
+]
+</script>
+
+<template>
+  <div class="page page--white">
+    <CheckoutTopNav />
+
+    <div class="page__stepper">
+      <CheckoutStepper :active="1" />
+    </div>
+
+    <main class="page__main container">
+      <div class="page__grid">
+        <!-- Kalender -->
+        <div class="col-form">
+          <h1 class="t-display">Selecteer datum</h1>
+
+          <section class="card cal">
+            <header class="cal__head">
+              <h2 class="t-h1">Selecteer aankomstdatum</h2>
+              <p class="t-body t-bold">
+                Getoonde prijs is voor het complete arrangement voor 2 personen voor 2 nachten.
+              </p>
+            </header>
+
+            <div class="cal__nav">
+              <button class="cal__navbtn" type="button" aria-label="Vorige maand" @click="prevMonth">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              </button>
+              <span class="t-body-lg">{{ MONTH_NAMES[view.month] }} {{ view.year }}</span>
+              <button class="cal__navbtn" type="button" aria-label="Volgende maand" @click="nextMonth">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              </button>
+            </div>
+
+            <div class="cal__weekdays">
+              <span v-for="w in WEEKDAYS" :key="w" class="t-body c-mgrey">{{ w }}</span>
+            </div>
+
+            <div class="cal__grid">
+              <template v-for="(cell, i) in cells" :key="i">
+                <span v-if="cell.day === null" class="cal__cell cal__cell--empty" />
+                <button
+                  v-else
+                  type="button"
+                  class="cal__cell"
+                  :class="{
+                    'cal__cell--unavailable': cell.unavailable,
+                    'cal__cell--selected': isSelected(cell.day),
+                  }"
+                  :disabled="cell.unavailable"
+                  @click="pick(cell)"
+                >
+                  <span class="cal__day">{{ cell.day }}</span>
+                  <span v-if="cell.unavailable" class="cal__price c-mgrey">–</span>
+                  <span v-else class="cal__price">
+                    €{{ cell.price }}<span v-if="cell.price === lowestPrice" class="cal__star">★</span>
+                  </span>
+                </button>
+              </template>
+            </div>
+
+            <div class="cal__legend">
+              <span class="cal__legenditem"><span class="cal__star cal__star--legend">★</span> Laagste prijs</span>
+              <span class="cal__legenditem"><span class="cal__swatch cal__swatch--selected" /> Geselecteerde datum</span>
+              <span class="cal__legenditem"><span class="cal__swatch" /> Niet beschikbaar</span>
+            </div>
+          </section>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-summary">
+          <aside class="card side">
+            <div class="side__hotel">
+              <img class="side__thumb" :src="hotel.thumb" :alt="hotel.name" />
+              <div>
+                <p class="t-body t-bold">{{ hotel.name }}</p>
+                <p class="side__loc t-body c-mgrey">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" /><circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="2" /></svg>
+                  {{ hotel.location }}
+                </p>
+              </div>
+            </div>
+
+            <div class="side__includes">
+              <p class="t-body t-bold">Jouw arrangement bevat</p>
+              <p v-for="item in arrangementIncludes" :key="item" class="side__inc t-body">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                {{ item }}
+              </p>
+            </div>
+
+            <button
+              class="btn-primary"
+              type="button"
+              :disabled="selected === null"
+              @click="navigateTo('/journey1/checkout')"
+            >
+              {{ selected === null ? 'Selecteer eerst een datum' : 'Opslaan en verder' }}
+            </button>
+
+            <div class="side__trust">
+              <img src="/images/trustpilot.svg" alt="Trustpilot" />
+              <span class="t-body t-bold">{{ trustpilot.score }}/{{ trustpilot.outOf }}</span>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </main>
+
+    <CheckoutSiteFooter />
+  </div>
+</template>
+
+<style scoped>
+.page {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.page--white {
+  background: var(--c-white);
+}
+.page__stepper {
+  padding: 32px 24px;
+}
+.page__main {
+  flex: 1;
+}
+.page__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 350px;
+  gap: 48px;
+  align-items: start;
+}
+.col-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.col-summary {
+  padding-top: 72px;
+}
+
+/* Kalenderkaart */
+.cal {
+  padding: var(--card-pad);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  box-shadow: none;
+}
+.cal__head {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.cal__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.cal__navbtn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--c-via-black);
+  transition: background 0.15s ease;
+}
+.cal__navbtn:hover {
+  background: var(--c-surface);
+}
+.cal__weekdays,
+.cal__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+.cal__weekdays span {
+  text-align: center;
+}
+.cal__cell {
+  border: 1px solid var(--c-light-grey);
+  border-radius: var(--radius-sm);
+  min-height: 72px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: var(--c-white);
+  transition: border-color 0.15s ease;
+}
+.cal__cell:hover:not(:disabled):not(.cal__cell--empty) {
+  border-color: var(--c-via-black);
+}
+.cal__cell--empty {
+  border: none;
+  background: transparent;
+}
+.cal__cell--unavailable {
+  background: var(--c-surface);
+  cursor: not-allowed;
+}
+.cal__cell--unavailable .cal__day {
+  color: var(--c-medium-grey);
+}
+.cal__cell--selected {
+  background: var(--c-via-green);
+  border-color: var(--c-via-green);
+}
+.cal__cell--selected .cal__day,
+.cal__cell--selected .cal__price {
+  color: var(--c-white);
+}
+.cal__day {
+  font-size: var(--t-body-lg);
+  color: var(--c-via-black);
+}
+.cal__price {
+  font-size: var(--t-body);
+  color: var(--c-via-green);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.cal__star {
+  color: var(--c-via-orange);
+  font-size: 11px;
+}
+.cal__star--legend {
+  font-size: 14px;
+}
+.cal__legend {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding-top: 4px;
+}
+.cal__legenditem {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--t-body);
+  color: var(--c-via-black);
+}
+.cal__swatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-light-grey);
+}
+.cal__swatch--selected {
+  background: var(--c-via-green);
+  border-color: var(--c-via-green);
+}
+
+/* Sidebar */
+.side {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  position: sticky;
+  top: 24px;
+  box-shadow: none;
+}
+.side__hotel {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.side__thumb {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.side__loc {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.side__includes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.side__inc {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.side__inc svg {
+  color: var(--c-via-green);
+  flex-shrink: 0;
+}
+.side__trust {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.side__trust img {
+  height: 32px;
+}
+</style>

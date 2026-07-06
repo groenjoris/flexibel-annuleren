@@ -1214,9 +1214,10 @@ function handleFavoriteClick() {
   })
 }
 
-// Journey 1: elke boek-CTA leidt naar de checkout (kopie van concept 1e).
+// Journey 1: boek-CTA. Zonder gekozen datum eerst naar de kalenderpagina
+// (stap 0); met datum direct naar de checkout (kopie van concept 1e).
 function goToCheckout() {
-  navigateTo('/journey1/checkout')
+  navigateTo(store.checkInDate ? '/journey1/checkout' : '/journey1/date')
 }
 
 function handleMobileBook() {
