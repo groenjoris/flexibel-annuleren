@@ -253,14 +253,6 @@ const arrangementIncludes = [
 
           <!-- Je opties -->
           <td class="rt__td rt__options">
-            <p class="rt__opt">
-              <svg class="rt__check" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
-              Dagelijks ontbijtbuffet
-            </p>
-            <p class="rt__opt">
-              <svg class="rt__check" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
-              Gebruik van wellness en zwembad
-            </p>
             <template v-if="row.rateKey === 'flexible'">
               <p class="rt__opt rt__opt--green">
                 <svg class="rt__check" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
