@@ -18,12 +18,7 @@ const entries = [
   })),
 ]
 
-// Mobiele site (apart, niet responsive).
-const mobileEntries = Object.keys(JOURNEY_NAMES).map((v) => ({
-  title: `Variant ${v} — ${JOURNEY_NAMES[v]} (mobiel)`,
-  description: 'Mobiele journey: kalenderstap naar kamerselectie.',
-  to: `/m/journey/${v}/date`,
-}))
+// Op mobiel leidt de globale middleware automatisch naar de mobiele site.
 </script>
 
 <template>
@@ -37,20 +32,13 @@ const mobileEntries = Object.keys(JOURNEY_NAMES).map((v) => ({
       </p>
 
       <div class="start__buttons">
-        <NuxtLink v-for="entry in entries" :key="entry.to" :to="entry.to" class="start__btn">
-          <span class="start__btn-title">{{ entry.title }}</span>
-          <span class="start__btn-desc t-body c-grey">{{ entry.description }}</span>
-          <svg class="start__btn-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
-        </NuxtLink>
-      </div>
-
-      <h2 class="start__subtitle">Mobiele site</h2>
-      <div class="start__buttons">
-        <NuxtLink v-for="entry in mobileEntries" :key="entry.to" :to="entry.to" class="start__btn">
-          <span class="start__btn-title">{{ entry.title }}</span>
-          <span class="start__btn-desc t-body c-grey">{{ entry.description }}</span>
-          <svg class="start__btn-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
-        </NuxtLink>
+        <div v-for="entry in entries" :key="entry.to" class="start__btn">
+          <div class="start__btn-main">
+            <span class="start__btn-title">{{ entry.title }}</span>
+            <span class="start__btn-desc t-body c-grey">{{ entry.description }}</span>
+          </div>
+          <NuxtLink :to="entry.to" class="start__btn-start">Start</NuxtLink>
+        </div>
       </div>
     </main>
   </div>
@@ -86,40 +74,42 @@ const mobileEntries = Object.keys(JOURNEY_NAMES).map((v) => ({
 .start__sub {
   margin-bottom: 16px;
 }
-.start__subtitle {
-  font-size: var(--t-h1);
-  font-weight: var(--w-black);
-  margin-top: 24px;
-}
 .start__buttons {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 .start__btn {
-  position: relative;
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  gap: 16px;
   background: var(--c-white);
   border: 1px solid var(--c-light-grey);
   border-radius: var(--radius);
-  padding: 24px 56px 24px 24px;
-  transition: border-color 0.15s ease;
+  padding: 20px 20px 20px 24px;
 }
-.start__btn:hover {
-  border-color: var(--c-via-black);
+.start__btn-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 .start__btn-title {
   font-size: var(--t-h2);
   font-weight: var(--w-black);
   color: var(--c-via-black);
 }
-.start__btn-arrow {
-  position: absolute;
-  right: 20px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--c-via-orange);
+.start__btn-start {
+  flex-shrink: 0;
+  background: var(--c-via-orange);
+  color: var(--c-white);
+  font-weight: var(--w-black);
+  font-size: var(--t-body);
+  border-radius: var(--radius-sm);
+  padding: 10px 22px;
+  transition: opacity 0.15s ease;
+}
+.start__btn-start:hover {
+  opacity: 0.9;
 }
 </style>

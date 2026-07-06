@@ -560,11 +560,20 @@ const fcTotals = computed(() => {
                   <p class="t-caption c-mgrey">Prijs voor 2 nachten + compleet arrangement</p>
                 </div>
 
-                <div class="mrate__stepper">
+                <!-- Eerst een "Kies"-knop; na de keuze de aantal-selector (op 1)
+                     met een prullenbak om terug te gaan naar de beginstand. -->
+                <button
+                  v-if="row.quantity === 0"
+                  class="btn-primary mrate__choose"
+                  type="button"
+                  @click="setQty(row, 1)"
+                >
+                  Kies
+                </button>
+                <div v-else class="mrate__stepper">
                   <button
                     class="mrate__btn"
                     type="button"
-                    :disabled="row.quantity === 0"
                     aria-label="Minder kamers"
                     @click="setQty(row, row.quantity - 1)"
                   >
@@ -579,6 +588,14 @@ const fcTotals = computed(() => {
                     @click="setQty(row, row.quantity + 1)"
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" /></svg>
+                  </button>
+                  <button
+                    class="mrate__trash"
+                    type="button"
+                    aria-label="Selectie verwijderen"
+                    @click="setQty(row, 0)"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2M6 7l1 13a1 1 0 001 1h8a1 1 0 001-1l1-13M10 11v6M14 11v6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
                   </button>
                 </div>
               </div>
@@ -856,9 +873,27 @@ const fcTotals = computed(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
   border-top: 1px solid var(--c-light-grey);
   padding-top: 12px;
   margin-top: 4px;
+}
+.mrate__choose {
+  margin-top: 4px;
+  padding: 12px 24px;
+  font-size: 17px;
+}
+.mrate__trash {
+  width: 38px;
+  height: 38px;
+  border: 1px solid #d64541;
+  border-radius: var(--radius-sm);
+  color: #d64541;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-left: 4px;
 }
 .mrate__btn {
   width: 34px;
