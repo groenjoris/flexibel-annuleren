@@ -69,18 +69,49 @@ const lowestPrice = computed(() =>
   Math.min(...cells.value.filter((c) => c.day && !c.unavailable).map((c) => c.price ?? Infinity)),
 )
 
-function isSelected(day: number) {
-  return (
-    selected.value?.year === view.year &&
-    selected.value?.month === view.month &&
-    selected.value?.day === day
-  )
+// Verblijf is 2 nachten: aankomstdag "in", tussendag, vertrekdag "uit".
+const NIGHTS = 2
+
+function cellRole(day: number): 'in' | 'mid' | 'uit' | null {
+  const s = selected.value
+  if (!s || s.year !== view.year || s.month !== view.month) return null
+  if (day === s.day) return 'in'
+  if (day > s.day && day < s.day + NIGHTS) return 'mid'
+  if (day === s.day + NIGHTS) return 'uit'
+  return null
 }
 
 function pick(cell: CalendarCell) {
   if (!cell.day || cell.unavailable) return
   selected.value = { year: view.year, month: view.month, day: cell.day }
 }
+
+// Sidebar na selectie: prijsopbouw volgens het screenshot.
+const BOOKING_FEE = 27.5
+const WAS_FACTOR = 459 / 867 // zelfde korting als het voorbeeld (€459 van €867)
+
+const dayPrice = computed(() => {
+  const s = selected.value
+  return s ? PRICE_BY_WEEKDAY[new Date(s.year, s.month, s.day).getDay()] : 0
+})
+const wasArrangement = computed(() => Math.round(dayPrice.value / WAS_FACTOR))
+const totalPrice = computed(() => dayPrice.value + BOOKING_FEE)
+const wasTotal = computed(() => wasArrangement.value + BOOKING_FEE)
+const saved = computed(() => wasArrangement.value - dayPrice.value)
+const savedPct = computed(() =>
+  wasArrangement.value ? Math.round((saved.value / wasArrangement.value) * 100) : 0,
+)
+
+const WEEKDAY_LABELS = ['Zo', 'Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za']
+const MONTH_SHORT = ['Jan', 'Feb', 'Mrt', 'Apr', 'Mei', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dec']
+function formatDay(offset: number) {
+  const s = selected.value
+  if (!s) return ''
+  const d = new Date(s.year, s.month, s.day + offset)
+  return `${WEEKDAY_LABELS[d.getDay()]} ${d.getDate()} ${MONTH_SHORT[d.getMonth()]}`
+}
+const checkInLabel = computed(() => formatDay(0))
+const checkOutLabel = computed(() => formatDay(NIGHTS))
 
 const arrangementIncludes = [
   '2 x Overnachting',
@@ -135,13 +166,16 @@ const arrangementIncludes = [
                   class="cal__cell"
                   :class="{
                     'cal__cell--unavailable': cell.unavailable,
-                    'cal__cell--selected': isSelected(cell.day),
+                    'cal__cell--selected': cellRole(cell.day) !== null,
                   }"
                   :disabled="cell.unavailable"
                   @click="pick(cell)"
                 >
+                  <span v-if="cellRole(cell.day) === 'in'" class="cal__badge">in</span>
+                  <span v-else-if="cellRole(cell.day) === 'uit'" class="cal__badge">uit</span>
                   <span class="cal__day">{{ cell.day }}</span>
                   <span v-if="cell.unavailable" class="cal__price c-mgrey">–</span>
+                  <span v-else-if="cellRole(cell.day) === 'mid' || cellRole(cell.day) === 'uit'" class="cal__price">–</span>
                   <span v-else class="cal__price">
                     €{{ cell.price }}<span v-if="cell.price === lowestPrice" class="cal__star">★</span>
                   </span>
@@ -155,6 +189,12 @@ const arrangementIncludes = [
               <span class="cal__legenditem"><span class="cal__swatch" /> Niet beschikbaar</span>
             </div>
           </section>
+
+          <div v-if="selected" class="cal__cta">
+            <button class="btn-primary btn-primary--auto" type="button" @click="navigateTo('/journey1/checkout')">
+              Opslaan en doorgaan
+            </button>
+          </div>
         </div>
 
         <!-- Sidebar -->
@@ -171,13 +211,79 @@ const arrangementIncludes = [
               </div>
             </div>
 
+            <!-- Na selectie: gekozen data -->
+            <template v-if="selected">
+              <div class="side__dates">
+                <div class="side__datecell">
+                  <p class="t-caption c-mgrey">Check in</p>
+                  <p class="t-body t-bold">{{ checkInLabel }}</p>
+                </div>
+                <div class="side__datecell">
+                  <p class="t-caption c-mgrey">Check out</p>
+                  <p class="t-body t-bold">{{ checkOutLabel }}</p>
+                </div>
+              </div>
+              <button class="side__link side__link--center t-body" type="button" @click="selected = null">
+                Verander data
+              </button>
+            </template>
+
             <div class="side__includes">
               <p class="t-body t-bold">Jouw arrangement bevat</p>
               <p v-for="item in arrangementIncludes" :key="item" class="side__inc t-body">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
                 {{ item }}
               </p>
+              <a v-if="selected" class="side__link side__link--center t-body" href="#">Bekijk je volledige arrangement</a>
             </div>
+
+            <!-- Na selectie: prijsopbouw volgens het screenshot -->
+            <template v-if="selected">
+              <hr class="side__hr" />
+
+              <div class="side__details">
+                <p class="t-body t-bold">Details</p>
+                <div class="side__row side__row--room">
+                  <span class="side__qty">1x</span>
+                  <div class="side__rowmain">
+                    <p class="t-body t-bold">Arrangement</p>
+                    <p class="t-caption c-mgrey">Comfort kamer</p>
+                  </div>
+                  <CheckoutPriceTag :value="dayPrice" :show-cents="false" size="sm" />
+                </div>
+                <div class="side__row">
+                  <span class="t-body">Boekingskosten</span>
+                  <CheckoutPriceTag :value="BOOKING_FEE" size="sm" />
+                </div>
+              </div>
+
+              <hr class="side__hr" />
+
+              <div class="side__total">
+                <div class="side__totalrow">
+                  <span class="t-h2">Totaalprijs</span>
+                  <div class="side__totalprices">
+                    <CheckoutPriceTag :value="wasTotal" size="sm" strike color="var(--c-medium-grey)" />
+                    <CheckoutPriceTag :value="totalPrice" size="lg" bold color="var(--c-via-green)" />
+                  </div>
+                </div>
+                <p class="t-caption c-mgrey">1 kamer voor {{ NIGHTS }} nachten</p>
+              </div>
+
+              <p class="side__saved">
+                <CheckoutSmileyIcon />
+                <span class="t-body">Je hebt al</span>
+                <CheckoutPriceTag :value="saved" :show-cents="false" size="sm" bold color="var(--c-via-orange)" />
+                <span class="t-caption c-grey">({{ savedPct }}%)</span>
+                <span class="t-body">bespaard.</span>
+              </p>
+
+              <p class="side__smallprint">
+                Je dient ter plaatse alleen de lokale belastingen, eventuele
+                service-/administratiekosten van het hotel en parkeerkosten te betalen
+                (indien dit niet is inbegrepen in het arrangement).
+              </p>
+            </template>
 
             <button
               class="btn-primary"
@@ -185,7 +291,7 @@ const arrangementIncludes = [
               :disabled="selected === null"
               @click="navigateTo('/journey1/checkout')"
             >
-              {{ selected === null ? 'Selecteer eerst een datum' : 'Opslaan en verder' }}
+              {{ selected === null ? 'Selecteer eerst een datum' : 'Opslaan en doorgaan' }}
             </button>
 
             <div class="side__trust">
@@ -300,6 +406,26 @@ const arrangementIncludes = [
 .cal__cell--selected {
   background: var(--c-via-green);
   border-color: var(--c-via-green);
+  position: relative;
+}
+.cal__badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: #00675f;
+  color: var(--c-white);
+  font-size: 10px;
+  line-height: 1;
+  padding: 3px 6px;
+  border-radius: 0 3px 0 4px;
+}
+.cal__cta {
+  display: flex;
+  justify-content: center;
+}
+.btn-primary--auto {
+  width: auto;
+  min-width: 254px;
 }
 .cal__cell--selected .cal__day,
 .cal__cell--selected .cal__price {
@@ -374,6 +500,85 @@ const arrangementIncludes = [
   display: inline-flex;
   align-items: center;
   gap: 4px;
+}
+.side__dates {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid var(--c-light-grey);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.side__datecell {
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.side__datecell + .side__datecell {
+  border-left: 1px solid var(--c-light-grey);
+}
+.side__link {
+  color: var(--c-via-black);
+  text-decoration: underline;
+  text-align: center;
+}
+.side__link--center {
+  align-self: center;
+}
+.side__hr {
+  border: none;
+  border-top: 1px solid var(--c-light-grey);
+  margin: 0;
+}
+.side__details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.side__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.side__row--room {
+  align-items: flex-start;
+}
+.side__qty {
+  width: 24px;
+  font-size: var(--t-body);
+  flex-shrink: 0;
+}
+.side__rowmain {
+  flex: 1;
+}
+.side__total {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.side__totalrow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.side__totalprices {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.side__saved {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  color: var(--c-via-black);
+}
+.side__smallprint {
+  font-size: 11px;
+  line-height: 15px;
+  color: var(--c-medium-grey);
 }
 .side__includes {
   display: flex;
