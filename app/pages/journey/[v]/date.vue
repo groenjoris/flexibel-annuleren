@@ -439,6 +439,9 @@ const arrangementIncludes = [
 }
 .col-summary {
   padding-top: 72px;
+  /* Kolom net zo hoog als de rij, anders heeft de sticky sidebar geen
+     ruimte om mee te bewegen naast de lange kalender + tabel. */
+  align-self: stretch;
 }
 
 /* Kalenderkaart */
@@ -600,7 +603,7 @@ const arrangementIncludes = [
   flex-direction: column;
   gap: 18px;
   position: sticky;
-  top: 24px;
+  top: 16px;
   box-shadow: none;
 }
 .side__hotel {

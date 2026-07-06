@@ -73,8 +73,8 @@ export function useFirstReleaseHomeVariant() {
     setHomeVariant('1')
   }
 
-  /** Logo / nav home link — single canonical home page. */
-  const homeHref = computed(() => '/first-release/home')
+  /** Logo / nav home link — in dit prototype terug naar het startscherm. */
+  const homeHref = computed(() => '/')
 
   /* ─────────── Nav-variant API (no-op; locked to '1') ─────────── */
   function setFrNavVariant(_v: FrNavVariant) {

@@ -7,11 +7,13 @@ defineProps<{ label?: string }>()
   <header class="nav">
     <div class="nav__inner">
       <div class="nav__brand">
-        <img
-          class="nav__logo"
-          src="/images/logos/logo-vialuxury-horizontal-black.svg"
-          alt="ViaLuxury"
-        />
+        <NuxtLink to="/" aria-label="Naar het startscherm">
+          <img
+            class="nav__logo"
+            src="/images/logos/logo-vialuxury-horizontal-black.svg"
+            alt="ViaLuxury"
+          />
+        </NuxtLink>
         <span v-if="label" class="nav__label">{{ label }}</span>
       </div>
 
