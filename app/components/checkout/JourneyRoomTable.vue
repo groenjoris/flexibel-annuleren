@@ -117,9 +117,14 @@ const totalSaved = computed(() => totalWas.value - totalPrice.value)
 const savedPct = computed(() =>
   totalWas.value ? Math.round((totalSaved.value / totalWas.value) * 100) : 0,
 )
-// 1e: boekingskosten zitten in de getoonde eindprijs.
-const displayTotal = computed(() => totalPrice.value + (props.hybrid ? pricing.bookingFee : 0))
-const displayWas = computed(() => totalWas.value + (props.hybrid ? pricing.bookingFee : 0))
+// Journey: zelfde prijsopbouw als stap 0 — boekingskosten €27,50 in de eindprijs.
+const BOOKING_FEE = 27.5
+const displayTotal = computed(() => totalPrice.value + (props.hybrid ? BOOKING_FEE : 0))
+const displayWas = computed(() => totalWas.value + (props.hybrid ? BOOKING_FEE : 0))
+const selectedRows = computed(() => allRows.value.filter((r) => r.quantity > 0))
+function roomNameFor(baseId: string) {
+  return tableRooms.find((r) => r.id === baseId)?.name ?? ''
+}
 
 // Truncate the description to max 300 characters.
 function shortDescription(text: string) {
@@ -312,13 +317,36 @@ const arrangementIncludes = [
             <div class="rt__reserve-inner">
             <div class="rt__reserve-sticky">
             <div v-if="totalRooms > 0" class="rt__totals">
-              <p class="t-body">{{ totalRooms }} {{ totalRooms === 1 ? 'kamer' : 'kamers' }} voor 2 nachten</p>
-              <p class="t-body">Max {{ totalPeople }} personen</p>
-              <div class="rt__pricerow">
-                <CheckoutPriceTag :value="displayWas" :show-cents="hybrid" size="sm" bold strike color="var(--c-medium-grey)" />
-                <CheckoutPriceTag :value="displayTotal" :show-cents="hybrid" size="lg" bold color="var(--c-via-orange)" />
+              <!-- Zelfde prijsopbouw als stap 0 (kalenderpagina) -->
+              <div class="rt__details">
+                <p class="t-body t-bold">Details</p>
+                <div v-for="row in selectedRows" :key="row.id" class="rt__drow rt__drow--room">
+                  <span class="rt__dqty t-body">{{ row.quantity }}x</span>
+                  <div class="rt__dmain">
+                    <p class="t-body t-bold">Arrangement</p>
+                    <p class="t-caption c-mgrey">{{ roomNameFor(row.baseId) }} · {{ row.rateKey === 'flexible' ? 'Gratis annuleren' : 'Niet-terugbetaalbaar' }}</p>
+                  </div>
+                  <CheckoutPriceTag :value="row.quantity * row.price" :show-cents="false" size="sm" />
+                </div>
+                <div class="rt__drow">
+                  <span class="t-body">Boekingskosten</span>
+                  <CheckoutPriceTag :value="BOOKING_FEE" size="sm" />
+                </div>
               </div>
-              <p v-if="hybrid" class="t-caption c-mgrey">Inclusief €24,95 boekingskosten</p>
+
+              <hr class="rt__hr" />
+
+              <div class="rt__totalblock">
+                <div class="rt__totalrow">
+                  <span class="t-h2">Totaalprijs</span>
+                  <div class="rt__totalprices">
+                    <CheckoutPriceTag :value="displayWas" size="sm" strike color="var(--c-medium-grey)" />
+                    <CheckoutPriceTag :value="displayTotal" size="lg" bold color="var(--c-via-green)" />
+                  </div>
+                </div>
+                <p class="t-caption c-mgrey">{{ totalRooms }} {{ totalRooms === 1 ? 'kamer' : 'kamers' }} voor 2 nachten</p>
+              </div>
+
               <p class="rt__saved">
                 <CheckoutSmileyIcon />
                 <span class="t-body">Je hebt al</span>
@@ -603,6 +631,49 @@ const arrangementIncludes = [
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+.rt__details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.rt__drow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.rt__drow--room {
+  align-items: flex-start;
+}
+.rt__dqty {
+  width: 24px;
+  flex-shrink: 0;
+}
+.rt__dmain {
+  flex: 1;
+}
+.rt__hr {
+  border: none;
+  border-top: 1px solid var(--c-light-grey);
+  margin: 0;
+}
+.rt__totalblock {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.rt__totalrow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+}
+.rt__totalprices {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
 }
 .rt__saved {
   display: flex;
