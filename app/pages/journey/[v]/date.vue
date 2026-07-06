@@ -147,7 +147,7 @@ function roomNameFor(baseId: string) {
 }
 
 // Sidebar-CTA per variant.
-const isCombined = computed(() => jv.value === '2' || jv.value === '3')
+const isCombined = computed(() => jv.value === '3')
 const ctaDisabled = computed(() =>
   isCombined.value ? selected.value === null || rooms3.value === 0 : selected.value === null,
 )
@@ -180,11 +180,14 @@ const arrangementIncludes = [
       <div class="page__grid">
         <!-- Kalender -->
         <div class="col-form">
-          <h1 v-if="jv !== '2'" class="t-display">Selecteer datum</h1>
+          <h1 v-if="jv !== '3'" class="t-display">Selecteer datum</h1>
+
+          <!-- V3: sectietitel boven de kalenderbox, consistent met de room table -->
+          <h2 v-if="jv === '3'" class="t-display">Kies aankomstdatum</h2>
 
           <section class="card cal">
             <header class="cal__head">
-              <h2 class="t-h1">Selecteer aankomstdatum</h2>
+              <h2 v-if="jv !== '3'" class="t-h1">Selecteer aankomstdatum</h2>
               <p class="t-body t-bold">
                 Getoonde prijs is voor het complete arrangement voor 2 personen voor 2 nachten.
               </p>
@@ -237,22 +240,19 @@ const arrangementIncludes = [
             </div>
           </section>
 
-          <div v-if="selected && jv === '1'" class="cal__cta">
+          <div v-if="selected && jv !== '3'" class="cal__cta">
             <button class="btn-primary btn-primary--auto" type="button" @click="navigateTo(`/journey/${jv}/checkout`)">
               Opslaan en doorgaan
             </button>
           </div>
 
-          <!-- Variant 2/3: room table (zonder rechterkolom) onder de kalender.
-               V2: eigen titel en pas actief zodra er een datum gekozen is. -->
+          <!-- Variant 3: room table (zonder rechterkolom) onder de kalender -->
           <div v-if="isCombined" ref="tableWrap" class="cal__tablewrap">
-            <h2 v-if="jv === '2'" class="t-display cal__tabletitle">Kies je kamertype</h2>
-            <div :class="{ 'cal__tabledisabled': jv === '2' && selected === null }">
-              <CheckoutJourneyRoomTable
-                :show-reserve="false"
-                @update:selection="tableSelection = $event"
-              />
-            </div>
+            <h2 class="t-display cal__tabletitle">Kies je kamertype</h2>
+            <CheckoutJourneyRoomTable
+              :show-reserve="false"
+              @update:selection="tableSelection = $event"
+            />
           </div>
         </div>
 
@@ -341,7 +341,7 @@ const arrangementIncludes = [
               </p>
             </template>
 
-            <!-- Variant 2/3: prijsopbouw op basis van de geselecteerde kamers -->
+            <!-- Variant 3: prijsopbouw op basis van de geselecteerde kamers -->
             <template v-if="isCombined && rooms3 > 0">
               <hr class="side__hr" />
 
