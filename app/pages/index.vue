@@ -9,6 +9,11 @@ const entries = [
       'Alle losse concepten voor de flexibel-annuleren keuze, schakelbaar via de variant-switcher.',
     to: '/concepts',
   },
+  {
+    title: 'Journey 1',
+    description: 'Van dealpagina naar checkout met de hybride room table (concept 1e).',
+    to: '/journey1/deal',
+  },
 ]
 </script>
 
