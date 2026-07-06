@@ -7,6 +7,7 @@ export const JOURNEY_NAMES: Record<string, string> = {
   '3': 'Combineer kalender en room table',
   '4': 'Goedkoopste kamer voorgeselecteerd',
   '5': 'Extra stap, forced choice',
+  '6': 'Forced choice met totaalprijzen',
 }
 
 // Eén kortingsfactor voor de hele journey: de kalender toont €459 van €867,

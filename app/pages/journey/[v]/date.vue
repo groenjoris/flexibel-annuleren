@@ -311,7 +311,7 @@ const arrangementIncludes = [
             </div>
 
             <!-- Variant 1/4: prijsopbouw op basis van de gekozen dag -->
-            <template v-if="(jv === '1' || jv === '4' || jv === '5') && selected">
+            <template v-if="(jv === '1' || jv === '4' || jv === '5' || jv === '6') && selected">
               <hr class="side__hr" />
 
               <div class="side__details">

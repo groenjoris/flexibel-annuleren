@@ -44,7 +44,9 @@ const arrangementIncludes = [
 const sideEl = ref<HTMLElement | null>(null)
 const sideTop = useStickyFit(sideEl, 16)
 
-// ---- Variant 5 (concept 2a): room cards + extra stap met forced choice ----
+// ---- Variant 5/6 (concept 2a/2d): room cards + extra stap met forced choice ----
+// V6 toont in de keuzestap totaalprijzen i.p.v. +€0/+€15 (concept 2d).
+const isCardsVariant = computed(() => jv.value === '5' || jv.value === '6')
 // Kamerprijzen volgen de kalenderkeuze (zelfde patroon als de room table):
 // het goedkoopste kamertype = de dagprijs, was-prijzen via de gedeelde factor.
 const journeyDay = useState<{ price: number } | null>('journey-day', () => null)
@@ -76,6 +78,13 @@ const v5SummaryRooms = computed(() =>
 )
 // Zelfde boekingskosten als stap 0 (€27,50) zodat de totalen kloppen.
 const v5Pricing = { flexibilityPerRoom: pricing.flexibilityPerRoom, bookingFee: BOOKING_FEE }
+// V6 (concept 2d): complete arrangementstotalen van de geselecteerde
+// kamers in de keuzestap, o.b.v. de kalender-gekoppelde prijzen.
+const v6Totals = computed(() => {
+  const nonRef = v5Cards.value.reduce((s, r) => s + r.quantity * r.priceNow, 0)
+  const roomCount = v5Cards.value.reduce((s, r) => s + r.quantity, 0)
+  return { nonRef, flex: nonRef + roomCount * pricing.flexibilityPerRoom }
+})
 function v5Continue() {
   if (forcedStep.value === 1) {
     forcedStep.value = 2
@@ -85,8 +94,8 @@ function v5Continue() {
 </script>
 
 <template>
-  <!-- V5 gebruikt de grijze paginakleur van de concepten (witte kaarten) -->
-  <div class="page" :class="{ 'page--white': jv !== '5' }">
+  <!-- V5/V6 gebruiken de grijze paginakleur van de concepten (witte kaarten) -->
+  <div class="page" :class="{ 'page--white': !isCardsVariant }">
     <CheckoutTopNav :label="label" />
 
     <div class="page__stepper">
@@ -197,12 +206,13 @@ function v5Continue() {
         </div>
       </div>
 
-      <!-- Variant 5 (concept 2a): room cards + extra stap met forced choice -->
-      <div v-else-if="jv === '5'" class="page__grid">
+      <!-- Variant 5/6 (concept 2a/2d): room cards + extra stap met forced choice -->
+      <div v-else-if="isCardsVariant" class="page__grid">
         <div v-if="forcedStep === 2" class="col-form">
           <h1 class="t-display">Kies extra's</h1>
 
-          <CheckoutForcedChoice v-model="forcedChoice" />
+          <!-- V6: totaalprijzen i.p.v. meerprijs -->
+          <CheckoutForcedChoice v-model="forcedChoice" :totals="jv === '6' ? v6Totals : undefined" />
 
           <div class="col-form__cta col-form__cta--split">
             <button class="btn-back t-body" type="button" @click="forcedStep = 1">← Terug naar kamers</button>
