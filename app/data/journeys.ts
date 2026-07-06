@@ -5,6 +5,7 @@ export const JOURNEY_NAMES: Record<string, string> = {
   '1': 'Toon prijs bij kalender en daarna even niet',
   '2': 'Verberg prijs in kalenderstap',
   '3': 'Combineer kalender en room table',
+  '4': 'Goedkoopste kamer voorgeselecteerd',
 }
 
 export function journeyKey(param: unknown): string {

@@ -153,7 +153,8 @@ const arrangementIncludes = [
       <!-- Variant 1/2: volledige room table met reserveringskolom -->
       <div v-else class="page__table">
         <h1 class="t-display">Kies je kamer(s)</h1>
-        <CheckoutJourneyRoomTable />
+        <!-- V4: goedkoopste kamer voorgeselecteerd -->
+        <CheckoutJourneyRoomTable :initial-cheapest="jv === '4'" />
       </div>
     </main>
 

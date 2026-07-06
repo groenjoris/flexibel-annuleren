@@ -89,20 +89,35 @@ if (props.initialCheapest) {
   cheapest.quantity = 1
 }
 
-// Report every selection change to the parent (drives the sidebar in 1d).
+// Kalenderkoppeling: de kalender toont de arrangementsprijs van het
+// goedkoopste kamertype. Na een datumkeuze schuiven alle kamerprijzen
+// mee met het verschil t.o.v. de basisprijs.
+const journeyDay = useState<{ price: number } | null>('journey-day', () => null)
+const CHEAPEST_BASE = Math.min(...roomsData.map((r) => r.priceNow))
+const priceDelta = computed(() =>
+  journeyDay.value ? journeyDay.value.price - CHEAPEST_BASE : 0,
+)
+function rowPrice(row: TableRow) {
+  return row.price + priceDelta.value
+}
+function rowWas(row: TableRow) {
+  return row.priceWas + priceDelta.value
+}
+
+// Report every selection change to the parent (drives the sidebar in 1d/v3).
 watch(
-  allRows,
-  (rows) => {
+  [allRows, priceDelta],
+  ([rows]) => {
     emit(
       'update:selection',
       rows
         .filter((r) => r.quantity > 0)
-        .map(({ baseId, rateKey, price, priceWas, quantity }) => ({
-          baseId,
-          rateKey,
-          price,
-          priceWas,
-          quantity,
+        .map((r) => ({
+          baseId: r.baseId,
+          rateKey: r.rateKey,
+          price: rowPrice(r),
+          priceWas: rowWas(r),
+          quantity: r.quantity,
         })),
     )
   },
@@ -110,9 +125,9 @@ watch(
 )
 const totalRows = computed(() => allRows.value.length)
 const totalRooms = computed(() => allRows.value.reduce((s, r) => s + r.quantity, 0))
-const totalPrice = computed(() => allRows.value.reduce((s, r) => s + r.quantity * r.price, 0))
+const totalPrice = computed(() => allRows.value.reduce((s, r) => s + r.quantity * rowPrice(r), 0))
 const totalPeople = computed(() => totalRooms.value * 2)
-const totalWas = computed(() => allRows.value.reduce((s, r) => s + r.quantity * r.priceWas, 0))
+const totalWas = computed(() => allRows.value.reduce((s, r) => s + r.quantity * rowWas(r), 0))
 const totalSaved = computed(() => totalWas.value - totalPrice.value)
 const savedPct = computed(() =>
   totalWas.value ? Math.round((totalSaved.value / totalWas.value) * 100) : 0,
@@ -260,8 +275,8 @@ const arrangementIncludes = [
 
           <!-- Prijs -->
           <td class="rt__td rt__price">
-            <CheckoutPriceTag :value="row.priceWas" :show-cents="false" size="sm" bold strike color="var(--c-medium-grey)" />
-            <CheckoutPriceTag :value="row.price" :show-cents="false" size="md" bold color="var(--c-via-orange)" />
+            <CheckoutPriceTag :value="rowWas(row)" :show-cents="false" size="sm" bold strike color="var(--c-medium-grey)" />
+            <CheckoutPriceTag :value="rowPrice(row)" :show-cents="false" size="md" bold color="var(--c-via-orange)" />
           </td>
 
           <!-- Je opties (1e: zonder de vaste vinkjes, begint met de voorwaarde) -->
@@ -310,7 +325,7 @@ const arrangementIncludes = [
               <!-- Het gesloten veld toont alleen het getal: het geselecteerde
                    option-label bevat geen bedrag, de rest in het menu wel. -->
               <option :value="0">0</option>
-              <option v-for="n in 5" :key="n" :value="n">{{ row.quantity === n ? n : `${n} (€${n * row.price})` }}</option>
+              <option v-for="n in 5" :key="n" :value="n">{{ row.quantity === n ? n : `${n} (€${n * rowPrice(row)})` }}</option>
             </select>
           </td>
 
@@ -333,7 +348,7 @@ const arrangementIncludes = [
                     <p class="t-caption c-mgrey">{{ roomNameFor(row.baseId) }}</p>
                     <p v-if="row.rateKey === 'flexible'" class="t-caption c-green">Gratis annuleren</p>
                   </div>
-                  <CheckoutPriceTag :value="row.quantity * row.price" :show-cents="false" size="sm" />
+                  <CheckoutPriceTag :value="row.quantity * rowPrice(row)" :show-cents="false" size="sm" />
                 </div>
                 <div class="rt__drow">
                   <span class="t-body">Boekingskosten</span>

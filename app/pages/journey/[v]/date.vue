@@ -105,6 +105,17 @@ const dayPrice = computed(() => {
   const s = selected.value
   return s ? PRICE_BY_WEEKDAY[new Date(s.year, s.month, s.day).getDay()] : 0
 })
+
+// Kalenderprijs delen met de room table: het goedkoopste kamertype volgt
+// de gekozen dag (in alle varianten).
+const journeyDay = useState<{ price: number } | null>('journey-day', () => null)
+watch(
+  [selected, dayPrice],
+  () => {
+    journeyDay.value = selected.value ? { price: dayPrice.value } : null
+  },
+  { immediate: true },
+)
 const wasArrangement = computed(() => Math.round(dayPrice.value / WAS_FACTOR))
 const totalPrice = computed(() => dayPrice.value + BOOKING_FEE)
 const wasTotal = computed(() => wasArrangement.value + BOOKING_FEE)
@@ -293,8 +304,8 @@ const arrangementIncludes = [
               <a v-if="selected" class="side__link side__link--center t-body" href="#">Bekijk je volledige arrangement</a>
             </div>
 
-            <!-- Variant 1: prijsopbouw op basis van de gekozen dag -->
-            <template v-if="jv === '1' && selected">
+            <!-- Variant 1/4: prijsopbouw op basis van de gekozen dag -->
+            <template v-if="(jv === '1' || jv === '4') && selected">
               <hr class="side__hr" />
 
               <div class="side__details">

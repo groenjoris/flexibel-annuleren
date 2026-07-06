@@ -1221,6 +1221,8 @@ function handleFavoriteClick() {
 // (stap 0); met datum direct naar de checkout (kopie van concept 1e).
 const jv = computed(() => journeyKey(route.params.v))
 const journeyBadge = computed(() => journeyLabel(jv.value))
+// Verse start van een journey: eerdere kalenderkeuze wissen.
+useState<{ price: number } | null>('journey-day', () => null).value = null
 function goToCheckout() {
   navigateTo(store.checkInDate ? `/journey/${jv.value}/checkout` : `/journey/${jv.value}/date`)
 }
