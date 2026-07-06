@@ -4,6 +4,7 @@
 // Variant 3: room table zonder rechterkolom + sticky sidebar.
 import { journeyKey, journeyLabel } from '~/data/journeys'
 import { hotel, trustpilot, rooms as roomsData, dealName } from '~/data/deal'
+import { useStickyFit } from '~/composables/useStickyFit'
 
 const route = useRoute()
 const jv = computed(() => journeyKey(route.params.v))
@@ -36,6 +37,11 @@ const arrangementIncludes = [
   '3-Gangendiner (dag van aankomst)',
   'Tasting uurtje 17:00 - 18:00',
 ]
+
+// Sidebar groeit na een kamerselectie: laat de sticky-offset meeschuiven
+// zodat de CTA onderin zichtbaar blijft op lagere schermen.
+const sideEl = ref<HTMLElement | null>(null)
+const sideTop = useStickyFit(sideEl, 16)
 </script>
 
 <template>
@@ -58,7 +64,7 @@ const arrangementIncludes = [
         </div>
 
         <div class="col-summary">
-          <aside class="card side">
+          <aside ref="sideEl" class="card side" :style="{ top: `${sideTop}px` }">
             <div class="side__hotel">
               <img class="side__thumb" :src="hotel.thumb" :alt="hotel.name" />
               <div>

@@ -8,6 +8,7 @@
 // selected row to that same rate (one-time explainer popup).
 import { rooms as roomsData, hotel, pricing, dealName } from '~/data/deal'
 import { JOURNEY_WAS_FACTOR } from '~/data/journeys'
+import { useStickyFit } from '~/composables/useStickyFit'
 
 const props = withDefaults(defineProps<{
   // 1d: hide the built-in reservation column (the sidebar takes its place)
@@ -145,6 +146,12 @@ const selectedRows = computed(() => allRows.value.filter((r) => r.quantity > 0))
 function roomNameFor(baseId: string) {
   return tableRooms.find((r) => r.id === baseId)?.name ?? ''
 }
+
+// Kassabon groeit na een selectie: schuif de sticky-offset mee zodat de
+// onderkant (CTA) zichtbaar blijft als het paneel hoger is dan de viewport.
+// NB: de ref staat binnen een v-for, dus Vue vult hem als array.
+const reserveSticky = ref<HTMLElement | HTMLElement[] | null>(null)
+const reserveTop = useStickyFit(reserveSticky, 68)
 
 // Truncate the description to max 300 characters.
 function shortDescription(text: string) {
@@ -341,7 +348,7 @@ const arrangementIncludes = [
             :rowspan="totalRows"
           >
             <div class="rt__reserve-inner">
-            <div class="rt__reserve-sticky">
+            <div ref="reserveSticky" class="rt__reserve-sticky" :style="{ top: `${reserveTop}px` }">
             <div v-if="totalRooms > 0" class="rt__totals">
               <!-- Zelfde prijsopbouw als stap 0 (kalenderpagina) -->
               <div class="rt__details">

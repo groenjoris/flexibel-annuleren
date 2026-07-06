@@ -4,6 +4,7 @@
 // "Opslaan en verder" leidt naar de checkout (kopie van concept 1e).
 import { hotel, trustpilot, rooms as roomsData, dealName } from '~/data/deal'
 import { journeyKey, journeyLabel, JOURNEY_WAS_FACTOR } from '~/data/journeys'
+import { useStickyFit } from '~/composables/useStickyFit'
 
 const route = useRoute()
 const jv = computed(() => journeyKey(route.params.v))
@@ -123,6 +124,11 @@ const saved = computed(() => wasArrangement.value - dayPrice.value)
 const savedPct = computed(() =>
   wasArrangement.value ? Math.round((saved.value / wasArrangement.value) * 100) : 0,
 )
+
+// Sidebar groeit na een datum-/kamerselectie: sticky-offset schuift mee
+// zodat de CTA onderin zichtbaar blijft op lagere schermen.
+const sideEl = ref<HTMLElement | null>(null)
+const sideTop = useStickyFit(sideEl, 16)
 
 const WEEKDAY_LABELS = ['Zo', 'Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za']
 const MONTH_SHORT = ['Jan', 'Feb', 'Mrt', 'Apr', 'Mei', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dec']
@@ -269,7 +275,7 @@ const arrangementIncludes = [
 
         <!-- Sidebar -->
         <div class="col-summary">
-          <aside class="card side">
+          <aside ref="sideEl" class="card side" :style="{ top: `${sideTop}px` }">
             <div class="side__hotel">
               <img class="side__thumb" :src="hotel.thumb" :alt="hotel.name" />
               <div>
