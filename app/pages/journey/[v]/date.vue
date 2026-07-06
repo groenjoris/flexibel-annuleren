@@ -458,11 +458,8 @@ const arrangementIncludes = [
 .col-summary {
   padding-top: 72px;
   /* Kolom net zo hoog als de rij, anders heeft de sticky sidebar geen
-     ruimte om mee te bewegen naast de lange kalender + tabel. De kolom
-     steekt onder de rij uit (± footer + marges) zodat de sidebar niet
-     omhoog wordt geduwd aan het einde van de pagina. */
+     ruimte om mee te bewegen naast de lange kalender + tabel. */
   align-self: stretch;
-  margin-bottom: -240px;
 }
 
 /* Kalenderkaart */

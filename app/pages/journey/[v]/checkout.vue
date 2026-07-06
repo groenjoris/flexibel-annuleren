@@ -202,9 +202,6 @@ const sideTop = useStickyFit(sideEl, 16)
 .col-summary {
   padding-top: 72px;
   align-self: stretch;
-  /* Kolom steekt onder de grid-rij uit (± footer + marges) zodat de
-     sticky sidebar niet omhoog wordt geduwd aan het einde van de pagina. */
-  margin-bottom: -240px;
 }
 
 /* Sticky sidebar (zelfde patroon als de kalenderstap) */
