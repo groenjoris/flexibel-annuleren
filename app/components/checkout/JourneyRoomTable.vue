@@ -628,9 +628,16 @@ const arrangementIncludes = [
   border-top: none; /* geen divider tussen headercel en paneel */
 }
 .rt__reserve-inner {
-  /* Absolute shell: vult de kolom zonder de rijhoogtes te beïnvloeden */
+  /* Absolute shell: vult de kolom zonder de rijhoogtes te beïnvloeden.
+     De bottom steekt onder de tabel uit (± footer + marges), zodat de
+     sticky kassabon niet omhoog wordt geduwd zodra het tabel-einde in
+     beeld komt — hij blijft stabiel staan tot het einde van de pagina. */
   position: absolute;
   inset: 0;
+  bottom: -240px;
+  /* Zelfde achtergrond als de kolom, zodat de kassabon leesbaar blijft
+     als hij over het uitstekende deel (boven de footer) hangt. */
+  background: inherit;
 }
 .rt__reserve-sticky {
   /* Inhoud plakt onder de sticky header zodat de CTA zichtbaar blijft */
