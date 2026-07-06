@@ -18,10 +18,14 @@ const props = withDefaults(defineProps<{
   // 1e: hybrid — grey header, white panel, hotel above the table,
   // includes always visible, booking costs in the final price
   hybrid?: boolean
+  // v4: laat beide annuleringsopties vrij combineren en toon de
+  // policy-popup pas bij "Ik ga boeken" i.p.v. direct bij het mixen
+  deferPolicyPopup?: boolean
 }>(), {
   showReserve: true,
   initialCheapest: false,
   hybrid: true, // journey draait standaard in hybride (1e) modus
+  deferPolicyPopup: false,
 })
 
 const emit = defineEmits<{
@@ -167,10 +171,23 @@ const activePolicy = computed<'nonrefundable' | 'flexible' | null>(() => {
 })
 
 function isInactive(row: TableRow) {
+  // v4 (defer): vrij mixen — geen inactieve dropdowns, popup volgt pas
+  // bij "Ik ga boeken".
+  if (props.deferPolicyPopup) return false
   return activePolicy.value !== null && row.rateKey !== activePolicy.value
 }
 
 const policyPopupOpen = ref(false)
+
+// v4: pas bij doorgaan checken of er beleid gemixt is.
+const mixedPolicies = computed(() => {
+  const keys = new Set(allRows.value.filter((r) => r.quantity > 0).map((r) => r.rateKey))
+  return keys.size > 1
+})
+
+function onBook() {
+  if (props.deferPolicyPopup && mixedPolicies.value) policyPopupOpen.value = true
+}
 
 function onDropdownMousedown(row: TableRow, event: Event) {
   if (!isInactive(row)) return
@@ -186,7 +203,8 @@ function onDropdownMousedown(row: TableRow, event: Event) {
 // Popup choice: switch every selection to the chosen policy (or keep as is).
 function applyPolicy(policy: 'flexible' | 'nonrefundable') {
   policyPopupOpen.value = false
-  if (activePolicy.value === policy) return
+  // Geen vroege return op activePolicy: bij gemixte selecties (v4) moeten
+  // ook rijen met het afwijkende beleid worden omgezet.
   for (const row of allRows.value) {
     if (row.quantity === 0 || row.rateKey === policy) continue
     const sibling = allRows.value.find((c) => c.baseId === row.baseId && c.rateKey === policy)
@@ -395,7 +413,7 @@ const arrangementIncludes = [
               </p>
             </div>
 
-            <button class="btn-primary rt__book" type="button">Ik ga boeken</button>
+            <button class="btn-primary rt__book" type="button" @click="onBook">Ik ga boeken</button>
 
             <!-- 1e: arrangement-includes staan er vanaf het begin -->
             <div v-if="hybrid || totalRooms > 0" class="rt__includes">

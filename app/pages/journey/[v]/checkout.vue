@@ -160,7 +160,7 @@ const sideTop = useStickyFit(sideEl, 16)
       <div v-else class="page__table">
         <h1 class="t-display">Kies je kamer(s)</h1>
         <!-- V4: goedkoopste kamer voorgeselecteerd -->
-        <CheckoutJourneyRoomTable :initial-cheapest="jv === '4'" />
+        <CheckoutJourneyRoomTable :initial-cheapest="jv === '4'" :defer-policy-popup="jv === '4'" />
       </div>
     </main>
 
