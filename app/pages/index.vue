@@ -18,10 +18,10 @@ const entries = [
   })),
 ]
 
-// Mobiele site (apart, niet responsive): voorlopig de room-table varianten.
-const mobileEntries = ['1', '2', '3', '4'].map((v) => ({
+// Mobiele site (apart, niet responsive).
+const mobileEntries = Object.keys(JOURNEY_NAMES).map((v) => ({
   title: `Variant ${v} — ${JOURNEY_NAMES[v]} (mobiel)`,
-  description: 'Mobiele journey: kalenderstap naar kamerlijst.',
+  description: 'Mobiele journey: kalenderstap naar kamerselectie.',
   to: `/m/journey/${v}/date`,
 }))
 </script>
