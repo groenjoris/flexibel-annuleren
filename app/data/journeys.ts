@@ -8,6 +8,11 @@ export const JOURNEY_NAMES: Record<string, string> = {
   '4': 'Goedkoopste kamer voorgeselecteerd',
 }
 
+// Eén kortingsfactor voor de hele journey: de kalender toont €459 van €867,
+// en de room table rekent zijn doorgestreepte prijzen met dezelfde factor
+// zodat het besparingspercentage in elke stap gelijk is.
+export const JOURNEY_WAS_FACTOR = 459 / 867
+
 export function journeyKey(param: unknown): string {
   const v = Array.isArray(param) ? param[0] : param
   return typeof v === 'string' && v in JOURNEY_NAMES ? v : '1'

@@ -7,6 +7,7 @@
 // Cancellation policies can't be mixed: selecting a rate moves every other
 // selected row to that same rate (one-time explainer popup).
 import { rooms as roomsData, hotel, pricing, dealName } from '~/data/deal'
+import { JOURNEY_WAS_FACTOR } from '~/data/journeys'
 
 const props = withDefaults(defineProps<{
   // 1d: hide the built-in reservation column (the sidebar takes its place)
@@ -101,7 +102,11 @@ function rowPrice(row: TableRow) {
   return row.price + priceDelta.value
 }
 function rowWas(row: TableRow) {
-  return row.priceWas + priceDelta.value
+  // Na een datumkeuze: zelfde kortingsfactor als de kalender, zodat het
+  // besparingspercentage in elke stap gelijk is.
+  return journeyDay.value
+    ? Math.round(rowPrice(row) / JOURNEY_WAS_FACTOR)
+    : row.priceWas
 }
 
 // Report every selection change to the parent (drives the sidebar in 1d/v3).

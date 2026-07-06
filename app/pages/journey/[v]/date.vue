@@ -3,7 +3,7 @@
 // Vanaf de dealpagina kom je hier als er nog geen datum gekozen is;
 // "Opslaan en verder" leidt naar de checkout (kopie van concept 1e).
 import { hotel, trustpilot, rooms as roomsData, dealName } from '~/data/deal'
-import { journeyKey, journeyLabel } from '~/data/journeys'
+import { journeyKey, journeyLabel, JOURNEY_WAS_FACTOR } from '~/data/journeys'
 
 const route = useRoute()
 const jv = computed(() => journeyKey(route.params.v))
@@ -99,7 +99,7 @@ function pick(cell: CalendarCell) {
 
 // Sidebar na selectie: prijsopbouw volgens het screenshot.
 const BOOKING_FEE = 27.5
-const WAS_FACTOR = 459 / 867 // zelfde korting als het voorbeeld (€459 van €867)
+const WAS_FACTOR = JOURNEY_WAS_FACTOR // gedeeld met de room table (zelfde besparings-%)
 
 const dayPrice = computed(() => {
   const s = selected.value
