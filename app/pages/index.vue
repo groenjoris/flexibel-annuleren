@@ -5,17 +5,15 @@
 import { JOURNEY_NAMES } from '~/data/journeys'
 
 const entries = [
-  {
-    title: 'Concepts',
-    description:
-      'Alle losse concepten voor de flexibel-annuleren keuze, schakelbaar via de variant-switcher.',
-    to: '/concepts',
-  },
   ...Object.entries(JOURNEY_NAMES).map(([v, name]) => ({
     title: `Variant ${v} — ${name}`,
-    description: 'Journey van dealpagina via datumkeuze naar de checkout.',
     to: `/journey/${v}/deal`,
   })),
+  // Concepts onderaan de lijst.
+  {
+    title: 'Concepts',
+    to: '/concepts',
+  },
 ]
 
 // Op mobiel leidt de globale middleware automatisch naar de mobiele site.
@@ -44,7 +42,6 @@ const visibleEntries = computed(() =>
         <div v-for="entry in visibleEntries" :key="entry.to" class="start__btn">
           <div class="start__btn-main">
             <span class="start__btn-title">{{ entry.title }}</span>
-            <span class="start__btn-desc t-body c-grey">{{ entry.description }}</span>
           </div>
           <NuxtLink :to="entry.to" class="start__btn-start">Start</NuxtLink>
         </div>

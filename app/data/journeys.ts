@@ -2,7 +2,7 @@
 // startscherm-knoppen en in de header van elke journey-pagina.
 
 export const JOURNEY_NAMES: Record<string, string> = {
-  '1': 'Toon prijs bij kalender en daarna even niet',
+  '1': 'Toon prijs in kalenderstap',
   '2': 'Verberg prijs in kalenderstap',
   '3': 'Combineer kalender en room table',
   '4': 'Goedkoopste kamer voorgeselecteerd',
