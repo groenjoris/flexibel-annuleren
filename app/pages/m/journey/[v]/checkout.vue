@@ -628,68 +628,70 @@ const fcTotals = computed(() => {
                 </div>
               </div>
             </div>
+
+            <!-- Zodra in deze kaart een optie is gekozen klapt de kaart uit
+                 met de volledige kassabon (alle kamers + boekingskosten,
+                 totaalprijs en de doorgaan-knop) — Booking.com-patroon. -->
+            <template v-if="room.rows.some((r) => r.quantity > 0)">
+              <hr class="mhr" />
+
+              <div class="mroomsum">
+                <h3 class="mroomsum__title">Details</h3>
+                <div v-for="row in selectedRows" :key="row.id" class="mdetails__row mdetails__row--room">
+                  <span class="mdetails__qty">{{ row.quantity }}x</span>
+                  <div class="mdetails__main">
+                    <p class="t-body t-bold">Arrangement</p>
+                    <p class="t-caption c-mgrey">{{ roomNameFor(row.baseId) }}</p>
+                    <p v-if="row.rateKey === 'flexible'" class="t-caption c-green">Gratis annuleren</p>
+                  </div>
+                  <CheckoutPriceTag :value="row.quantity * rowPrice(row)" :show-cents="false" size="sm" />
+                </div>
+                <div class="mdetails__row">
+                  <span class="t-body">Boekingskosten</span>
+                  <CheckoutPriceTag :value="BOOKING_FEE" size="sm" />
+                </div>
+
+                <hr class="mhr" />
+
+                <div class="mtotal">
+                  <div class="mtotal__row">
+                    <span class="mtotal__label">Totaalprijs</span>
+                    <div class="mtotal__prices">
+                      <CheckoutPriceTag :value="displayWas" size="sm" strike color="var(--c-medium-grey)" />
+                      <CheckoutPriceTag :value="displayTotal" size="lg" bold color="var(--c-via-green)" />
+                    </div>
+                  </div>
+                  <p class="t-caption c-mgrey">{{ totalRooms }} {{ totalRooms === 1 ? 'kamer' : 'kamers' }} voor 2 nachten</p>
+                </div>
+
+                <p class="msaved">
+                  <CheckoutSmileyIcon />
+                  <span class="t-body">Je hebt al</span>
+                  <CheckoutPriceTag :value="totalSaved" :show-cents="false" size="sm" bold color="var(--c-via-orange)" />
+                  <span class="t-caption c-grey">({{ savedPct }}%)</span>
+                  <span class="t-body">bespaard.</span>
+                </p>
+
+                <p class="msmallprint">
+                  Je dient ter plaatse alleen de lokale belastingen, eventuele
+                  service-/administratiekosten van het hotel en parkeerkosten te betalen
+                  (indien dit niet is inbegrepen in het arrangement).
+                </p>
+
+                <div class="mcta">
+                  <button class="btn-primary mcta__btn" type="button" @click="onBook">
+                    Opslaan en doorgaan
+                  </button>
+                </div>
+              </div>
+            </template>
           </article>
         </section>
 
-        <hr class="mhr" />
-
-        <!-- Kassabon -->
-        <section class="mdetails">
-          <template v-if="totalRooms > 0">
-            <h2 class="msectiontitle">Details</h2>
-            <div v-for="row in selectedRows" :key="row.id" class="mdetails__row mdetails__row--room">
-              <span class="mdetails__qty">{{ row.quantity }}x</span>
-              <div class="mdetails__main">
-                <p class="t-body t-bold">Arrangement</p>
-                <p class="t-caption c-mgrey">{{ roomNameFor(row.baseId) }}</p>
-                <p v-if="row.rateKey === 'flexible'" class="t-caption c-green">Gratis annuleren</p>
-              </div>
-              <CheckoutPriceTag :value="row.quantity * rowPrice(row)" :show-cents="false" size="sm" />
-            </div>
-            <div class="mdetails__row">
-              <span class="t-body">Boekingskosten</span>
-              <CheckoutPriceTag :value="BOOKING_FEE" size="sm" />
-            </div>
-
-            <hr class="mhr" />
-
-            <div class="mtotal">
-              <div class="mtotal__row">
-                <span class="mtotal__label">Totaalprijs</span>
-                <div class="mtotal__prices">
-                  <CheckoutPriceTag :value="displayWas" size="sm" strike color="var(--c-medium-grey)" />
-                  <CheckoutPriceTag :value="displayTotal" size="lg" bold color="var(--c-via-green)" />
-                </div>
-              </div>
-              <p class="t-caption c-mgrey">{{ totalRooms }} {{ totalRooms === 1 ? 'kamer' : 'kamers' }} voor 2 nachten</p>
-            </div>
-
-            <p class="msaved">
-              <CheckoutSmileyIcon />
-              <span class="t-body">Je hebt al</span>
-              <CheckoutPriceTag :value="totalSaved" :show-cents="false" size="sm" bold color="var(--c-via-orange)" />
-              <span class="t-caption c-grey">({{ savedPct }}%)</span>
-              <span class="t-body">bespaard.</span>
-            </p>
-
-            <p class="msmallprint">
-              Je dient ter plaatse alleen de lokale belastingen, eventuele
-              service-/administratiekosten van het hotel en parkeerkosten te betalen
-              (indien dit niet is inbegrepen in het arrangement).
-            </p>
-          </template>
-
-          <div class="mcta">
-            <button class="btn-primary mcta__btn" type="button" :disabled="totalRooms === 0" @click="onBook">
-              {{ totalRooms === 0 ? 'Selecteer een kamer' : 'Opslaan en doorgaan' }}
-            </button>
-          </div>
-
-          <div class="mtrust">
-            <img src="/images/trustpilot.svg" alt="Trustpilot" />
-            <span class="t-body t-bold">{{ trustpilot.score }}/{{ trustpilot.outOf }}</span>
-          </div>
-        </section>
+        <div class="mtrust">
+          <img src="/images/trustpilot.svg" alt="Trustpilot" />
+          <span class="t-body t-bold">{{ trustpilot.score }}/{{ trustpilot.outOf }}</span>
+        </div>
       </template>
     </main>
 
@@ -946,6 +948,21 @@ const fcTotals = computed(() => {
   padding: 5px 0;
   font-weight: var(--w-black);
   font-size: 17px;
+}
+
+/* Kassabon in de uitgeklapte kamerkaart (room-table varianten) */
+.mroomsum {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.mroomsum__title {
+  font-size: 20px;
+  font-weight: var(--w-black);
+}
+.mroomsum .mcta__btn {
+  font-size: 18px;
+  padding: 15px 24px;
 }
 
 /* Kassabon */
