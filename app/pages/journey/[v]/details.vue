@@ -160,7 +160,6 @@ const sideTop = useStickyFit(sideEl, 16)
 
             <div class="side__trust">
               <img src="/images/trustpilot.svg" alt="Trustpilot" />
-              <span class="t-body t-bold">{{ trustpilot.score }}/{{ trustpilot.outOf }}</span>
             </div>
           </aside>
         </div>
@@ -337,6 +336,6 @@ const sideTop = useStickyFit(sideEl, 16)
   gap: 8px;
 }
 .side__trust img {
-  height: 40px;
+  height: 80px;
 }
 </style>

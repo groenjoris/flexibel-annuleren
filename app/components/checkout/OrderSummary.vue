@@ -147,7 +147,6 @@ const savedPct = computed(() => (roomsWas.value ? Math.round((saved.value / room
 
     <div class="summary__trust">
       <img src="/images/trustpilot.svg" alt="Trustpilot" />
-      <span class="t-body t-bold">{{ trustpilot.score }}/{{ trustpilot.outOf }}</span>
     </div>
   </aside>
 </template>
@@ -282,5 +281,5 @@ const savedPct = computed(() => (roomsWas.value ? Math.round((saved.value / room
   justify-content: center;
   gap: 8px;
 }
-.summary__trust img { height: 40px; }
+.summary__trust img { height: 80px; }
 </style>

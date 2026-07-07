@@ -456,7 +456,6 @@ const arrangementIncludes = [
 
             <div class="side__trust">
               <img src="/images/trustpilot.svg" alt="Trustpilot" />
-              <span class="t-body t-bold">{{ trustpilot.score }}/{{ trustpilot.outOf }}</span>
             </div>
           </aside>
         </div>
@@ -804,6 +803,6 @@ const arrangementIncludes = [
   gap: 8px;
 }
 .side__trust img {
-  height: 32px;
+  height: 64px;
 }
 </style>

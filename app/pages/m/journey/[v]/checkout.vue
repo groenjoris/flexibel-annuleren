@@ -510,7 +510,6 @@ const fcTotals = computed(() => {
 
           <div class="mtrust">
             <img src="/images/trustpilot.svg" alt="Trustpilot" />
-            <span class="t-body t-bold">{{ trustpilot.score }}/{{ trustpilot.outOf }}</span>
           </div>
         </section>
       </template>
@@ -711,7 +710,6 @@ const fcTotals = computed(() => {
 
         <div class="mtrust">
           <img src="/images/trustpilot.svg" alt="Trustpilot" />
-          <span class="t-body t-bold">{{ trustpilot.score }}/{{ trustpilot.outOf }}</span>
         </div>
       </template>
     </main>
@@ -1067,7 +1065,7 @@ const fcTotals = computed(() => {
   padding-bottom: 8px;
 }
 .mtrust img {
-  height: 44px;
+  height: 88px;
 }
 
 /* Forced-choice varianten: room typecards (huidig ViaLuxury mobiel design) */

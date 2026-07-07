@@ -199,7 +199,6 @@ watch(
 
       <div class="mtrust">
         <img src="/images/trustpilot.svg" alt="Trustpilot" />
-        <span class="t-body t-bold">{{ trustpilot.score }}/{{ trustpilot.outOf }}</span>
       </div>
     </main>
 
@@ -452,6 +451,6 @@ watch(
   padding-bottom: 8px;
 }
 .mtrust img {
-  height: 44px;
+  height: 88px;
 }
 </style>

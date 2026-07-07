@@ -587,7 +587,7 @@ const arrangementIncludes = [
 .rt__price .price { margin-right: 6px; }
 /* Info-icoontje dichter op de prijs, los van de kolomrand */
 .rt__price :deep(.price-info) {
-  margin-left: -6px;
+  margin-left: -4px;
 }
 
 /* Opties */
