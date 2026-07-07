@@ -51,6 +51,15 @@ const sideTop = useStickyFit(sideEl, 16)
 const isCardsVariant = computed(() => ['5', '6', '7', '8', '9'].includes(jv.value))
 // Varianten met het extra's-blok in de keuzestap.
 const hasExtras = computed(() => jv.value === '7' || jv.value === '9')
+// Final A (v8/v9): keuzestap heet "Maak je boeking compleet" (met én zonder extra's).
+const isFinalA = computed(() => jv.value === '8' || jv.value === '9')
+const stepTwoTitle = computed(() =>
+  isFinalA.value
+    ? 'Maak je boeking compleet'
+    : hasExtras.value
+      ? 'Maak je booking compleet'
+      : "Kies extra's",
+)
 // Kamerprijzen volgen de kalenderkeuze (zelfde patroon als de room table):
 // het goedkoopste kamertype = de dagprijs, was-prijzen via de gedeelde factor.
 const journeyDay = useState<{ price: number } | null>('journey-day', () => null)
@@ -284,7 +293,7 @@ watch(forcedChoice, (v) => {
       <!-- Variant 5/6 (concept 2a/2d): room cards + extra stap met forced choice -->
       <div v-else-if="isCardsVariant" class="page__grid">
         <div v-if="forcedStep === 2" class="col-form">
-          <h1 class="t-display">{{ hasExtras ? 'Maak je booking compleet' : "Kies extra's" }}</h1>
+          <h1 class="t-display">{{ stepTwoTitle }}</h1>
 
           <!-- V6/V7: totaalprijzen i.p.v. meerprijs -->
           <div ref="fcBlock" class="fcblock">

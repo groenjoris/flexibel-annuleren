@@ -12,6 +12,15 @@ const jv = computed(() => journeyKey(route.params.v))
 const isCardsVariant = computed(() => ['5', '6', '7', '8', '9'].includes(jv.value))
 // Varianten met het extra's-blok in de keuzestap.
 const hasExtras = computed(() => jv.value === '7' || jv.value === '9')
+// Final A (v8/v9): keuzestap heet "Maak je boeking compleet" (met én zonder extra's).
+const isFinalA = computed(() => jv.value === '8' || jv.value === '9')
+const stepTwoTitle = computed(() =>
+  isFinalA.value
+    ? 'Maak je boeking compleet'
+    : hasExtras.value
+      ? 'Maak je booking compleet'
+      : "Kies extra's",
+)
 
 // Kalenderkoppeling: zelfde state + delta-patroon als de desktop-table.
 const journeyDay = useState<{ price: number; checkIn?: string; checkOut?: string } | null>(
@@ -267,7 +276,7 @@ const fcTotals = computed(() => {
     <main class="mpage__main">
       <!-- Forced-choice varianten (5/6/7): extra stap zonder samenvatting -->
       <template v-if="isCardsVariant && forcedStep === 2">
-        <h1 class="mtitle">{{ hasExtras ? 'Maak je booking compleet' : "Kies extra's" }}</h1>
+        <h1 class="mtitle">{{ stepTwoTitle }}</h1>
 
         <div ref="fcBlock" class="mfcblock">
           <CheckoutForcedChoice
