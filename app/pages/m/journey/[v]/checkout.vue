@@ -601,34 +601,38 @@ const fcTotals = computed(() => {
                 >
                   Kies
                 </button>
-                <div v-else class="mrate__stepper">
-                  <button
-                    class="mrate__btn"
-                    type="button"
-                    aria-label="Minder kamers"
-                    @click="setQty(row, row.quantity - 1)"
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" /></svg>
-                  </button>
-                  <span class="mrate__val">{{ row.quantity }}</span>
-                  <button
-                    class="mrate__btn"
-                    type="button"
-                    :disabled="row.quantity >= 5"
-                    aria-label="Meer kamers"
-                    @click="setQty(row, row.quantity + 1)"
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" /></svg>
-                  </button>
-                  <button
-                    class="mrate__trash"
-                    type="button"
-                    aria-label="Selectie verwijderen"
-                    @click="setQty(row, 0)"
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2M6 7l1 13a1 1 0 001 1h8a1 1 0 001-1l1-13M10 11v6M14 11v6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
-                  </button>
-                </div>
+                <template v-else>
+                  <div class="mrate__stepper">
+                    <button
+                      class="mrate__btn"
+                      type="button"
+                      aria-label="Minder kamers"
+                      @click="setQty(row, row.quantity - 1)"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" /></svg>
+                    </button>
+                    <span class="mrate__val">{{ row.quantity }}</span>
+                    <button
+                      class="mrate__btn"
+                      type="button"
+                      :disabled="row.quantity >= 5"
+                      aria-label="Meer kamers"
+                      @click="setQty(row, row.quantity + 1)"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" /></svg>
+                    </button>
+                    <button
+                      class="mrate__trash"
+                      type="button"
+                      aria-label="Selectie verwijderen"
+                      @click="setQty(row, 0)"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2M6 7l1 13a1 1 0 001 1h8a1 1 0 001-1l1-13M10 11v6M14 11v6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                    </button>
+                  </div>
+                  <!-- Max personen schaalt mee met het aantal kamers (2 p.p. kamer) -->
+                  <p class="mrate__max t-caption c-mgrey">(Max) {{ row.quantity * 2 }} personen</p>
+                </template>
               </div>
             </div>
 
@@ -639,16 +643,20 @@ const fcTotals = computed(() => {
               <hr class="mhr" />
 
               <div class="mroomsum">
-                <h3 class="mroomsum__title">Details</h3>
+                <h3 class="mroomsum__title">Prijsopbouw</h3>
                 <div v-for="row in selectedRows" :key="row.id" class="mdetails__row mdetails__row--room">
                   <span class="mdetails__qty">{{ row.quantity }}x</span>
                   <div class="mdetails__main">
                     <p class="t-body t-bold">Arrangement</p>
                     <p class="t-caption c-mgrey">{{ roomNameFor(row.baseId) }}</p>
+                  </div>
+                  <!-- Prijs met daaronder het annuleringslabel, rechts uitgelijnd
+                       op de regel van de kamernaam -->
+                  <div class="mdetails__right">
+                    <CheckoutPriceTag :value="row.quantity * rowPrice(row)" :show-cents="false" size="sm" />
                     <p v-if="row.rateKey === 'flexible'" class="t-caption c-green">Gratis annuleren</p>
                     <p v-else class="t-caption c-grey">Niet-terugbetaalbaar</p>
                   </div>
-                  <CheckoutPriceTag :value="row.quantity * rowPrice(row)" :show-cents="false" size="sm" />
                 </div>
                 <div class="mdetails__row">
                   <span class="t-body">Boekingskosten</span>
@@ -929,6 +937,18 @@ const fcTotals = computed(() => {
   justify-content: center;
   flex-shrink: 0;
   margin-left: 4px;
+}
+.mrate__max {
+  text-align: center;
+  margin-top: 6px;
+}
+/* Prijs + annuleringslabel rechts uitgelijnd naast de kamernaam */
+.mdetails__right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
 }
 .mrate__btn {
   width: 34px;
