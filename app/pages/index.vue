@@ -91,7 +91,7 @@ const sections = computed<StartSection[]>(() => [
       <!-- Losse concepten: alleen op desktop, onderaan -->
       <div v-if="!isMobile" class="start__buttons start__buttons--last">
         <div class="start__card">
-          <p class="start__card-title">Concepts</p>
+          <p class="start__card-title">Earlier concepts</p>
           <div class="start__card-actions">
             <NuxtLink to="/concepts" class="start__btn-start">Start</NuxtLink>
           </div>

@@ -1,14 +1,15 @@
 // Journey-varianten: nummer + beschrijvende naam. Zichtbaar op de
 // startscherm-knoppen en in de header van elke journey-pagina.
 
+// Labels volgen de indeling van het startscherm (Variant A t/m D).
 export const JOURNEY_NAMES: Record<string, string> = {
-  '1': 'Toon prijs in kalenderstap',
-  '2': 'Verberg prijs in kalenderstap',
-  '3': 'Combineer kalender en room table',
-  '4': 'Goedkoopste kamer voorgeselecteerd',
-  '5': 'Extra stap, forced choice',
-  '6': 'Forced choice met totaalprijzen',
-  '7': 'Forced choice + andere extra\'s',
+  '1': 'Variant C — Prijs wel tonen in kalenderstap',
+  '2': 'Variant C — Prijs niet tonen in kalenderstap',
+  '3': 'Variant B — Room table + sidebar + kalender',
+  '4': 'Variant C — Goedkoopste voorgeselecteerd',
+  '5': 'Variant D — Forced choice €15 i.p.v. totaalprijs',
+  '6': 'Variant A — Forced choice zonder extra\'s',
+  '7': 'Variant A — Forced choice met extra\'s',
 }
 
 // Eén kortingsfactor voor de hele journey: de kalender toont €459 van €867,
@@ -22,5 +23,5 @@ export function journeyKey(param: unknown): string {
 }
 
 export function journeyLabel(v: string): string {
-  return `Variant ${v} — ${JOURNEY_NAMES[v] ?? ''}`
+  return JOURNEY_NAMES[v] ?? ''
 }
