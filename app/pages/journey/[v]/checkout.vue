@@ -75,7 +75,19 @@ const forcedChoiceLabel = computed(() =>
       : undefined,
 )
 const v5SummaryRooms = computed(() =>
-  v5Cards.value.map((r) => ({ ...r, cancelLabel: forcedChoiceLabel.value })),
+  v5Cards.value.map((r) => {
+    // Variant A (v6/v7): na de keuze voor flexibel zit de toeslag in de
+    // kamerprijs zelf i.p.v. als losse regel in de kassabon.
+    const bakeFlex =
+      (jv.value === '6' || jv.value === '7') && forcedChoice.value === 'flexible'
+    const extra = bakeFlex ? pricing.flexibilityPerRoom : 0
+    return {
+      ...r,
+      priceNow: r.priceNow + extra,
+      priceWas: r.priceWas + extra,
+      cancelLabel: forcedChoiceLabel.value,
+    }
+  }),
 )
 // Zelfde boekingskosten als stap 0 (€27,50) zodat de totalen kloppen.
 const v5Pricing = { flexibilityPerRoom: pricing.flexibilityPerRoom, bookingFee: BOOKING_FEE }
@@ -383,8 +395,8 @@ watch(forcedChoice, (v) => {
             :includes="includes"
             :pricing="v5Pricing"
             :trustpilot="trustpilot"
-            :selected="forcedChoice"
-            :show-flex-line="forcedChoice === 'flexible'"
+            :selected="jv === '5' ? forcedChoice : null"
+            :show-flex-line="jv === '5' && forcedChoice === 'flexible'"
             :cta-disabled="jv !== '7' && forcedStep === 2 && forcedChoice === null"
             :extras="jv === '7' ? v7Extras : undefined"
             @cta="v5Continue"
