@@ -19,6 +19,15 @@ const entries = [
 ]
 
 // Op mobiel leidt de globale middleware automatisch naar de mobiele site.
+// Concepts en variant 3/4 tonen we daar niet op het startscherm.
+const isMobile = ref(false)
+onMounted(() => {
+  isMobile.value = /iPhone|iPod|Windows Phone|Android.*Mobile/i.test(navigator.userAgent)
+})
+const MOBILE_HIDDEN = ['/concepts', '/journey/3/deal', '/journey/4/deal']
+const visibleEntries = computed(() =>
+  isMobile.value ? entries.filter((e) => !MOBILE_HIDDEN.includes(e.to)) : entries,
+)
 </script>
 
 <template>
@@ -32,7 +41,7 @@ const entries = [
       </p>
 
       <div class="start__buttons">
-        <div v-for="entry in entries" :key="entry.to" class="start__btn">
+        <div v-for="entry in visibleEntries" :key="entry.to" class="start__btn">
           <div class="start__btn-main">
             <span class="start__btn-title">{{ entry.title }}</span>
             <span class="start__btn-desc t-body c-grey">{{ entry.description }}</span>
