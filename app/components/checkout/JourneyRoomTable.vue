@@ -585,6 +585,10 @@ const arrangementIncludes = [
   white-space: nowrap;
 }
 .rt__price .price { margin-right: 6px; }
+/* Info-icoontje dichter op de prijs, los van de kolomrand */
+.rt__price :deep(.price-info) {
+  margin-left: -6px;
+}
 
 /* Opties */
 .rt__opt {
