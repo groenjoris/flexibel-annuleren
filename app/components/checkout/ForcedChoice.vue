@@ -10,10 +10,14 @@ withDefaults(defineProps<{
   subtitle?: string
   // 2d: compare complete arrangement totals instead of +€0 / +€15 deltas.
   totals?: { nonRef: number; flex: number }
+  // v7: zachte rode banner om de subtitel als er zonder keuze op de CTA
+  // is geklikt.
+  highlightSubtitle?: boolean
 }>(), {
   title: 'Hoe flexibel wil je zijn?',
   subtitle: 'Maak een keuze om verder te gaan.',
   totals: undefined,
+  highlightSubtitle: false,
 })
 const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
 </script>
@@ -22,7 +26,7 @@ const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
   <section class="card fc">
     <header class="fc__head">
       <h2 class="t-h1">{{ title }}</h2>
-      <p class="t-body c-grey">{{ subtitle }}</p>
+      <p class="t-body c-grey fc__subtitle" :class="{ 'fc__subtitle--warn': highlightSubtitle }">{{ subtitle }}</p>
     </header>
 
     <div class="fc__opts">
@@ -93,6 +97,14 @@ const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+/* Zachte rode banner (niet te agressief) als er zonder keuze is doorgeklikt */
+.fc__subtitle--warn {
+  background: #fbebe9;
+  color: #b3402e;
+  font-weight: 500;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
 }
 .fc__opts {
   display: flex;

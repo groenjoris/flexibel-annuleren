@@ -126,8 +126,25 @@ function v5Continue() {
   if (forcedStep.value === 1) {
     forcedStep.value = 2
     if (import.meta.client) window.scrollTo({ top: 0, behavior: 'smooth' })
+    return
   }
+  // V7: de CTA blijft actief; zonder keuze scrollen we terug naar het
+  // keuzeblok en lichten we de subtitel op.
+  if (jv.value === '7' && forcedChoice.value === null) v7TryContinue()
 }
+
+// V7: geen inactieve knop — bij doorklikken zonder keuze terug omhoog.
+const choiceHighlight = ref(false)
+const fcBlock = ref<HTMLElement | null>(null)
+function v7TryContinue() {
+  if (forcedChoice.value !== null) return
+  choiceHighlight.value = true
+  // Instant scroll: smooth wordt door de focus-scroll van de knop afgebroken.
+  setTimeout(() => fcBlock.value?.scrollIntoView({ block: 'start' }), 100)
+}
+watch(forcedChoice, (v) => {
+  if (v !== null) choiceHighlight.value = false
+})
 </script>
 
 <template>
@@ -249,7 +266,13 @@ function v5Continue() {
           <h1 class="t-display">{{ jv === '7' ? 'Maak je booking compleet' : "Kies extra's" }}</h1>
 
           <!-- V6/V7: totaalprijzen i.p.v. meerprijs -->
-          <CheckoutForcedChoice v-model="forcedChoice" :totals="jv === '6' || jv === '7' ? v6Totals : undefined" />
+          <div ref="fcBlock" class="fcblock">
+            <CheckoutForcedChoice
+              v-model="forcedChoice"
+              :totals="jv === '6' || jv === '7' ? v6Totals : undefined"
+              :highlight-subtitle="jv === '7' && choiceHighlight"
+            />
+          </div>
 
           <!-- V7: losse extra's onder het annuleringsblok (optioneel) -->
           <section v-if="jv === '7'" class="card block">
@@ -307,7 +330,16 @@ function v5Continue() {
 
           <div class="col-form__cta col-form__cta--split">
             <button class="btn-back t-body" type="button" @click="forcedStep = 1">← Terug naar kamers</button>
-            <button class="btn-primary btn-primary--auto" type="button" :disabled="forcedChoice === null">
+            <!-- V7: knop blijft actief; zonder keuze scrollt hij terug omhoog -->
+            <button
+              v-if="jv === '7'"
+              class="btn-primary btn-primary--auto"
+              type="button"
+              @click="v7TryContinue"
+            >
+              Opslaan en doorgaan
+            </button>
+            <button v-else class="btn-primary btn-primary--auto" type="button" :disabled="forcedChoice === null">
               {{ forcedChoice === null ? 'Maak eerst een keuze' : 'Verder' }}
             </button>
           </div>
@@ -348,7 +380,7 @@ function v5Continue() {
             :trustpilot="trustpilot"
             :selected="forcedChoice"
             :show-flex-line="forcedChoice === 'flexible'"
-            :cta-disabled="forcedStep === 2 && forcedChoice === null"
+            :cta-disabled="jv !== '7' && forcedStep === 2 && forcedChoice === null"
             :extras="jv === '7' ? v7Extras : undefined"
             @cta="v5Continue"
           />
@@ -427,6 +459,9 @@ function v5Continue() {
   display: flex;
   justify-content: center;
   margin-top: 8px;
+}
+.fcblock {
+  scroll-margin-top: 16px;
 }
 .col-form__cta--split {
   justify-content: space-between;

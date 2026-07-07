@@ -188,6 +188,21 @@ function fcContinue() {
   if (import.meta.client) window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
+// V7: geen inactieve knop — bij doorklikken zonder keuze scrollt de pagina
+// terug naar het keuzeblok en licht de subtitel op.
+const choiceHighlight = ref(false)
+const fcBlock = ref<HTMLElement | null>(null)
+function v7TryContinue() {
+  if (forcedChoice.value !== null) return
+  choiceHighlight.value = true
+  // Instant scroll: smooth wordt hier afgebroken (focus-scroll van de knop
+  // + de scroll-snap containers op de pagina).
+  setTimeout(() => fcBlock.value?.scrollIntoView({ block: 'start' }), 100)
+}
+watch(forcedChoice, (v) => {
+  if (v !== null) choiceHighlight.value = false
+})
+
 // Kassabon stap 1 (zonder annuleringskeuze — die volgt in de extra stap).
 const fcRoomCount = computed(() => fcRooms.reduce((s, r) => s + r.quantity, 0))
 const fcSelected = computed(() => fcCards.value.filter((r) => r.quantity > 0))
@@ -252,10 +267,13 @@ const fcTotals = computed(() => {
       <template v-if="isCardsVariant && forcedStep === 2">
         <h1 class="mtitle">{{ jv === '7' ? 'Maak je booking compleet' : "Kies extra's" }}</h1>
 
-        <CheckoutForcedChoice
-          v-model="forcedChoice"
-          :totals="jv === '6' || jv === '7' ? fcTotals : undefined"
-        />
+        <div ref="fcBlock" class="mfcblock">
+          <CheckoutForcedChoice
+            v-model="forcedChoice"
+            :totals="jv === '6' || jv === '7' ? fcTotals : undefined"
+            :highlight-subtitle="jv === '7' && choiceHighlight"
+          />
+        </div>
 
         <!-- V7: losse extra's (optioneel), gestapeld op mobiel -->
         <section v-if="jv === '7'" class="mextras">
@@ -305,7 +323,16 @@ const fcTotals = computed(() => {
         <div class="mfcnav">
           <button class="mfcnav__back t-body" type="button" @click="forcedStep = 1">← Terug naar kamers</button>
           <div class="mcta">
-            <button class="btn-primary mcta__btn" type="button" :disabled="forcedChoice === null">
+            <!-- V7: knop blijft actief; zonder keuze scrollt hij terug omhoog -->
+            <button
+              v-if="jv === '7'"
+              class="btn-primary mcta__btn"
+              type="button"
+              @click="v7TryContinue"
+            >
+              Opslaan en doorgaan
+            </button>
+            <button v-else class="btn-primary mcta__btn" type="button" :disabled="forcedChoice === null">
               {{ forcedChoice === null ? 'Maak eerst een keuze' : 'Verder' }}
             </button>
           </div>
@@ -1097,6 +1124,10 @@ const fcTotals = computed(() => {
   padding: 3px 0;
   font-weight: var(--w-black);
   font-size: 16px;
+}
+
+.mfcblock {
+  scroll-margin-top: 16px;
 }
 
 /* Annuleringskeuze zonder kader: de twee opties over de hele breedte */
