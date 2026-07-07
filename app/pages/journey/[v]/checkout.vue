@@ -110,17 +110,15 @@ const EXTRA_MAX = 2
 function setExtraQty(extra: (typeof v7Extras)[number], next: number) {
   extra.quantity = Math.max(0, Math.min(EXTRA_MAX, next))
 }
-const extrasTotal = computed(() => v7Extras.reduce((s, e) => s + e.quantity * e.price, 0))
 function formatExtraPrice(price: number) {
   return `+ €${price.toFixed(2).replace('.', ',')}`
 }
 
 // V6/V7 (concept 2d): complete arrangementstotalen van de geselecteerde
 // kamers in de keuzestap, o.b.v. de kalender-gekoppelde prijzen.
-// In v7 lopen de extra's mee in de totaalprijs van het keuzeblok.
+// Extra's (v7) tellen hier bewust NIET mee — alleen in de sidebar.
 const v6Totals = computed(() => {
-  const nonRef =
-    v5Cards.value.reduce((s, r) => s + r.quantity * r.priceNow, 0) + extrasTotal.value
+  const nonRef = v5Cards.value.reduce((s, r) => s + r.quantity * r.priceNow, 0)
   const roomCount = v5Cards.value.reduce((s, r) => s + r.quantity, 0)
   return { nonRef, flex: nonRef + roomCount * pricing.flexibilityPerRoom }
 })

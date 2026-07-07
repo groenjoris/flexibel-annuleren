@@ -231,14 +231,14 @@ const EXTRA_MAX = 2
 function setExtraQty(extra: (typeof fcExtras)[number], next: number) {
   extra.quantity = Math.max(0, Math.min(EXTRA_MAX, next))
 }
-const extrasTotal = computed(() => fcExtras.reduce((s, e) => s + e.quantity * e.price, 0))
 function formatExtraPrice(price: number) {
   return `+ €${price.toFixed(2).replace('.', ',')}`
 }
 
-// V6/V7: totaalprijzen in het keuzeblok (arrangement + extra's).
+// V6/V7: totaalprijzen in het keuzeblok. Extra's (v7) tellen hier
+// bewust NIET mee.
 const fcTotals = computed(() => {
-  const nonRef = fcRoomsTotal.value + extrasTotal.value
+  const nonRef = fcRoomsTotal.value
   return { nonRef, flex: nonRef + fcRoomCount.value * pricing.flexibilityPerRoom }
 })
 </script>
