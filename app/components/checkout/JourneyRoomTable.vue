@@ -21,11 +21,14 @@ const props = withDefaults(defineProps<{
   // v4: laat beide annuleringsopties vrij combineren en toon de
   // policy-popup pas bij "Ik ga boeken" i.p.v. direct bij het mixen
   deferPolicyPopup?: boolean
+  // Route voor "Ik ga boeken" (de gegevenspagina); leeg = geen navigatie
+  bookTo?: string
 }>(), {
   showReserve: true,
   initialCheapest: false,
   hybrid: true, // journey draait standaard in hybride (1e) modus
   deferPolicyPopup: false,
+  bookTo: undefined,
 })
 
 const emit = defineEmits<{
@@ -114,22 +117,25 @@ function rowWas(row: TableRow) {
     : row.priceWas
 }
 
-// Report every selection change to the parent (drives the sidebar in 1d/v3).
+// Report every selection change to the parent (drives the sidebar in 1d/v3)
+// en deel de selectie via state met de gegevenspagina (laatste stap).
+const journeySelection = useState<
+  { baseId: string; rateKey: 'nonrefundable' | 'flexible'; price: number; priceWas: number; quantity: number }[]
+>('journey-selection', () => [])
 watch(
   [allRows, priceDelta],
   ([rows]) => {
-    emit(
-      'update:selection',
-      rows
-        .filter((r) => r.quantity > 0)
-        .map((r) => ({
-          baseId: r.baseId,
-          rateKey: r.rateKey,
-          price: rowPrice(r),
-          priceWas: rowWas(r),
-          quantity: r.quantity,
-        })),
-    )
+    const selection = rows
+      .filter((r) => r.quantity > 0)
+      .map((r) => ({
+        baseId: r.baseId,
+        rateKey: r.rateKey,
+        price: rowPrice(r),
+        priceWas: rowWas(r),
+        quantity: r.quantity,
+      }))
+    journeySelection.value = selection
+    emit('update:selection', selection)
   },
   { deep: true, immediate: true },
 )
@@ -186,7 +192,12 @@ const mixedPolicies = computed(() => {
 })
 
 function onBook() {
-  if (props.deferPolicyPopup && mixedPolicies.value) policyPopupOpen.value = true
+  if (props.deferPolicyPopup && mixedPolicies.value) {
+    policyPopupOpen.value = true
+    return
+  }
+  // Door naar de gegevenspagina (laatste stap) zodra er een kamer is.
+  if (props.bookTo && totalRooms.value > 0) navigateTo(props.bookTo)
 }
 
 function onDropdownMousedown(row: TableRow, event: Event) {

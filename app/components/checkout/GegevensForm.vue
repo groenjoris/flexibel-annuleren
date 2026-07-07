@@ -1,3 +1,10 @@
+<script setup lang="ts">
+// Bloknummering is configureerbaar: in concept 2c is blok 1 de forced
+// choice (nummering start op 2); de journey-gegevenspagina zonder
+// annuleringsblok laat de nummering op 1 beginnen.
+withDefaults(defineProps<{ startAt?: number }>(), { startAt: 2 })
+</script>
+
 <template>
   <!-- Static prototype of the "Gegevens en betaalwijze" form blocks.
        Block 1 is the forced cancellation choice (rendered by the parent);
@@ -5,7 +12,7 @@
   <div class="gf">
     <!-- 2 — Jouw gegevens -->
     <section class="card gf__block">
-      <h2 class="gf__title">2 — Jouw gegevens</h2>
+      <h2 class="gf__title">{{ startAt }} — Jouw gegevens</h2>
 
       <div class="gf__field">
         <label class="gf__label" for="gf-email">E-mail</label>
@@ -80,7 +87,7 @@
 
     <!-- 3 — Speciale wensen -->
     <section class="card gf__block">
-      <h2 class="gf__title">3 — Speciale wensen (optioneel)</h2>
+      <h2 class="gf__title">{{ startAt + 1 }} — Speciale wensen (optioneel)</h2>
       <p class="gf__note">
         Als je speciale wensen of behoeften hebt, zullen wij dit doorgeven aan het hotel. Het hotelpersoneel
         zal zijn best doen om aan je wensen te voldoen. Als je niets van de accommodatie hoort, kun je
@@ -95,13 +102,13 @@
 
     <!-- 4 — Kortingscode -->
     <section class="card gf__block">
-      <h2 class="gf__title">4 — Kortingscode</h2>
+      <h2 class="gf__title">{{ startAt + 2 }} — Kortingscode</h2>
       <p class="gf__note"><a class="gf__link" href="#">Klik hier</a> als je een kortingscode wil verzilveren</p>
     </section>
 
     <!-- 5 — Hoe wil je betalen? -->
     <section class="card gf__block">
-      <h2 class="gf__title">5 — Hoe wil je betalen?</h2>
+      <h2 class="gf__title">{{ startAt + 3 }} — Hoe wil je betalen?</h2>
 
       <label class="gf__pay">
         <input type="radio" name="gf-pay" checked />

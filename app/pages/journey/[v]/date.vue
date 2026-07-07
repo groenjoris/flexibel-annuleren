@@ -191,7 +191,12 @@ const ctaText = computed(() => {
   return 'Opslaan en doorgaan'
 })
 function onCta() {
-  if (!isCombined.value) navigateTo(`/journey/${jv.value}/checkout`)
+  if (!isCombined.value) {
+    navigateTo(`/journey/${jv.value}/checkout`)
+    return
+  }
+  // V3: "Ik ga boeken" leidt naar de gegevenspagina (laatste stap).
+  if (selected.value && rooms3.value > 0) navigateTo(`/journey/${jv.value}/details`)
 }
 
 const arrangementIncludes = [

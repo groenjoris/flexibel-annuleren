@@ -1,31 +1,68 @@
 <script setup lang="ts">
-// Startscherm: ingangen naar de verschillende manieren om flexibel
-// annuleren te implementeren. Voorlopig alleen "Concepts"; losse
-// journey-knoppen volgen later.
-import { JOURNEY_NAMES } from '~/data/journeys'
+// Startscherm: gegroepeerde ingangen. "Voorstel Joris" bovenaan (A/B),
+// daaronder de alternatieve varianten (C/D) en de losse concepten.
+// Op mobiel leidt de globale middleware automatisch naar de mobiele site;
+// desktop-only ingangen verdwijnen daar of wijzen naar een alternatief.
 
-const entries = [
-  ...Object.entries(JOURNEY_NAMES).map(([v, name]) => ({
-    title: `Variant ${v} — ${name}`,
-    to: `/journey/${v}/deal`,
-  })),
-  // Concepts onderaan de lijst.
-  {
-    title: 'Concepts',
-    to: '/concepts',
-  },
-]
-
-// Op mobiel leidt de globale middleware automatisch naar de mobiele site.
-// Concepts en variant 3/4 tonen we daar niet op het startscherm.
 const isMobile = ref(false)
 onMounted(() => {
   isMobile.value = /iPhone|iPod|Windows Phone|Android.*Mobile/i.test(navigator.userAgent)
 })
-const MOBILE_HIDDEN = ['/concepts', '/journey/3/deal', '/journey/4/deal']
-const visibleEntries = computed(() =>
-  isMobile.value ? entries.filter((e) => !MOBILE_HIDDEN.includes(e.to)) : entries,
-)
+
+interface StartButton {
+  label: string
+  to: string
+}
+interface StartGroup {
+  title: string
+  note?: string
+  buttons: StartButton[]
+}
+interface StartSection {
+  heading: string
+  groups: StartGroup[]
+}
+
+const sections = computed<StartSection[]>(() => [
+  {
+    heading: 'Voorstel Joris',
+    groups: [
+      {
+        title: 'Variant A: Forced choice',
+        buttons: [
+          { label: 'Zonder extra’s', to: '/journey/6/deal' },
+          { label: 'Met extra’s', to: '/journey/7/deal' },
+        ],
+      },
+      {
+        title: 'Variant B: Room table + sidebar + kalender',
+        note: 'alleen desktop',
+        // Op mobiel start deze knop variant 6 (de tabel+kalender-combinatie
+        // is een desktop-concept).
+        buttons: [{ label: 'Start', to: isMobile.value ? '/journey/6/deal' : '/journey/3/deal' }],
+      },
+    ],
+  },
+  {
+    heading: 'Alternatieve varianten',
+    groups: [
+      {
+        title: 'Variant C: Complete room table zonder sidebar',
+        buttons: [
+          { label: 'Prijs wel tonen in kalenderstap', to: '/journey/1/deal' },
+          { label: 'Prijs niet tonen in kalenderstap', to: '/journey/2/deal' },
+          ...(isMobile.value
+            ? []
+            : [{ label: 'Goedkoopste voorgeselecteerd', to: '/journey/4/deal' }]),
+        ],
+      },
+      {
+        title: 'Variant D: Forced choice €15 i.p.v. totaalprijs',
+        buttons: [{ label: 'Start', to: '/journey/5/deal' }],
+      },
+    ],
+  },
+])
 </script>
 
 <template>
@@ -33,17 +70,31 @@ const visibleEntries = computed(() =>
     <main class="start__main">
       <img class="start__logo" src="/images/logos/logo-vialuxury-horizontal-black.svg" alt="ViaLuxury" />
       <h1 class="start__title">Flexibel annuleren</h1>
-      <p class="start__sub t-body-lg c-grey">
-        Prototypes van verschillende manieren om flexibel annuleren te implementeren.
-        Kies een ingang:
-      </p>
 
-      <div class="start__buttons">
-        <div v-for="entry in visibleEntries" :key="entry.to" class="start__btn">
-          <div class="start__btn-main">
-            <span class="start__btn-title">{{ entry.title }}</span>
+      <template v-for="section in sections" :key="section.heading">
+        <h2 class="start__heading">{{ section.heading }}</h2>
+        <div class="start__buttons">
+          <div v-for="group in section.groups" :key="group.title" class="start__card">
+            <p class="start__card-title">
+              {{ group.title }}
+              <span v-if="group.note" class="start__note">{{ group.note }}</span>
+            </p>
+            <div class="start__card-actions">
+              <NuxtLink v-for="btn in group.buttons" :key="btn.to + btn.label" :to="btn.to" class="start__btn-start">
+                {{ btn.label }}
+              </NuxtLink>
+            </div>
           </div>
-          <NuxtLink :to="entry.to" class="start__btn-start">Start</NuxtLink>
+        </div>
+      </template>
+
+      <!-- Losse concepten: alleen op desktop, onderaan -->
+      <div v-if="!isMobile" class="start__buttons start__buttons--last">
+        <div class="start__card">
+          <p class="start__card-title">Concepts</p>
+          <div class="start__card-actions">
+            <NuxtLink to="/concepts" class="start__btn-start">Start</NuxtLink>
+          </div>
         </div>
       </div>
     </main>
@@ -57,7 +108,7 @@ const visibleEntries = computed(() =>
   align-items: center;
   justify-content: center;
   background: var(--c-surface);
-  padding: 24px;
+  padding: 40px 24px;
 }
 .start__main {
   width: 560px;
@@ -76,37 +127,55 @@ const visibleEntries = computed(() =>
   font-size: var(--t-display);
   line-height: var(--lh-display);
   font-weight: var(--w-black);
+  margin-bottom: 8px;
 }
-.start__sub {
-  margin-bottom: 16px;
+.start__heading {
+  font-size: var(--t-h1);
+  font-weight: var(--w-black);
+  margin-top: 16px;
 }
 .start__buttons {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
-.start__btn {
+.start__buttons--last {
+  margin-top: 28px;
+}
+.start__card {
   display: flex;
-  align-items: center;
-  gap: 16px;
+  flex-direction: column;
+  gap: 14px;
   background: var(--c-white);
   border: 1px solid var(--c-light-grey);
   border-radius: var(--radius);
-  padding: 20px 20px 20px 24px;
+  padding: 20px 24px;
 }
-.start__btn-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.start__btn-title {
+.start__card-title {
   font-size: var(--t-h2);
   font-weight: var(--w-black);
   color: var(--c-via-black);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.start__note {
+  font-size: var(--t-caption);
+  font-weight: 500;
+  color: var(--c-grey);
+  background: var(--c-surface);
+  border: 1px solid var(--c-light-grey);
+  border-radius: 100px;
+  padding: 3px 10px;
+  white-space: nowrap;
+}
+.start__card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 .start__btn-start {
-  flex-shrink: 0;
   background: var(--c-via-orange);
   color: var(--c-white);
   font-weight: var(--w-black);

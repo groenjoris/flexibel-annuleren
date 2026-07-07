@@ -248,7 +248,12 @@ watch(forcedChoice, (v) => {
               </p>
             </template>
 
-            <button class="btn-primary" type="button" :disabled="roomsSel === 0">
+            <button
+              class="btn-primary"
+              type="button"
+              :disabled="roomsSel === 0"
+              @click="navigateTo(`/journey/${jv}/details`)"
+            >
               {{ roomsSel === 0 ? 'Selecteer een kamer' : 'Ik ga boeken' }}
             </button>
 
@@ -391,7 +396,11 @@ watch(forcedChoice, (v) => {
       <div v-else class="page__table">
         <h1 class="t-display">Kies je kamer(s)</h1>
         <!-- V4: goedkoopste kamer voorgeselecteerd -->
-        <CheckoutJourneyRoomTable :initial-cheapest="jv === '4'" :defer-policy-popup="jv === '4'" />
+        <CheckoutJourneyRoomTable
+          :initial-cheapest="jv === '4'"
+          :defer-policy-popup="jv === '4'"
+          :book-to="`/journey/${jv}/details`"
+        />
       </div>
     </main>
 
