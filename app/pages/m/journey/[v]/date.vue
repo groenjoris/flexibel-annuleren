@@ -8,10 +8,10 @@ const route = useRoute()
 const jv = computed(() => journeyKey(route.params.v))
 
 const MONTH_NAMES = [
-  'januari', 'februari', 'maart', 'april', 'mei', 'juni',
-  'juli', 'augustus', 'september', 'oktober', 'november', 'december',
+  'Januari', 'Februari', 'Maart', 'April', 'Mei', 'Juni',
+  'Juli', 'Augustus', 'September', 'Oktober', 'November', 'December',
 ]
-const WEEKDAYS = ['ma', 'di', 'wo', 'do', 'vr', 'za', 'zo']
+const WEEKDAYS = ['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo']
 
 // Zelfde datamodel als de desktopkalender.
 const view = reactive({ year: 2026, month: 7 }) // augustus 2026
@@ -155,8 +155,8 @@ watch(
               class="mcal__cell"
               :class="{
                 'mcal__cell--unavailable': cell.unavailable,
-                'mcal__cell--in': cellRole(cell.day) === 'in',
-                'mcal__cell--range': cellRole(cell.day) === 'mid' || cellRole(cell.day) === 'uit',
+                'mcal__cell--in': cellRole(cell.day) === 'in' || cellRole(cell.day) === 'uit',
+                'mcal__cell--range': cellRole(cell.day) === 'mid',
               }"
               :disabled="cell.unavailable"
               @click="pick(cell)"
@@ -170,6 +170,7 @@ watch(
               <span class="mcal__day">{{ cell.day }}</span>
               <span v-if="cell.unavailable" class="mcal__sold">-</span>
               <span v-else-if="cellRole(cell.day) === 'in'" class="mcal__price mcal__price--selected">€{{ cell.price }}</span>
+              <span v-else-if="cellRole(cell.day) === 'uit'" class="mcal__sold mcal__sold--selected">-</span>
               <span
                 v-else-if="cellRole(cell.day) === null"
                 class="mcal__price"
@@ -247,8 +248,9 @@ watch(
   color: var(--c-grey);
   padding: 0 8px;
 }
-/* Kalender exact als op de dealpagina (CalendarMonth + CalendarDayCell):
-   R1-tokens hardcoded — groen #00B67A, oranje #e97132, tekst #1A1A1A. */
+/* Kalender exact als op de dealpagina: de variant-6 overrides uit
+   fr-variant-6.css (mobiele waarden), R1-tokens hardcoded —
+   groen #00B67A, oranje #e97132, tekst #1A1A1A, rand #E5E5E5. */
 .mcal__nav {
   display: flex;
   align-items: center;
@@ -278,10 +280,11 @@ watch(
 .mcal__weekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
   text-align: center;
-  color: #555555;
-  font-size: 13px;
-  font-weight: 600;
+  color: #999999;
+  font-size: 12px;
+  font-weight: 700;
 }
 .mcal__weekdays span {
   padding: 8px 0;
@@ -289,92 +292,113 @@ watch(
 .mcal__grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  grid-auto-rows: 52px;
+  grid-auto-rows: 60px;
+  gap: 4px;
 }
+/* Beschikbare dag: witte tegel met hairline rand + subtiele schaduw */
 .mcal__cell {
   position: relative;
-  display: grid;
-  grid-template-rows: 22px 16px;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-items: center;
-  padding: 6px 4px;
-  height: 52px;
+  justify-content: center;
+  gap: 4px;
+  padding: 5px 2px;
+  height: 60px;
   overflow: hidden;
-  border-radius: 6px;
-  background: none;
+  border-radius: 0;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
   color: #1a1a1a;
 }
 .mcal__cell--empty {
   background: transparent;
+  border: none;
+  box-shadow: none;
 }
+/* Niet beschikbaar: vlakke grijze tegel zonder rand/schaduw */
 .mcal__cell--unavailable {
-  opacity: 0.6;
+  background: #dbdbdb;
+  border-color: transparent;
+  box-shadow: none;
+  opacity: 0.4;
   cursor: not-allowed;
 }
+/* Geselecteerde in/uit-dag: groene tegel met zwarte rand, witte tekst */
 .mcal__cell--in {
   background: #00b67a;
+  border: 1px solid #1a1a1a;
+  box-shadow: none;
 }
 .mcal__cell--in .mcal__day,
 .mcal__cell--in .mcal__price {
   color: #fff;
 }
+.mcal__cell--in .mcal__day {
+  font-weight: 700;
+}
+/* Tussennachten: lichtgroene tegel zonder rand */
 .mcal__cell--range {
   background: color-mix(in srgb, #00b67a 45%, #fff);
+  border-color: transparent;
+  box-shadow: none;
 }
 .mcal__cell--range .mcal__day {
   color: #fff;
 }
 .mcal__day {
-  grid-row: 1;
-  font-size: 15px;
-  font-weight: 500;
-  line-height: 1;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.4;
 }
 .mcal__sold {
-  grid-row: 2;
-  font-size: 14px;
-  font-weight: 600;
-  color: #999999;
-  line-height: 1;
+  font-size: 9px;
+  font-weight: 400;
+  color: #00b67a;
+  line-height: 1.4;
+}
+.mcal__sold--selected {
+  color: #fff;
+  font-weight: 700;
 }
 .mcal__price {
-  grid-row: 2;
-  font-size: 12px;
-  font-weight: 600;
-  color: #1a1a1a;
-  line-height: 1;
+  font-size: 9px;
+  font-weight: 400;
+  color: #00b67a;
+  line-height: 1.4;
 }
 .mcal__price--cheapest {
-  color: #00b67a;
+  color: #e97132;
 }
 .mcal__price--selected {
-  color: rgba(255, 255, 255, 0.9);
+  color: #fff;
 }
-/* Sterretje linksboven in de cel van de laagste prijs (zoals de dealpagina) */
+/* Oranje sterretje in de rechterbovenhoek van de laagste-prijs-dag */
 .mcal__star {
   position: absolute;
-  top: 2px;
-  left: 4px;
-  font-size: 10px;
+  top: 1px;
+  right: 1px;
+  font-size: 14px;
   line-height: 1;
-  color: #00b67a;
+  color: #e97132;
   pointer-events: none;
 }
-/* In/uit-badge strak in de rechterbovenhoek (14×14, zwart, geen radius) */
+/* In/uit-pil: doorschijnend wit, alleen linksonder afgerond */
 .mcal__badge {
   position: absolute;
-  top: 0;
-  right: 0;
-  width: 14px;
-  height: 14px;
+  top: -1px;
+  right: -1px;
+  min-width: 18px;
+  padding: 2px 4px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #1a1a1a;
+  background: rgba(255, 255, 255, 0.2);
   color: #fff;
-  font-size: 8px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  border-radius: 0 0 0 8px;
+  font-size: 9px;
+  font-weight: 400;
   line-height: 1;
   pointer-events: none;
 }
@@ -405,7 +429,7 @@ watch(
   height: 14px;
   border-radius: 4px;
   background: #dbdbdb;
-  opacity: 0.7;
+  opacity: 0.4;
 }
 
 /* CTA + Trustpilot */
