@@ -9,7 +9,9 @@ import { journeyKey, JOURNEY_WAS_FACTOR } from '~/data/journeys'
 
 const route = useRoute()
 const jv = computed(() => journeyKey(route.params.v))
-const isCardsVariant = computed(() => jv.value === '5' || jv.value === '6' || jv.value === '7')
+const isCardsVariant = computed(() => ['5', '6', '7', '8', '9'].includes(jv.value))
+// Varianten met het extra's-blok in de keuzestap.
+const hasExtras = computed(() => jv.value === '7' || jv.value === '9')
 
 // Kalenderkoppeling: zelfde state + delta-patroon als de desktop-table.
 const journeyDay = useState<{ price: number; checkIn?: string; checkOut?: string } | null>(
@@ -265,18 +267,18 @@ const fcTotals = computed(() => {
     <main class="mpage__main">
       <!-- Forced-choice varianten (5/6/7): extra stap zonder samenvatting -->
       <template v-if="isCardsVariant && forcedStep === 2">
-        <h1 class="mtitle">{{ jv === '7' ? 'Maak je booking compleet' : "Kies extra's" }}</h1>
+        <h1 class="mtitle">{{ hasExtras ? 'Maak je booking compleet' : "Kies extra's" }}</h1>
 
         <div ref="fcBlock" class="mfcblock">
           <CheckoutForcedChoice
             v-model="forcedChoice"
             :totals="jv === '6' || jv === '7' ? fcTotals : undefined"
-            :highlight-subtitle="jv === '7' && choiceHighlight"
+            :highlight-subtitle="hasExtras && choiceHighlight"
           />
         </div>
 
         <!-- V7: losse extra's (optioneel), gestapeld op mobiel -->
-        <section v-if="jv === '7'" class="mextras">
+        <section v-if="hasExtras" class="mextras">
           <h2 class="msectiontitle">Kies extra's</h2>
           <div v-for="extra in fcExtras" :key="extra.id" class="mextra">
             <p class="mextra__title">{{ extra.title }}</p>
@@ -311,7 +313,7 @@ const fcTotals = computed(() => {
         </section>
 
         <!-- V7: speciale wensen (optioneel) -->
-        <section v-if="jv === '7'" class="mwishes">
+        <section v-if="hasExtras" class="mwishes">
           <h2 class="msectiontitle">Speciale wensen (optioneel)</h2>
           <p class="t-body c-grey">
             Als je speciale wensen of behoeften hebt, zullen wij dit doorgeven aan het hotel.
@@ -325,7 +327,7 @@ const fcTotals = computed(() => {
           <div class="mcta">
             <!-- V7: knop blijft actief; zonder keuze scrollt hij terug omhoog -->
             <button
-              v-if="jv === '7'"
+              v-if="hasExtras"
               class="btn-primary mcta__btn"
               type="button"
               @click="v7TryContinue"
@@ -584,6 +586,7 @@ const fcTotals = computed(() => {
                   <p class="mrate__prices">
                     <CheckoutPriceTag :value="rowWas(row)" :show-cents="false" size="sm" strike color="var(--c-medium-grey)" />
                     <CheckoutPriceTag :value="rowPrice(row)" :show-cents="false" size="lg" bold color="var(--c-via-orange)" />
+                    <FirstReleasePriceInfoTooltip variant="deal" />
                   </p>
                   <p class="t-caption c-mgrey">Prijs voor 2 nachten + compleet arrangement</p>
                 </div>
@@ -643,6 +646,7 @@ const fcTotals = computed(() => {
                     <p class="t-body t-bold">Arrangement</p>
                     <p class="t-caption c-mgrey">{{ roomNameFor(row.baseId) }}</p>
                     <p v-if="row.rateKey === 'flexible'" class="t-caption c-green">Gratis annuleren</p>
+                    <p v-else class="t-caption c-grey">Niet-terugbetaalbaar</p>
                   </div>
                   <CheckoutPriceTag :value="row.quantity * rowPrice(row)" :show-cents="false" size="sm" />
                 </div>

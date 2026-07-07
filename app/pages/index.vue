@@ -25,6 +25,22 @@ interface StartSection {
 
 const sections = computed<StartSection[]>(() => [
   {
+    heading: 'Final variants',
+    groups: [
+      {
+        title: 'Variant A: Forced choice (+€0 / +€15)',
+        buttons: [
+          { label: 'Zonder extra’s', to: '/journey/8/deal' },
+          { label: 'Met extra’s', to: '/journey/9/deal' },
+        ],
+      },
+      {
+        title: 'Variant B: Room table met sidebar, zonder prijs in kalenderstap',
+        buttons: [{ label: 'Start', to: '/journey/10/deal' }],
+      },
+    ],
+  },
+  {
     heading: 'Voorstel Joris',
     groups: [
       {

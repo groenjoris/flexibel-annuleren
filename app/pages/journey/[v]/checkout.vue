@@ -44,10 +44,13 @@ const arrangementIncludes = [
 const sideEl = ref<HTMLElement | null>(null)
 const sideTop = useStickyFit(sideEl, 16)
 
-// ---- Variant 5/6/7 (concept 2a/2d): room cards + extra stap met forced choice ----
+// ---- Variant 5/6/7 + Final 8/9: room cards + extra stap met forced choice ----
 // V6 toont in de keuzestap totaalprijzen i.p.v. +€0/+€15 (concept 2d).
 // V7 = v6 + losse extra's onder het annuleringsblok ("Maak je booking compleet").
-const isCardsVariant = computed(() => jv.value === '5' || jv.value === '6' || jv.value === '7')
+// FINAL: v8 = v5 (D, +€0/+€15 zonder extra's); v9 = v7 maar met +€0/+€15.
+const isCardsVariant = computed(() => ['5', '6', '7', '8', '9'].includes(jv.value))
+// Varianten met het extra's-blok in de keuzestap.
+const hasExtras = computed(() => jv.value === '7' || jv.value === '9')
 // Kamerprijzen volgen de kalenderkeuze (zelfde patroon als de room table):
 // het goedkoopste kamertype = de dagprijs, was-prijzen via de gedeelde factor.
 const journeyDay = useState<{ price: number } | null>('journey-day', () => null)
@@ -140,9 +143,9 @@ function v5Continue() {
     if (import.meta.client) window.scrollTo({ top: 0, behavior: 'smooth' })
     return
   }
-  // V7: de CTA blijft actief; zonder keuze scrollen we terug naar het
+  // V7/V9: de CTA blijft actief; zonder keuze scrollen we terug naar het
   // keuzeblok en lichten we de subtitel op.
-  if (jv.value === '7' && forcedChoice.value === null) v7TryContinue()
+  if (hasExtras.value && forcedChoice.value === null) v7TryContinue()
 }
 
 // V7: geen inactieve knop — bij doorklikken zonder keuze terug omhoog.
@@ -170,7 +173,7 @@ watch(forcedChoice, (v) => {
 
     <main class="page__main container">
       <!-- Variant 3: tabel zonder rechterkolom + sticky sidebar -->
-      <div v-if="jv === '3'" class="page__grid">
+      <div v-if="jv === '3' || jv === '10'" class="page__grid">
         <div class="col-form">
           <h1 class="t-display">Kies je kamertype</h1>
           <CheckoutJourneyRoomTable
@@ -223,6 +226,7 @@ watch(forcedChoice, (v) => {
                     <p class="t-body t-bold">Arrangement</p>
                     <p class="t-caption c-mgrey">{{ roomNameFor(row.baseId) }}</p>
                     <p v-if="row.rateKey === 'flexible'" class="t-caption c-green">Gratis annuleren</p>
+                    <p v-else class="t-caption c-grey">Niet-terugbetaalbaar</p>
                   </div>
                   <CheckoutPriceTag :value="row.quantity * row.price" :show-cents="false" size="sm" />
                 </div>
@@ -280,19 +284,19 @@ watch(forcedChoice, (v) => {
       <!-- Variant 5/6 (concept 2a/2d): room cards + extra stap met forced choice -->
       <div v-else-if="isCardsVariant" class="page__grid">
         <div v-if="forcedStep === 2" class="col-form">
-          <h1 class="t-display">{{ jv === '7' ? 'Maak je booking compleet' : "Kies extra's" }}</h1>
+          <h1 class="t-display">{{ hasExtras ? 'Maak je booking compleet' : "Kies extra's" }}</h1>
 
           <!-- V6/V7: totaalprijzen i.p.v. meerprijs -->
           <div ref="fcBlock" class="fcblock">
             <CheckoutForcedChoice
               v-model="forcedChoice"
               :totals="jv === '6' || jv === '7' ? v6Totals : undefined"
-              :highlight-subtitle="jv === '7' && choiceHighlight"
+              :highlight-subtitle="hasExtras && choiceHighlight"
             />
           </div>
 
           <!-- V7: losse extra's onder het annuleringsblok (optioneel) -->
-          <section v-if="jv === '7'" class="card block">
+          <section v-if="hasExtras" class="card block">
             <h2 class="t-h1">Kies extra's</h2>
 
             <div class="extras">
@@ -330,7 +334,7 @@ watch(forcedChoice, (v) => {
           </section>
 
           <!-- V7: speciale wensen (optioneel) -->
-          <section v-if="jv === '7'" class="card block">
+          <section v-if="hasExtras" class="card block">
             <h2 class="t-h1">Speciale wensen (optioneel)</h2>
             <p class="t-body c-grey">
               Als je speciale wensen of behoeften hebt, zullen wij dit doorgeven aan het hotel.
@@ -349,7 +353,7 @@ watch(forcedChoice, (v) => {
             <button class="btn-back t-body" type="button" @click="forcedStep = 1">← Terug naar kamers</button>
             <!-- V7: knop blijft actief; zonder keuze scrollt hij terug omhoog -->
             <button
-              v-if="jv === '7'"
+              v-if="hasExtras"
               class="btn-primary btn-primary--auto"
               type="button"
               @click="v7TryContinue"
@@ -395,10 +399,10 @@ watch(forcedChoice, (v) => {
             :includes="includes"
             :pricing="v5Pricing"
             :trustpilot="trustpilot"
-            :selected="jv === '5' ? forcedChoice : null"
-            :show-flex-line="jv === '5' && forcedChoice === 'flexible'"
-            :cta-disabled="jv !== '7' && forcedStep === 2 && forcedChoice === null"
-            :extras="jv === '7' ? v7Extras : undefined"
+            :selected="['5', '8', '9'].includes(jv) ? forcedChoice : null"
+            :show-flex-line="['5', '8', '9'].includes(jv) && forcedChoice === 'flexible'"
+            :cta-disabled="!hasExtras && forcedStep === 2 && forcedChoice === null"
+            :extras="hasExtras ? v7Extras : undefined"
             @cta="v5Continue"
           />
         </div>

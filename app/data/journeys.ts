@@ -10,6 +10,10 @@ export const JOURNEY_NAMES: Record<string, string> = {
   '5': 'Variant D — Forced choice €15 i.p.v. totaalprijs',
   '6': 'Variant A — Forced choice zonder extra\'s',
   '7': 'Variant A — Forced choice met extra\'s',
+  // Finale varianten (na klantfeedback).
+  '8': 'Final A — Forced choice zonder extra\'s',
+  '9': 'Final A — Forced choice met extra\'s',
+  '10': 'Final B — Room table met sidebar',
 }
 
 // Eén kortingsfactor voor de hele journey: de kalender toont €459 van €867,

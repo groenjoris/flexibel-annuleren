@@ -314,10 +314,11 @@ const arrangementIncludes = [
             </svg>
           </td>
 
-          <!-- Prijs -->
+          <!-- Prijs, met de boekingskosten-toelichting van de dealpagina -->
           <td class="rt__td rt__price">
             <CheckoutPriceTag :value="rowWas(row)" :show-cents="false" size="sm" bold strike color="var(--c-medium-grey)" />
             <CheckoutPriceTag :value="rowPrice(row)" :show-cents="false" size="md" bold color="var(--c-via-orange)" />
+            <FirstReleasePriceInfoTooltip variant="deal" />
           </td>
 
           <!-- Je opties (1e: zonder de vaste vinkjes, begint met de voorwaarde) -->

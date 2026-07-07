@@ -116,6 +116,7 @@ const sideTop = useStickyFit(sideEl, 16)
                     <p class="t-body t-bold">Arrangement</p>
                     <p class="t-caption c-mgrey">{{ roomNameFor(row.baseId) }}</p>
                     <p v-if="row.rateKey === 'flexible'" class="t-caption c-green">Gratis annuleren</p>
+                    <p v-else class="t-caption c-grey">Niet-terugbetaalbaar</p>
                   </div>
                   <CheckoutPriceTag :value="row.quantity * row.price" :show-cents="false" size="sm" />
                 </div>

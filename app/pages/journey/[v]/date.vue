@@ -347,7 +347,8 @@ const arrangementIncludes = [
             </div>
 
             <!-- Variant 1/4: prijsopbouw op basis van de gekozen dag -->
-            <template v-if="(jv === '1' || jv === '4' || jv === '5' || jv === '6' || jv === '7') && selected">
+            <!-- Prijsblok na datumkeuze; v2 en Final B (v10) verbergen de prijs -->
+            <template v-if="['1', '4', '5', '6', '7', '8', '9'].includes(jv) && selected">
               <hr class="side__hr" />
 
               <div class="side__details">
@@ -406,6 +407,7 @@ const arrangementIncludes = [
                     <p class="t-body t-bold">Arrangement</p>
                     <p class="t-caption c-mgrey">{{ roomNameFor(row.baseId) }}</p>
                     <p v-if="row.rateKey === 'flexible'" class="t-caption c-green">Gratis annuleren</p>
+                    <p v-else class="t-caption c-grey">Niet-terugbetaalbaar</p>
                   </div>
                   <CheckoutPriceTag :value="row.quantity * row.price" :show-cents="false" size="sm" />
                 </div>
