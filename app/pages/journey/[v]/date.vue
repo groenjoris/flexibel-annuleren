@@ -168,6 +168,18 @@ function roomNameFor(baseId: string) {
   return roomsData.find((r) => r.id === baseId)?.roomName ?? ''
 }
 
+// V3: zonder datum is de room table uitgeschakeld; een klik erop scrollt
+// terug naar de kalender en toont een melding onder de sectietitel.
+const tableNudge = ref(false)
+const calTop = ref<HTMLElement | null>(null)
+function onDisabledTableClick() {
+  tableNudge.value = true
+  calTop.value?.scrollIntoView({ block: 'start' })
+}
+watch(selected, (s) => {
+  if (s) tableNudge.value = false
+})
+
 // Sidebar-CTA per variant.
 const isCombined = computed(() => jv.value === '3')
 const ctaDisabled = computed(() =>
@@ -205,7 +217,10 @@ const arrangementIncludes = [
           <h1 v-if="jv !== '3'" class="t-display">Selecteer datum</h1>
 
           <!-- V3: sectietitel boven de kalenderbox, consistent met de room table -->
-          <h2 v-if="jv === '3'" class="t-display">Kies aankomstdatum</h2>
+          <h2 v-if="jv === '3'" ref="calTop" class="t-display cal__caltitle">Kies aankomstdatum</h2>
+          <p v-if="jv === '3' && tableNudge && !selected" class="cal__nudge t-body">
+            Kies eerst een aankomstdatum om de beschikbare kamertypes te zien
+          </p>
 
           <section class="card cal">
             <header class="cal__head">
@@ -268,13 +283,24 @@ const arrangementIncludes = [
             </button>
           </div>
 
-          <!-- Variant 3: room table (zonder rechterkolom) onder de kalender -->
+          <!-- Variant 3: room table (zonder rechterkolom) onder de kalender.
+               Zonder datum is de tabel uitgeschakeld; een klik erop scrollt
+               terug naar de kalender met een melding onder de titel. -->
           <div v-if="isCombined" ref="tableWrap" class="cal__tablewrap">
             <h2 class="t-display cal__tabletitle">Kies je kamertype</h2>
-            <CheckoutJourneyRoomTable
-              :show-reserve="false"
-              @update:selection="tableSelection = $event"
-            />
+            <div class="cal__tableinner" :class="{ 'cal__tableinner--disabled': !selected }">
+              <CheckoutJourneyRoomTable
+                :show-reserve="false"
+                @update:selection="tableSelection = $event"
+              />
+              <button
+                v-if="!selected"
+                class="cal__tableoverlay"
+                type="button"
+                aria-label="Kies eerst een aankomstdatum"
+                @click="onDisabledTableClick"
+              />
+            </div>
           </div>
         </div>
 
@@ -558,6 +584,31 @@ const arrangementIncludes = [
   display: flex;
   flex-direction: column;
   gap: 24px;
+}
+.cal__caltitle {
+  scroll-margin-top: 16px;
+}
+/* Zachte rode melding onder de kalendertitel (zelfde stijl als v7) */
+.cal__nudge {
+  background: #fbebe9;
+  color: #b3402e;
+  font-weight: 500;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+}
+/* Zonder datum: tabel gedimd, met een onzichtbare klikvanger erboven */
+.cal__tableinner {
+  position: relative;
+}
+.cal__tableinner--disabled > :first-child {
+  opacity: 0.45;
+  pointer-events: none;
+}
+.cal__tableoverlay {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  cursor: pointer;
 }
 .cal__tabletitle {
   margin-top: 16px;
