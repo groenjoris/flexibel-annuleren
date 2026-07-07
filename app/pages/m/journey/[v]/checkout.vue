@@ -1099,6 +1099,15 @@ const fcTotals = computed(() => {
   font-size: 16px;
 }
 
+/* Annuleringskeuze zonder kader: de twee opties over de hele breedte */
+.mpage :deep(.fc) {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+}
+
 /* Extra stap (v7): gestapelde extra's + wensen */
 .mextras {
   display: flex;
