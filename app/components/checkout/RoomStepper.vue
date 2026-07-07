@@ -8,10 +8,9 @@ function setQty(next: number) {
   emit('update:quantity', Math.max(0, Math.min(props.room.maxPeople, next)))
 }
 
-const maxLabel = computed(() =>
-  props.room.quantity > 0
-    ? `Max ${props.room.quantity * props.room.maxPeople} personen`
-    : `Max ${props.room.maxPeople} personen per kamer`,
+// 2 personen per kamer: schaalt mee met het aantal kamers.
+const maxPersons = computed(
+  () => Math.max(props.room.quantity, 1) * props.room.maxPeople,
 )
 </script>
 
@@ -27,7 +26,9 @@ const maxLabel = computed(() =>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" /></svg>
       </button>
     </div>
-    <span class="qty__max t-body c-mgrey">{{ maxLabel }}</span>
+    <span class="qty__max t-body c-mgrey">
+      Max.<br>{{ maxPersons }} personen
+    </span>
   </div>
 </template>
 

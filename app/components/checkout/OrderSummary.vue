@@ -70,7 +70,7 @@ const savedPct = computed(() => (roomsWas.value ? Math.round((saved.value / room
 
     <!-- Includes -->
     <div class="summary__block">
-      <p class="t-body t-bold">Inbegrepen in het arrangement</p>
+      <p class="t-body t-bold">{{ totalRooms > 1 ? 'Elk arrangement bevat' : 'Jouw arrangement bevat' }}</p>
       <ul class="summary__includes">
         <li v-for="item in includes" :key="item" class="summary__inc">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
@@ -125,7 +125,7 @@ const savedPct = computed(() => (roomsWas.value ? Math.round((saved.value / room
           <CheckoutPriceTag :value="total" size="lg" bold color="var(--c-via-green)" />
         </div>
       </div>
-      <p class="t-caption c-mgrey">Prijs voor {{ totalRooms * 2 }} personen, {{ hotel.nights }} nachten</p>
+      <p class="t-caption c-mgrey">{{ totalRooms }} {{ totalRooms === 1 ? 'kamer' : 'kamers' }} voor {{ hotel.nights }} nachten voor {{ totalRooms * 2 }} personen</p>
     </div>
 
     <div class="summary__saved">
