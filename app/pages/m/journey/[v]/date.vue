@@ -131,13 +131,14 @@ watch(
           Getoonde prijs is voor het complete arrangement voor 2 personen voor 2 nachten.
         </p>
 
+        <!-- Zelfde kalenderlayout als op de dealpagina (CalendarMonth/DayCell) -->
         <div class="mcal__nav">
           <button class="mcal__navbtn" type="button" aria-label="Vorige maand" @click="prevMonth">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
           </button>
           <span class="mcal__month">{{ MONTH_NAMES[view.month] }} {{ view.year }}</span>
           <button class="mcal__navbtn" type="button" aria-label="Volgende maand" @click="nextMonth">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
           </button>
         </div>
 
@@ -154,26 +155,32 @@ watch(
               class="mcal__cell"
               :class="{
                 'mcal__cell--unavailable': cell.unavailable,
-                'mcal__cell--selected': cellRole(cell.day) !== null,
+                'mcal__cell--in': cellRole(cell.day) === 'in',
+                'mcal__cell--range': cellRole(cell.day) === 'mid' || cellRole(cell.day) === 'uit',
               }"
               :disabled="cell.unavailable"
               @click="pick(cell)"
             >
               <span v-if="cellRole(cell.day) === 'in'" class="mcal__badge">in</span>
               <span v-else-if="cellRole(cell.day) === 'uit'" class="mcal__badge">uit</span>
+              <span
+                v-if="cell.price === lowestPrice && !cell.unavailable && cellRole(cell.day) === null"
+                class="mcal__star"
+              >★</span>
               <span class="mcal__day">{{ cell.day }}</span>
-              <span v-if="cell.unavailable" class="mcal__price">–</span>
-              <span v-else-if="cellRole(cell.day) === 'mid' || cellRole(cell.day) === 'uit'" class="mcal__price">–</span>
-              <span v-else class="mcal__price mcal__price--value">
-                €{{ cell.price }}<span v-if="cell.price === lowestPrice" class="mcal__star">★</span>
-              </span>
+              <span v-if="cell.unavailable" class="mcal__sold">-</span>
+              <span v-else-if="cellRole(cell.day) === 'in'" class="mcal__price mcal__price--selected">€{{ cell.price }}</span>
+              <span
+                v-else-if="cellRole(cell.day) === null"
+                class="mcal__price"
+                :class="{ 'mcal__price--cheapest': cell.price === lowestPrice }"
+              >€{{ cell.price }}</span>
             </button>
           </template>
         </div>
 
         <div class="mcal__legend">
-          <span class="mcal__legenditem"><span class="mcal__star mcal__star--legend">★</span> Laagste prijs</span>
-          <span class="mcal__legenditem"><span class="mcal__swatch mcal__swatch--selected" /> Geselecteerde datum</span>
+          <span class="mcal__legenditem"><span class="mcal__legendstar">★</span> Laagste prijs</span>
           <span class="mcal__legenditem"><span class="mcal__swatch" /> Niet beschikbaar</span>
         </div>
       </section>
@@ -240,117 +247,165 @@ watch(
   color: var(--c-grey);
   padding: 0 8px;
 }
+/* Kalender exact als op de dealpagina (CalendarMonth + CalendarDayCell):
+   R1-tokens hardcoded — groen #00B67A, oranje #e97132, tekst #1A1A1A. */
 .mcal__nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  min-height: 40px;
 }
 .mcal__month {
-  font-size: 20px;
-  font-weight: 500;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+  flex: 1;
 }
 .mcal__navbtn {
-  color: var(--c-via-black);
-  display: inline-flex;
-  padding: 4px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #fbfaf8;
+  color: #1a1a1a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.mcal__navbtn:hover {
+  background: #f0f0f0;
 }
 .mcal__weekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   text-align: center;
-  color: var(--c-medium-grey);
-  font-size: 15px;
+  color: #555555;
+  font-size: 13px;
+  font-weight: 600;
+}
+.mcal__weekdays span {
+  padding: 8px 0;
 }
 .mcal__grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
+  grid-auto-rows: 52px;
 }
 .mcal__cell {
   position: relative;
-  border: 1px solid var(--c-light-grey);
-  border-radius: 6px;
-  min-height: 62px;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: 22px 16px;
   align-items: center;
-  justify-content: center;
-  gap: 2px;
-  background: var(--c-white);
-  padding: 6px 2px;
+  justify-items: center;
+  padding: 6px 4px;
+  height: 52px;
+  overflow: hidden;
+  border-radius: 6px;
+  background: none;
+  color: #1a1a1a;
 }
 .mcal__cell--empty {
-  border: none;
   background: transparent;
 }
 .mcal__cell--unavailable {
-  background: var(--c-surface);
-  color: var(--c-medium-grey);
+  opacity: 0.6;
   cursor: not-allowed;
 }
-.mcal__cell--selected {
-  background: var(--c-via-green);
-  border-color: var(--c-via-green);
+.mcal__cell--in {
+  background: #00b67a;
 }
-.mcal__cell--selected .mcal__day,
-.mcal__cell--selected .mcal__price,
-.mcal__cell--selected .mcal__price--value {
-  color: var(--c-white);
+.mcal__cell--in .mcal__day,
+.mcal__cell--in .mcal__price {
+  color: #fff;
+}
+.mcal__cell--range {
+  background: color-mix(in srgb, #00b67a 45%, #fff);
+}
+.mcal__cell--range .mcal__day {
+  color: #fff;
 }
 .mcal__day {
-  font-size: 19px;
+  grid-row: 1;
+  font-size: 15px;
   font-weight: 500;
+  line-height: 1;
 }
-.mcal__cell--unavailable .mcal__day {
-  color: var(--c-medium-grey);
+.mcal__sold {
+  grid-row: 2;
+  font-size: 14px;
+  font-weight: 600;
+  color: #999999;
+  line-height: 1;
 }
 .mcal__price {
-  font-size: 13px;
-  color: var(--c-medium-grey);
+  grid-row: 2;
+  font-size: 12px;
+  font-weight: 600;
+  color: #1a1a1a;
+  line-height: 1;
 }
-.mcal__price--value {
-  color: var(--c-via-green);
+.mcal__price--cheapest {
+  color: #00b67a;
 }
+.mcal__price--selected {
+  color: rgba(255, 255, 255, 0.9);
+}
+/* Sterretje linksboven in de cel van de laagste prijs (zoals de dealpagina) */
 .mcal__star {
-  color: var(--c-via-orange);
-  margin-left: 1px;
-  font-size: 11px;
-}
-.mcal__badge {
   position: absolute;
   top: 2px;
-  right: 2px;
-  background: var(--c-via-black);
-  color: var(--c-white);
+  left: 4px;
   font-size: 10px;
-  border-radius: 3px;
-  padding: 1px 4px;
+  line-height: 1;
+  color: #00b67a;
+  pointer-events: none;
+}
+/* In/uit-badge strak in de rechterbovenhoek (14×14, zwart, geen radius) */
+.mcal__badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 14px;
+  height: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #1a1a1a;
+  color: #fff;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  pointer-events: none;
 }
 .mcal__legend {
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
-  gap: 10px 24px;
-  padding-top: 4px;
+  gap: 16px;
+  margin-top: 4px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+  font-size: 13px;
+  color: #555555;
 }
 .mcal__legenditem {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  font-size: 17px;
+  gap: 6px;
+  font-size: 13px;
 }
-.mcal__star--legend {
-  font-size: 16px;
+.mcal__legendstar {
+  font-size: 14px;
+  line-height: 1;
+  color: #e97132;
 }
 .mcal__swatch {
-  width: 22px;
-  height: 22px;
+  width: 14px;
+  height: 14px;
   border-radius: 4px;
-  background: var(--c-surface);
-  border: 1px solid var(--c-light-grey);
-}
-.mcal__swatch--selected {
-  background: var(--c-via-green);
-  border-color: var(--c-via-green);
+  background: #dbdbdb;
+  opacity: 0.7;
 }
 
 /* CTA + Trustpilot */

@@ -47,22 +47,23 @@ const listRooms = reactive<ListRoom[]>(
     image: r.image,
     description: r.facilitiesIntro,
     facilities: r.facilities,
+    // Gratis annuleren vooraan (meest links in de scroll-rij).
     rows: [
-      {
-        id: `${r.id}-nonref`,
-        baseId: r.id,
-        rateKey: 'nonrefundable',
-        priceWas: r.priceWas,
-        price: r.priceNow,
-        quantity: 0,
-        scarcity: r.id === 'junior' ? 'Nog 2 kamers over' : undefined,
-      },
       {
         id: `${r.id}-flex`,
         baseId: r.id,
         rateKey: 'flexible',
         priceWas: r.priceWas,
         price: r.priceNow + pricing.flexibilityPerRoom,
+        quantity: 0,
+        scarcity: r.id === 'junior' ? 'Nog 2 kamers over' : undefined,
+      },
+      {
+        id: `${r.id}-nonref`,
+        baseId: r.id,
+        rateKey: 'nonrefundable',
+        priceWas: r.priceWas,
+        price: r.priceNow,
         quantity: 0,
         scarcity: r.id === 'junior' ? 'Nog 2 kamers over' : undefined,
       },
@@ -812,14 +813,15 @@ const fcTotals = computed(() => {
   white-space: nowrap;
 }
 
-/* Tariefkaarten: horizontale scroll-rij */
+/* Tariefkaarten: horizontale scroll-rij. De rij steekt tot 4px van de
+   kaartrand uit (kamerkaart-padding 16px − 12px marge = 4px). */
 .mrates {
   display: flex;
   gap: 12px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
-  margin: 0 -16px;
-  padding: 4px 16px 8px;
+  margin: 0 -12px;
+  padding: 4px 0 8px;
 }
 .mrate {
   flex: 0 0 78%;

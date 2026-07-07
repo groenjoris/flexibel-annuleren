@@ -6,9 +6,9 @@ export default defineNuxtRouteMiddleware((to) => {
   const isMobile = /iPhone|iPod|Windows Phone|Android.*Mobile/i.test(navigator.userAgent)
   if (!isMobile) return
 
-  const match = to.path.match(/^\/journey\/([^/]+)\/(deal|date|checkout)$/)
+  // De dealpagina is responsive (eigen mobiele weergave) en blijft de start
+  // van de journey; alleen de vervolgstappen hebben een aparte mobiele site.
+  const match = to.path.match(/^\/journey\/([^/]+)\/(date|checkout)$/)
   if (!match) return
-  // Er is geen mobiele dealpagina: de mobiele journey start bij de kalender.
-  const step = match[2] === 'deal' ? 'date' : match[2]
-  return navigateTo(`/m/journey/${match[1]}/${step}`, { replace: true })
+  return navigateTo(`/m/journey/${match[1]}/${match[2]}`, { replace: true })
 })
