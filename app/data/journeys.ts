@@ -14,6 +14,8 @@ export const JOURNEY_NAMES: Record<string, string> = {
   '8': 'Final A — Forced choice zonder extra\'s',
   '9': 'Final A — Forced choice met extra\'s',
   '10': 'Final B — Room table met sidebar',
+  // Newsletter opt-in reeks: Base = Final A zonder extra's + gegevensstap.
+  '11': 'Newsletter opt-in — Base',
 }
 
 // Eén kortingsfactor voor de hele journey: de kalender toont €459 van €867,

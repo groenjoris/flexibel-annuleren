@@ -25,6 +25,15 @@ interface StartSection {
 
 const sections = computed<StartSection[]>(() => [
   {
+    heading: 'Newsletter opt-in',
+    groups: [
+      {
+        title: 'Base',
+        buttons: [{ label: 'Start', to: '/journey/11/deal' }],
+      },
+    ],
+  },
+  {
     heading: 'Final variants',
     groups: [
       {

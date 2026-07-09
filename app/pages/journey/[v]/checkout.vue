@@ -44,15 +44,18 @@ const arrangementIncludes = [
 const sideEl = ref<HTMLElement | null>(null)
 const sideTop = useStickyFit(sideEl, 16)
 
-// ---- Variant 5/6/7 + Final 8/9: room cards + extra stap met forced choice ----
+// ---- Variant 5/6/7 + Final 8/9 + v11: room cards + extra stap met forced choice ----
 // V6 toont in de keuzestap totaalprijzen i.p.v. +€0/+€15 (concept 2d).
 // V7 = v6 + losse extra's onder het annuleringsblok ("Maak je booking compleet").
 // FINAL: v8 = v5 (D, +€0/+€15 zonder extra's); v9 = v7 maar met +€0/+€15.
-const isCardsVariant = computed(() => ['5', '6', '7', '8', '9'].includes(jv.value))
+// V11 (Newsletter opt-in — Base) = v8 + gegevenspagina als laatste stap.
+const isCardsVariant = computed(() => ['5', '6', '7', '8', '9', '11'].includes(jv.value))
 // Varianten met het extra's-blok in de keuzestap.
 const hasExtras = computed(() => jv.value === '7' || jv.value === '9')
-// Final A (v8/v9): keuzestap heet "Maak je boeking compleet" (met én zonder extra's).
-const isFinalA = computed(() => jv.value === '8' || jv.value === '9')
+// Final A (v8/v9) + v11: keuzestap heet "Maak je boeking compleet".
+const isFinalA = computed(() => ['8', '9', '11'].includes(jv.value))
+// V11: na de forced choice volgt nog de gegevenspagina.
+const hasDetailsStep = computed(() => jv.value === '11')
 const stepTwoTitle = computed(() =>
   isFinalA.value
     ? 'Maak je boeking compleet'
@@ -146,6 +149,25 @@ const v6Totals = computed(() => {
   const roomCount = v5Cards.value.reduce((s, r) => s + r.quantity, 0)
   return { nonRef, flex: nonRef + roomCount * pricing.flexibilityPerRoom }
 })
+// V11: kamer-selectie + gekozen beleid delen met de gegevenspagina.
+const journeySelection = useState<
+  { baseId: string; rateKey: 'nonrefundable' | 'flexible'; price: number; priceWas: number; quantity: number }[]
+>('journey-selection', () => [])
+function goToDetails() {
+  if (forcedChoice.value === null) return
+  // Flex-toeslag in de rijprijs bakken (de gegevens-sidebar heeft geen losse regel).
+  const extra = forcedChoice.value === 'flexible' ? pricing.flexibilityPerRoom : 0
+  journeySelection.value = v5Cards.value
+    .filter((r) => r.quantity > 0)
+    .map((r) => ({
+      baseId: r.id,
+      rateKey: forcedChoice.value as 'nonrefundable' | 'flexible',
+      price: r.priceNow + extra,
+      priceWas: r.priceWas + extra,
+      quantity: r.quantity,
+    }))
+  navigateTo(`/journey/${jv.value}/details`)
+}
 function v5Continue() {
   if (forcedStep.value === 1) {
     forcedStep.value = 2
@@ -154,7 +176,12 @@ function v5Continue() {
   }
   // V7/V9: de CTA blijft actief; zonder keuze scrollen we terug naar het
   // keuzeblok en lichten we de subtitel op.
-  if (hasExtras.value && forcedChoice.value === null) v7TryContinue()
+  if (hasExtras.value && forcedChoice.value === null) {
+    v7TryContinue()
+    return
+  }
+  // V11: na een gemaakte keuze door naar de gegevenspagina.
+  if (hasDetailsStep.value && forcedChoice.value !== null) goToDetails()
 }
 
 // V7: geen inactieve knop — bij doorklikken zonder keuze terug omhoog.
@@ -368,7 +395,7 @@ watch(forcedChoice, (v) => {
             >
               Opslaan en doorgaan
             </button>
-            <button v-else class="btn-primary btn-primary--auto" type="button" :disabled="forcedChoice === null">
+            <button v-else class="btn-primary btn-primary--auto" type="button" :disabled="forcedChoice === null" @click="v5Continue">
               {{ forcedChoice === null ? 'Maak eerst een keuze' : 'Verder' }}
             </button>
           </div>
@@ -407,8 +434,8 @@ watch(forcedChoice, (v) => {
             :includes="includes"
             :pricing="v5Pricing"
             :trustpilot="trustpilot"
-            :selected="['5', '8', '9'].includes(jv) ? forcedChoice : null"
-            :show-flex-line="['5', '8', '9'].includes(jv) && forcedChoice === 'flexible'"
+            :selected="['5', '8', '9', '11'].includes(jv) ? forcedChoice : null"
+            :show-flex-line="['5', '8', '9', '11'].includes(jv) && forcedChoice === 'flexible'"
             :cta-disabled="!hasExtras && forcedStep === 2 && forcedChoice === null"
             :extras="hasExtras ? v7Extras : undefined"
             @cta="v5Continue"

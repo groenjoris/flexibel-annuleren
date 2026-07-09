@@ -348,7 +348,7 @@ const arrangementIncludes = [
 
             <!-- Variant 1/4: prijsopbouw op basis van de gekozen dag -->
             <!-- Prijsblok na datumkeuze; v2 en Final B (v10) verbergen de prijs -->
-            <template v-if="['1', '4', '5', '6', '7', '8', '9'].includes(jv) && selected">
+            <template v-if="['1', '4', '5', '6', '7', '8', '9', '11'].includes(jv) && selected">
               <hr class="side__hr" />
 
               <div class="side__details">
