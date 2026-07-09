@@ -272,7 +272,10 @@ const arrangementIncludes = [
           <th class="rt__th rt__th--type">Kamertype</th>
           <th class="rt__th rt__th--guests">Aantal gasten</th>
           <th class="rt__th">
-            <span class="rt__thprice">Prijs voor 2 nachten<FirstReleasePriceInfoTooltip variant="deal" /></span>
+            <span class="rt__thprice">
+              <span class="rt__thprice-line">Prijs voor</span>
+              <span class="rt__thprice-line">2 nachten<FirstReleasePriceInfoTooltip variant="deal" /></span>
+            </span>
           </th>
           <th class="rt__th rt__th--options">Je opties</th>
           <th class="rt__th rt__th--select">Kies kamers</th>
@@ -337,15 +340,16 @@ const arrangementIncludes = [
             <template v-if="row.rateKey === 'flexible'">
               <p class="rt__opt rt__opt--green">
                 <svg class="rt__check" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
-                Flexibel annuleren vóór 17 mei
+                Flexibel annuleren
               </p>
+              <p class="rt__optsub">tot 3 mei 23:59</p>
             </template>
             <template v-else>
               <p class="rt__opt">
                 <svg class="rt__check rt__check--nonref" width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" /><path d="M8 8l8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
                 Niet-terugbetaalbaar
               </p>
-              <p class="rt__optsub">Als je je boeking wilt wijzigen of annuleren, ontvang je geen bedrag retour.</p>
+              <p class="rt__optsub">Geen geld terug bij annuleren of wijzigen</p>
             </template>
             <p v-if="row.scarcity" class="rt__scarcity">
               <span class="rt__bullet" aria-hidden="true">•</span>
@@ -370,6 +374,9 @@ const arrangementIncludes = [
               <option :value="0">0</option>
               <option v-for="n in 5" :key="n" :value="n">{{ row.quantity === n ? n : `${n} (€${n * rowPrice(row)})` }}</option>
             </select>
+            <p v-if="row.quantity > 0" class="rt__max">
+              Max.<br>{{ row.quantity * 2 }} personen
+            </p>
           </td>
 
           <!-- Reserveringspaneel (één cel over de hele tabel) -->
@@ -527,8 +534,10 @@ const arrangementIncludes = [
 .rt__th:first-child { border-top-left-radius: var(--radius); }
 .rt__th:last-child { border-top-right-radius: var(--radius); }
 .rt__th--type { width: 280px; }
-.rt__th--guests { width: 90px; }
-.rt__th--options { width: 22%; }
+/* Smallere gasten-kolom zodat "Je opties" (Flexibel annuleren op 1 regel)
+   en de prijskolom genoeg breedte houden */
+.rt__th--guests { width: 74px; }
+.rt__th--options { width: 25%; }
 .rt__th--select { width: 96px; }
 /* Rechterkolom: groene headercel (band loopt door), daaronder één
    doorlopend grijs paneel zonder dividers. */
@@ -587,10 +596,18 @@ const arrangementIncludes = [
 }
 .rt__price .price { margin-right: 6px; }
 /* Boekingskosten-toelichting (i) naast de kolomkop-tekst */
+/* Kolomkop "Prijs voor 2 nachten": altijd 2 regels, (i) na "nachten" */
 .rt__thprice {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+.rt__thprice-line {
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  white-space: nowrap;
 }
 
 /* Opties */
@@ -646,6 +663,13 @@ const arrangementIncludes = [
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M6 9l6 6 6-6' stroke='%231a1e1e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 4px center;
+}
+/* Max personen onder de dropdown (2 regels) zodra er kamers gekozen zijn */
+.rt__max {
+  margin-top: 8px;
+  font-size: var(--t-caption);
+  line-height: 1.3;
+  color: var(--c-medium-grey);
 }
 /* Andere policy geselecteerd: uitgegrijsd, klik opent de keuze-popup */
 .rt__dropdown--inactive {

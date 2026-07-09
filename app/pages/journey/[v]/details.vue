@@ -40,6 +40,25 @@ function roomNameFor(baseId: string) {
 const checkInLabel = computed(() => journeyDay.value?.checkIn || hotel.checkInDate)
 const checkOutLabel = computed(() => journeyDay.value?.checkOut || hotel.checkOutDate)
 
+// Final B (v10) + Base (v11): "Flexibel annuleren"-blok in het formulier,
+// met een variatie op basis van de gekozen flexibiliteit. De link/knop
+// wisselt de keuze (± €15 per kamer in de rijprijs).
+const FLEX_FEE = 15
+const cancelBlock = computed<'flexible' | 'nonrefundable' | null>(() => {
+  if (!['10', '11'].includes(jv.value) || selection.value.length === 0) return null
+  return selection.value.some((r) => r.rateKey === 'flexible') ? 'flexible' : 'nonrefundable'
+})
+function toggleFlex() {
+  const toFlex = cancelBlock.value === 'nonrefundable'
+  const delta = toFlex ? FLEX_FEE : -FLEX_FEE
+  selection.value = selection.value.map((r) => ({
+    ...r,
+    rateKey: toFlex ? 'flexible' : 'nonrefundable',
+    price: r.price + delta,
+    priceWas: r.priceWas + delta,
+  }))
+}
+
 const arrangementIncludes = [
   '2 x Overnachting',
   'Dagelijks ontbijtbuffet',
@@ -64,8 +83,8 @@ const sideTop = useStickyFit(sideEl, 16)
       <div class="page__grid">
         <div class="col-form">
           <h1 class="t-display">Gegevens en betaalwijze</h1>
-          <!-- Zonder annuleringsblok: nummering start op 1 -->
-          <CheckoutGegevensForm :start-at="1" />
+          <!-- Nummering start op 1; v10/v11 tonen het Flexibel annuleren-blok -->
+          <CheckoutGegevensForm :start-at="1" :cancel-block="cancelBlock" @toggle-flex="toggleFlex" />
 
           <div class="col-form__cta col-form__cta--split">
             <NuxtLink class="btn-back t-body" :to="`/journey/${jv}/checkout`">← Terug naar kamers</NuxtLink>

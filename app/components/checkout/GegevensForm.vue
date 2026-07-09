@@ -2,7 +2,14 @@
 // Bloknummering is configureerbaar: in concept 2c is blok 1 de forced
 // choice (nummering start op 2); de journey-gegevenspagina zonder
 // annuleringsblok laat de nummering op 1 beginnen.
-withDefaults(defineProps<{ startAt?: number }>(), { startAt: 2 })
+// cancelBlock: toont het "Flexibel annuleren"-blok (blok 2) met een
+// variatie op basis van de gekozen flexibiliteit; de link/knop erin
+// wisselt de keuze via het toggle-flex event.
+withDefaults(
+  defineProps<{ startAt?: number; cancelBlock?: 'flexible' | 'nonrefundable' | null }>(),
+  { startAt: 2, cancelBlock: null },
+)
+defineEmits<{ 'toggle-flex': [] }>()
 </script>
 
 <template>
@@ -85,9 +92,37 @@ withDefaults(defineProps<{ startAt?: number }>(), { startAt: 2 })
       </div>
     </section>
 
-    <!-- 3 — Speciale wensen -->
+    <!-- Flexibel annuleren (variatie op basis van gekozen flexibiliteit) -->
+    <section v-if="cancelBlock" class="card gf__block">
+      <h2 class="gf__title">{{ startAt + 1 }} — Flexibel annuleren</h2>
+
+      <template v-if="cancelBlock === 'flexible'">
+        <p class="gf__note">
+          Je kunt dit arrangement tot <strong>24 oktober 2026 23:59:59</strong> annuleren.
+          Je ontvangt dan het arrangementsbedrag plus eventueel bijgeboekte extra's terug.
+        </p>
+        <button class="gf__flexlink" type="button" @click="$emit('toggle-flex')">
+          Ik boek liever een niet-terugbetaalbaar tarief.
+        </button>
+      </template>
+
+      <template v-else>
+        <p class="gf__note">
+          Je staat op het punt om een niet-terugbetaalbaar tarief te boeken, bij annulering of
+          wijziging ontvang je geen bedrag retour. Voor slechts €15 extra (per kamer) kun je tot
+          72 uur voor dag van aankomst flexibel annuleren.
+        </p>
+        <div class="gf__flexcta">
+          <button class="btn-primary gf__flexbtn" type="button" @click="$emit('toggle-flex')">
+            Ik wil flexibel kunnen annuleren
+          </button>
+        </div>
+      </template>
+    </section>
+
+    <!-- Speciale wensen -->
     <section class="card gf__block">
-      <h2 class="gf__title">{{ startAt + 1 }} — Speciale wensen (optioneel)</h2>
+      <h2 class="gf__title">{{ startAt + 1 + (cancelBlock ? 1 : 0) }} — Speciale wensen (optioneel)</h2>
       <p class="gf__note">
         Als je speciale wensen of behoeften hebt, zullen wij dit doorgeven aan het hotel. Het hotelpersoneel
         zal zijn best doen om aan je wensen te voldoen. Als je niets van de accommodatie hoort, kun je
@@ -102,13 +137,13 @@ withDefaults(defineProps<{ startAt?: number }>(), { startAt: 2 })
 
     <!-- 4 — Kortingscode -->
     <section class="card gf__block">
-      <h2 class="gf__title">{{ startAt + 2 }} — Kortingscode</h2>
+      <h2 class="gf__title">{{ startAt + 2 + (cancelBlock ? 1 : 0) }} — Kortingscode</h2>
       <p class="gf__note"><a class="gf__link" href="#">Klik hier</a> als je een kortingscode wil verzilveren</p>
     </section>
 
     <!-- 5 — Hoe wil je betalen? -->
     <section class="card gf__block">
-      <h2 class="gf__title">{{ startAt + 3 }} — Hoe wil je betalen?</h2>
+      <h2 class="gf__title">{{ startAt + 3 + (cancelBlock ? 1 : 0) }} — Hoe wil je betalen?</h2>
 
       <label class="gf__pay">
         <input type="radio" name="gf-pay" checked />
@@ -232,6 +267,22 @@ withDefaults(defineProps<{ startAt?: number }>(), { startAt: 2 })
 .gf__link {
   color: var(--c-via-black);
   text-decoration: underline;
+}
+/* Flexibel annuleren-blok: down-sell link + up-sell knop */
+.gf__flexlink {
+  align-self: flex-start;
+  color: var(--c-via-black);
+  text-decoration: underline;
+  font-size: var(--t-body);
+}
+.gf__flexcta {
+  display: flex;
+  justify-content: center;
+  margin-top: 4px;
+}
+.gf__flexbtn {
+  width: auto;
+  min-width: 254px;
 }
 .gf__pay {
   display: flex;
