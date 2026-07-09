@@ -271,7 +271,9 @@ const arrangementIncludes = [
         <tr>
           <th class="rt__th rt__th--type">Kamertype</th>
           <th class="rt__th rt__th--guests">Aantal gasten</th>
-          <th class="rt__th">Prijs voor 2 nachten</th>
+          <th class="rt__th">
+            <span class="rt__thprice">Prijs voor 2 nachten<FirstReleasePriceInfoTooltip variant="deal" /></span>
+          </th>
           <th class="rt__th rt__th--options">Je opties</th>
           <th class="rt__th rt__th--select">Kies kamers</th>
           <th v-if="showReserve" class="rt__th rt__th--reserve" />
@@ -314,11 +316,10 @@ const arrangementIncludes = [
             </svg>
           </td>
 
-          <!-- Prijs, met de boekingskosten-toelichting van de dealpagina -->
+          <!-- Prijs; de boekingskosten-toelichting staat 1x in de kolomkop -->
           <td class="rt__td rt__price">
             <CheckoutPriceTag :value="rowWas(row)" :show-cents="false" size="sm" bold strike color="var(--c-medium-grey)" />
             <CheckoutPriceTag :value="rowPrice(row)" :show-cents="false" size="md" bold color="var(--c-via-orange)" />
-            <FirstReleasePriceInfoTooltip variant="deal" />
           </td>
 
           <!-- Je opties (1e: zonder de vaste vinkjes, begint met de voorwaarde) -->
@@ -336,7 +337,7 @@ const arrangementIncludes = [
             <template v-if="row.rateKey === 'flexible'">
               <p class="rt__opt rt__opt--green">
                 <svg class="rt__check" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
-                Gratis annuleren vóór 17 mei
+                Flexibel annuleren vóór 17 mei
               </p>
             </template>
             <template v-else>
@@ -344,7 +345,7 @@ const arrangementIncludes = [
                 <svg class="rt__check rt__check--nonref" width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" /><path d="M8 8l8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
                 Niet-terugbetaalbaar
               </p>
-              <p class="rt__optsub">Je betaalt het volledige bedrag, ook als je annuleert.</p>
+              <p class="rt__optsub">Als je je boeking wilt wijzigen of annuleren, ontvang je geen bedrag retour.</p>
             </template>
             <p v-if="row.scarcity" class="rt__scarcity">
               <span class="rt__bullet" aria-hidden="true">•</span>
@@ -388,7 +389,7 @@ const arrangementIncludes = [
                   <div class="rt__dmain">
                     <p class="t-body t-bold">Arrangement</p>
                     <p class="t-caption c-mgrey">{{ roomNameFor(row.baseId) }}</p>
-                    <p v-if="row.rateKey === 'flexible'" class="t-caption c-green">Gratis annuleren</p>
+                    <p v-if="row.rateKey === 'flexible'" class="t-caption c-green">Flexibel annuleren</p>
                   </div>
                   <CheckoutPriceTag :value="row.quantity * rowPrice(row)" :show-cents="false" size="sm" />
                 </div>
@@ -585,9 +586,11 @@ const arrangementIncludes = [
   white-space: nowrap;
 }
 .rt__price .price { margin-right: 6px; }
-/* Info-icoontje dichter op de prijs, los van de kolomrand */
-.rt__price :deep(.price-info) {
-  margin-left: -4px;
+/* Boekingskosten-toelichting (i) naast de kolomkop-tekst */
+.rt__thprice {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 /* Opties */

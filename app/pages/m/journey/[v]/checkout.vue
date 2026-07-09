@@ -581,13 +581,13 @@ const fcTotals = computed(() => {
                 }"
               >
                 <p class="mrate__title" :class="{ 'c-green': row.rateKey === 'flexible' }">
-                  {{ row.rateKey === 'flexible' ? 'Gratis annuleren' : 'Niet-terugbetaalbaar' }}
+                  {{ row.rateKey === 'flexible' ? 'Flexibel annuleren' : 'Niet-terugbetaalbaar' }}
                 </p>
                 <p v-if="row.rateKey === 'flexible'" class="mrate__line mrate__line--green">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
-                  Gratis annuleren vóór 17 mei
+                  Flexibel annuleren vóór 17 mei
                 </p>
-                <p v-else class="mrate__line">Je betaalt het volledige bedrag, ook als je annuleert.</p>
+                <p v-else class="mrate__line">Als je je boeking wilt wijzigen of annuleren, ontvang je geen bedrag retour.</p>
                 <p v-if="row.scarcity" class="mrate__line mrate__line--red">· {{ row.scarcity }}</p>
 
                 <div class="mrate__pricing">
@@ -662,7 +662,7 @@ const fcTotals = computed(() => {
                        op de regel van de kamernaam -->
                   <div class="mdetails__right">
                     <CheckoutPriceTag :value="row.quantity * rowPrice(row)" :show-cents="false" size="sm" />
-                    <p v-if="row.rateKey === 'flexible'" class="t-caption c-green">Gratis annuleren</p>
+                    <p v-if="row.rateKey === 'flexible'" class="t-caption c-green">Flexibel annuleren</p>
                     <p v-else class="t-caption c-grey">Niet-terugbetaalbaar</p>
                   </div>
                 </div>

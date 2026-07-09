@@ -406,7 +406,7 @@ const arrangementIncludes = [
                   <div class="side__rowmain">
                     <p class="t-body t-bold">Arrangement</p>
                     <p class="t-caption c-mgrey">{{ roomNameFor(row.baseId) }}</p>
-                    <p v-if="row.rateKey === 'flexible'" class="t-caption c-green">Gratis annuleren</p>
+                    <p v-if="row.rateKey === 'flexible'" class="t-caption c-green">Flexibel annuleren</p>
                     <p v-else class="t-caption c-grey">Niet-terugbetaalbaar</p>
                   </div>
                   <CheckoutPriceTag :value="row.quantity * row.price" :show-cents="false" size="sm" />
