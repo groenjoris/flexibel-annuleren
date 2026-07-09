@@ -282,7 +282,7 @@ watch(forcedChoice, (v) => {
                     <CheckoutPriceTag :value="totalPrice" size="lg" bold color="var(--c-via-green)" />
                   </div>
                 </div>
-                <p class="t-caption c-mgrey">{{ roomsSel }} {{ roomsSel === 1 ? 'kamer' : 'kamers' }} voor 2 nachten</p>
+                <p class="t-caption c-mgrey">{{ roomsSel }} {{ roomsSel === 1 ? 'kamer' : 'kamers' }} voor 2 nachten voor {{ roomsSel * 2 }} personen</p>
               </div>
 
               <p class="side__saved">

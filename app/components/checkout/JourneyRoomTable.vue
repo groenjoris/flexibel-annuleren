@@ -375,7 +375,7 @@ const arrangementIncludes = [
               <option v-for="n in 5" :key="n" :value="n">{{ row.quantity === n ? n : `${n} (€${n * rowPrice(row)})` }}</option>
             </select>
             <p v-if="row.quantity > 0" class="rt__max">
-              Max.<br>{{ row.quantity * 2 }} personen
+              (Maximaal)<br>{{ row.quantity * 2 }} personen
             </p>
           </td>
 
@@ -523,7 +523,7 @@ const arrangementIncludes = [
   vertical-align: top;
   font-size: var(--t-body-lg);
   font-weight: var(--w-black);
-  padding: 14px 16px;
+  padding: 8px 10px;
   /* Blend tussen headergroen (#00675F) en het grijs van de tabellijnen */
   border-right: 1px solid #6ca09c;
   /* Header blijft aan de bovenkant van het venster plakken bij scrollen */
@@ -547,7 +547,7 @@ const arrangementIncludes = [
 }
 .rt__td {
   border: 1px solid var(--c-light-grey);
-  padding: 16px;
+  padding: 10px;
   vertical-align: top;
 }
 /* Dikke divider tussen kamertypes */

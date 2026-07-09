@@ -427,7 +427,7 @@ const arrangementIncludes = [
                     <CheckoutPriceTag :value="rooms3Total" size="lg" bold color="var(--c-via-green)" />
                   </div>
                 </div>
-                <p class="t-caption c-mgrey">{{ rooms3 }} {{ rooms3 === 1 ? 'kamer' : 'kamers' }} voor {{ NIGHTS }} nachten</p>
+                <p class="t-caption c-mgrey">{{ rooms3 }} {{ rooms3 === 1 ? 'kamer' : 'kamers' }} voor {{ NIGHTS }} nachten voor {{ rooms3 * 2 }} personen</p>
               </div>
 
               <p class="side__saved">
