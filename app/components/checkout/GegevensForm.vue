@@ -94,19 +94,19 @@ defineEmits<{ 'toggle-flex': [] }>()
 
     <!-- Flexibel annuleren (variatie op basis van gekozen flexibiliteit) -->
     <section v-if="cancelBlock" class="card gf__block">
-      <h2 class="gf__title">{{ startAt + 1 }} — Flexibel annuleren</h2>
-
       <template v-if="cancelBlock === 'flexible'">
+        <h2 class="gf__title gf__title--check">
+          <svg class="gf__titlecheck" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          {{ startAt + 1 }} — Flexibel annuleren
+        </h2>
         <p class="gf__note">
           Je kunt dit arrangement tot <strong>24 oktober 2026 23:59:59</strong> annuleren.
           Je ontvangt dan het arrangementsbedrag plus eventueel bijgeboekte extra's terug.
         </p>
-        <button class="gf__flexlink" type="button" @click="$emit('toggle-flex')">
-          Ik boek liever een niet-terugbetaalbaar tarief.
-        </button>
       </template>
 
       <template v-else>
+        <h2 class="gf__title">{{ startAt + 1 }} — Kies voor flexibel annuleren</h2>
         <p class="gf__note">
           Je staat op het punt om een niet-terugbetaalbaar tarief te boeken, bij annulering of
           wijziging ontvang je geen bedrag retour. Voor slechts €15 extra (per kamer) kun je tot
@@ -114,7 +114,7 @@ defineEmits<{ 'toggle-flex': [] }>()
         </p>
         <div class="gf__flexcta">
           <button class="btn-primary gf__flexbtn" type="button" @click="$emit('toggle-flex')">
-            Ik wil flexibel kunnen annuleren
+            Flexibel annuleren toevoegen
           </button>
         </div>
       </template>
@@ -268,12 +268,15 @@ defineEmits<{ 'toggle-flex': [] }>()
   color: var(--c-via-black);
   text-decoration: underline;
 }
-/* Flexibel annuleren-blok: down-sell link + up-sell knop */
-.gf__flexlink {
-  align-self: flex-start;
-  color: var(--c-via-black);
-  text-decoration: underline;
-  font-size: var(--t-body);
+/* Flexibel annuleren-blok */
+.gf__title--check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.gf__titlecheck {
+  color: var(--c-via-green);
+  flex-shrink: 0;
 }
 .gf__flexcta {
   display: flex;
@@ -283,6 +286,10 @@ defineEmits<{ 'toggle-flex': [] }>()
 .gf__flexbtn {
   width: auto;
   min-width: 254px;
+  background: var(--c-via-green);
+}
+.gf__flexbtn:hover {
+  background: #2db07d;
 }
 .gf__pay {
   display: flex;
