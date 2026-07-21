@@ -185,19 +185,19 @@ const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
   gap: 2px;
 }
 .sn__bannertitle {
-  font-size: var(--t-h1);
-  line-height: var(--lh-h1);
+  font-size: var(--t-h2);
+  line-height: var(--lh-h2);
   font-weight: var(--w-black);
   margin-bottom: 6px;
 }
 .sn__bannerlead {
-  font-size: var(--t-body-lg);
-  line-height: var(--lh-body-lg);
+  font-size: var(--t-body);
+  line-height: var(--lh-body);
   font-weight: var(--w-black);
 }
 .sn__bannerbody {
-  font-size: var(--t-body-lg);
-  line-height: var(--lh-body-lg);
+  font-size: var(--t-body);
+  line-height: var(--lh-body);
 }
 
 /* Kaarten */
@@ -223,12 +223,9 @@ const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
   font-family: inherit;
   transition: border-color 0.15s ease;
 }
-/* Zelfde borderpatroon als het bestaande keuzeblok: 1px in rust
-   (groen voor de genudgede kaart), 2px bij selectie met
-   padding-compensatie zodat de kaart niet verspringt. */
-.sn__card--flex {
-  border-color: var(--sn-green);
-}
+/* Zelfde borderpatroon als het bestaande keuzeblok: zonder selectie zijn
+   beide kaarten gelijk (1px grijs); bij selectie 2px met padding-
+   compensatie zodat de kaart niet verspringt. */
 .sn__card--on {
   border-width: 2px;
   border-color: var(--c-via-black);
@@ -249,12 +246,12 @@ const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
   gap: 8px;
 }
 .sn__cardtitle {
-  font-size: var(--t-h2);
-  line-height: var(--lh-h2);
+  font-size: var(--t-body-lg);
+  line-height: var(--lh-body-lg);
   font-weight: var(--w-black);
 }
 .sn__subtitle {
-  font-size: var(--t-body-lg);
+  font-size: var(--t-body);
   color: var(--c-via-black);
 }
 .sn__badge {
@@ -263,14 +260,14 @@ const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
   gap: 5px;
   background: var(--sn-green-soft);
   color: var(--sn-green);
-  font-size: var(--t-body);
+  font-size: var(--t-caption);
   font-weight: var(--w-black);
   border-radius: 999px;
   padding: 4px 12px;
 }
 .sn__price {
   color: var(--sn-green);
-  font-size: var(--t-body-lg);
+  font-size: var(--t-body);
 }
 .sn__price strong {
   font-size: 1.25em;
@@ -341,11 +338,11 @@ const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
   gap: 2px;
 }
 .sn__benefittitle {
-  font-size: var(--t-body-lg);
+  font-size: var(--t-body);
   font-weight: var(--w-black);
 }
 .sn__benefitsub {
-  font-size: var(--t-body-lg);
+  font-size: var(--t-body);
   color: var(--c-via-black);
 }
 
@@ -374,7 +371,7 @@ const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
   background: var(--sn-green);
 }
 .sn__choosetext {
-  font-size: var(--t-body-lg);
+  font-size: var(--t-body);
   font-weight: var(--w-black);
 }
 
@@ -385,7 +382,7 @@ const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
   justify-content: center;
   flex-wrap: wrap;
   gap: 12px;
-  font-size: var(--t-body-lg);
+  font-size: var(--t-body);
 }
 .sn__footinfo {
   display: inline-flex;
