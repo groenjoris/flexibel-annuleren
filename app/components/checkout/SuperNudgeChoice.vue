@@ -1,0 +1,418 @@
+<script setup lang="ts">
+// "Yvette's Super Nudge": forced choice als vergelijking van twee kaarten
+// met daarboven een geruststellingsbanner (social proof). Niets is
+// voorgeselecteerd; de ouder houdt de CTA inactief tot er gekozen is.
+import type { CancelChoice } from '~/data/cancellation'
+
+defineProps<{ modelValue: CancelChoice }>()
+const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
+</script>
+
+<template>
+  <section class="sn">
+    <!-- Banner: social proof + uitleg -->
+    <div class="sn__banner">
+      <svg class="sn__bannericon" width="72" height="80" viewBox="0 0 24 24" fill="none">
+        <path d="M12 2.5l7.5 3v5.5c0 4.8-3.2 8.6-7.5 10-4.3-1.4-7.5-5.2-7.5-10V5.5l7.5-3z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
+        <path d="M8.5 12l2.4 2.4 4.6-4.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+      <div class="sn__bannertext">
+        <h2 class="sn__bannertitle">Boek met een gerust gevoel</h2>
+        <p class="sn__bannerlead">
+          <span class="sn__green">Meer dan 60%</span> van onze gasten kiest voor Flexibel Annuleren.
+        </p>
+        <p class="sn__bannerbody">
+          Voor slechts €15 per kamer boek je met extra zekerheid. Zo kun je je boeking
+          tot 2 dagen voor aankomst annuleren of wijzigen en ontvang je de
+          arrangementskosten terug.
+        </p>
+      </div>
+    </div>
+
+    <!-- Vergelijkingskaarten -->
+    <div class="sn__cards">
+      <!-- Flexibel annuleren (genudged) -->
+      <button
+        type="button"
+        class="sn__card sn__card--flex"
+        :class="{ 'sn__card--on': modelValue === 'flexible' }"
+        @click="emit('update:modelValue', 'flexible')"
+      >
+        <span class="sn__cardhead">
+          <span class="sn__iconcircle sn__iconcircle--green">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M12 3l6.5 2.6v4.8c0 4.1-2.7 7.4-6.5 8.6-3.8-1.2-6.5-4.5-6.5-8.6V5.6L12 3z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+              <path d="M9 11.5l2.1 2.1 3.9-4.1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </span>
+          <span class="sn__headmain">
+            <span class="sn__cardtitle">Flexibel annuleren</span>
+            <span class="sn__badge">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6L3.3 9.3l6.1-.7L12 3z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" /></svg>
+              Aanbevolen
+            </span>
+            <span class="sn__price">Voor slechts <strong>€15</strong> per kamer</span>
+          </span>
+        </span>
+
+        <hr class="sn__hr" />
+
+        <span class="sn__benefits">
+          <span class="sn__benefit">
+            <span class="sn__iconcircle sn__iconcircle--soft">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="4" y="5.5" width="16" height="15" rx="2" stroke="currentColor" stroke-width="1.6" /><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
+            </span>
+            <span class="sn__benefittext">
+              <span class="sn__benefittitle">Tot 2 dagen voor aankomst annuleren</span>
+              <span class="sn__benefitsub">Wijzig of annuleer kosteloos.</span>
+            </span>
+          </span>
+          <span class="sn__benefit">
+            <span class="sn__iconcircle sn__iconcircle--soft">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M17.5 7A6.5 6.5 0 1 0 17.5 17M5 10.5h9M5 13.5h9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
+            </span>
+            <span class="sn__benefittext">
+              <span class="sn__benefittitle">Arrangementskosten terug</span>
+              <span class="sn__benefitsub">Je ontvangt de arrangementskosten retour.</span>
+            </span>
+          </span>
+          <span class="sn__benefit">
+            <span class="sn__iconcircle sn__iconcircle--soft">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3l6.5 2.6v4.8c0 4.1-2.7 7.4-6.5 8.6-3.8-1.2-6.5-4.5-6.5-8.6V5.6L12 3z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" /></svg>
+            </span>
+            <span class="sn__benefittext">
+              <span class="sn__benefittitle">Extra zekerheid</span>
+              <span class="sn__benefitsub">Ook handig als je plannen onverwacht wijzigen.</span>
+            </span>
+          </span>
+        </span>
+
+        <hr class="sn__hr" />
+
+        <span class="sn__choose">
+          <span class="sn__radio" :class="{ 'sn__radio--on': modelValue === 'flexible' }" />
+          <span class="sn__choosetext">Kies deze optie</span>
+        </span>
+      </button>
+
+      <!-- Niet-restitueerbaar -->
+      <button
+        type="button"
+        class="sn__card"
+        :class="{ 'sn__card--on': modelValue === 'nonrefundable' }"
+        @click="emit('update:modelValue', 'nonrefundable')"
+      >
+        <span class="sn__cardhead">
+          <span class="sn__iconcircle sn__iconcircle--grey">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12.6 3.5h6a1.9 1.9 0 0 1 1.9 1.9v6a1.9 1.9 0 0 1-.56 1.35l-7.2 7.2a1.9 1.9 0 0 1-2.68 0l-6-6a1.9 1.9 0 0 1 0-2.68l7.2-7.2a1.9 1.9 0 0 1 1.34-.57z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" /><circle cx="16.2" cy="7.8" r="1.2" fill="currentColor" /></svg>
+          </span>
+          <span class="sn__headmain">
+            <span class="sn__cardtitle">Niet-restitueerbaar</span>
+            <span class="sn__subtitle">Geen extra kosten</span>
+          </span>
+        </span>
+
+        <hr class="sn__hr" />
+
+        <span class="sn__benefits">
+          <span class="sn__benefit">
+            <span class="sn__iconcircle sn__iconcircle--check">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            </span>
+            <span class="sn__benefittext">
+              <span class="sn__benefittitle">Laagste prijs</span>
+              <span class="sn__benefitsub">Je profiteert van het laagste tarief.</span>
+            </span>
+          </span>
+          <span class="sn__benefit">
+            <span class="sn__iconcircle sn__iconcircle--cross">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" /></svg>
+            </span>
+            <span class="sn__benefittext">
+              <span class="sn__benefittitle">Geen terugbetaling</span>
+              <span class="sn__benefitsub">Bij annuleren of wijzigen ontvang je geen bedrag retour.</span>
+            </span>
+          </span>
+        </span>
+
+        <hr class="sn__hr" />
+
+        <span class="sn__choose">
+          <span class="sn__radio" :class="{ 'sn__radio--on': modelValue === 'nonrefundable' }" />
+          <span class="sn__choosetext">Kies deze optie</span>
+        </span>
+      </button>
+    </div>
+
+    <!-- Voetnoot -->
+    <p class="sn__foot">
+      <span class="sn__footinfo">
+        <span class="sn__footicon">i</span>
+        Je keuze geldt voor de gehele boeking.
+      </span>
+      <span class="sn__footsep">|</span>
+      <a class="sn__footlink" href="#">Meer informatie over onze annuleringsvoorwaarden</a>
+    </p>
+  </section>
+</template>
+
+<style scoped>
+.sn {
+  --sn-green: #0d7460;
+  --sn-green-soft: #e3f1e9;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.sn__green { color: var(--sn-green); }
+
+/* Banner */
+.sn__banner {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  background: #eef4ef;
+  border-radius: var(--radius);
+  padding: 28px 36px;
+}
+.sn__bannericon {
+  color: var(--sn-green);
+  flex-shrink: 0;
+}
+.sn__bannertext {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.sn__bannertitle {
+  font-size: var(--t-h1);
+  line-height: var(--lh-h1);
+  font-weight: var(--w-black);
+  margin-bottom: 6px;
+}
+.sn__bannerlead {
+  font-size: var(--t-body-lg);
+  line-height: var(--lh-body-lg);
+  font-weight: var(--w-black);
+}
+.sn__bannerbody {
+  font-size: var(--t-body-lg);
+  line-height: var(--lh-body-lg);
+}
+
+/* Kaarten */
+.sn__cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: stretch;
+}
+.sn__card {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  text-align: left;
+  background: var(--c-white);
+  border: 1px solid var(--c-light-grey);
+  border-radius: var(--radius);
+  padding: 24px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.sn__card--flex {
+  border: 2px solid var(--sn-green);
+}
+.sn__card--on {
+  box-shadow: 0 0 0 3px rgba(13, 116, 96, 0.15);
+}
+.sn__cardhead {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+.sn__headmain {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+.sn__cardtitle {
+  font-size: var(--t-h2);
+  line-height: var(--lh-h2);
+  font-weight: var(--w-black);
+}
+.sn__subtitle {
+  font-size: var(--t-body-lg);
+  color: var(--c-via-black);
+}
+.sn__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--sn-green-soft);
+  color: var(--sn-green);
+  font-size: var(--t-body);
+  font-weight: var(--w-black);
+  border-radius: 999px;
+  padding: 4px 12px;
+}
+.sn__price {
+  color: var(--sn-green);
+  font-size: var(--t-body-lg);
+}
+.sn__price strong {
+  font-size: 1.25em;
+  font-weight: var(--w-black);
+}
+
+/* Icoon-cirkels */
+.sn__iconcircle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.sn__iconcircle--green {
+  background: var(--sn-green-soft);
+  color: var(--sn-green);
+}
+.sn__iconcircle--grey {
+  background: #efefef;
+  color: var(--c-dark-grey);
+}
+.sn__iconcircle--soft {
+  background: var(--sn-green-soft);
+  color: var(--sn-green);
+  width: 40px;
+  height: 40px;
+}
+.sn__iconcircle--check {
+  background: #d9efe2;
+  color: var(--sn-green);
+  width: 40px;
+  height: 40px;
+}
+.sn__iconcircle--cross {
+  background: #fbdddd;
+  color: #d33c3c;
+  width: 40px;
+  height: 40px;
+}
+
+/* Voordelen-rijen */
+.sn__hr {
+  border: none;
+  border-top: 1px solid var(--c-light-grey);
+  margin: 0;
+  width: 100%;
+}
+.sn__benefits {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.sn__benefit {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+}
+.sn__benefit + .sn__benefit {
+  border-top: 1px dashed var(--c-light-grey);
+}
+.sn__benefittext {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.sn__benefittitle {
+  font-size: var(--t-body-lg);
+  font-weight: var(--w-black);
+}
+.sn__benefitsub {
+  font-size: var(--t-body-lg);
+  color: var(--c-via-black);
+}
+
+/* Radio */
+.sn__choose {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.sn__radio {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--c-dark-grey);
+  flex-shrink: 0;
+  position: relative;
+}
+.sn__radio--on {
+  border-color: var(--sn-green);
+}
+.sn__radio--on::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: var(--sn-green);
+}
+.sn__choosetext {
+  font-size: var(--t-body-lg);
+  font-weight: var(--w-black);
+}
+
+/* Voetnoot */
+.sn__foot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: var(--t-body-lg);
+}
+.sn__footinfo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.sn__footicon {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  background: var(--sn-green-soft);
+  color: var(--sn-green);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--w-black);
+  font-size: var(--t-body);
+  font-style: italic;
+  flex-shrink: 0;
+}
+.sn__footsep {
+  color: var(--c-medium-grey);
+}
+.sn__footlink {
+  color: var(--sn-green);
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+/* Mobiel: kaarten onder elkaar */
+@media (max-width: 700px) {
+  .sn__banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 20px;
+  }
+  .sn__cards {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

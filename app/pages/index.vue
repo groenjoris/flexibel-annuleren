@@ -41,6 +41,7 @@ const sections = computed<StartSection[]>(() => [
         buttons: [
           { label: 'Zonder extra’s', to: '/journey/8/deal' },
           { label: 'Met extra’s', to: '/journey/9/deal' },
+          { label: 'Yvette’s Super Nudge', to: '/journey/12/deal' },
         ],
       },
       {

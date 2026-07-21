@@ -49,11 +49,12 @@ const sideTop = useStickyFit(sideEl, 16)
 // V7 = v6 + losse extra's onder het annuleringsblok ("Maak je booking compleet").
 // FINAL: v8 = v5 (D, +€0/+€15 zonder extra's); v9 = v7 maar met +€0/+€15.
 // V11 (Newsletter opt-in — Base) = v8 + gegevenspagina als laatste stap.
-const isCardsVariant = computed(() => ['5', '6', '7', '8', '9', '11'].includes(jv.value))
+// V12 (Yvette's Super Nudge) = v8 met het super-nudge keuzeblok.
+const isCardsVariant = computed(() => ['5', '6', '7', '8', '9', '11', '12'].includes(jv.value))
 // Varianten met het extra's-blok in de keuzestap.
 const hasExtras = computed(() => jv.value === '7' || jv.value === '9')
-// Final A (v8/v9) + v11: keuzestap heet "Maak je boeking compleet".
-const isFinalA = computed(() => ['8', '9', '11'].includes(jv.value))
+// Final A (v8/v9) + v11/v12: keuzestap heet "Maak je boeking compleet".
+const isFinalA = computed(() => ['8', '9', '11', '12'].includes(jv.value))
 // V11: na de forced choice volgt nog de gegevenspagina.
 const hasDetailsStep = computed(() => jv.value === '11')
 const stepTwoTitle = computed(() =>
@@ -321,9 +322,11 @@ watch(forcedChoice, (v) => {
         <div v-if="forcedStep === 2" class="col-form">
           <h1 class="t-display">{{ stepTwoTitle }}</h1>
 
-          <!-- V6/V7: totaalprijzen i.p.v. meerprijs -->
+          <!-- V6/V7: totaalprijzen i.p.v. meerprijs; V12: super-nudge blok -->
           <div ref="fcBlock" class="fcblock">
+            <CheckoutSuperNudgeChoice v-if="jv === '12'" v-model="forcedChoice" />
             <CheckoutForcedChoice
+              v-else
               v-model="forcedChoice"
               :totals="jv === '6' || jv === '7' ? v6Totals : undefined"
               :highlight-subtitle="hasExtras && choiceHighlight"
@@ -434,8 +437,8 @@ watch(forcedChoice, (v) => {
             :includes="includes"
             :pricing="v5Pricing"
             :trustpilot="trustpilot"
-            :selected="['5', '8', '9', '11'].includes(jv) ? forcedChoice : null"
-            :show-flex-line="['5', '8', '9', '11'].includes(jv) && forcedChoice === 'flexible'"
+            :selected="['5', '8', '9', '11', '12'].includes(jv) ? forcedChoice : null"
+            :show-flex-line="['5', '8', '9', '11', '12'].includes(jv) && forcedChoice === 'flexible'"
             :cta-disabled="!hasExtras && forcedStep === 2 && forcedChoice === null"
             :extras="hasExtras ? v7Extras : undefined"
             @cta="v5Continue"

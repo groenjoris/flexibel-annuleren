@@ -16,6 +16,8 @@ export const JOURNEY_NAMES: Record<string, string> = {
   '10': 'Final B — Room table met sidebar',
   // Newsletter opt-in reeks: Base = Final A zonder extra's + gegevensstap.
   '11': 'Newsletter opt-in — Base',
+  // Final A met het super-nudge keuzeblok (banner + vergelijkingskaarten).
+  '12': 'Variant A — Yvette\'s Super Nudge',
 }
 
 // Eén kortingsfactor voor de hele journey: de kalender toont €459 van €867,

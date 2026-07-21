@@ -9,11 +9,11 @@ import { journeyKey, JOURNEY_WAS_FACTOR } from '~/data/journeys'
 
 const route = useRoute()
 const jv = computed(() => journeyKey(route.params.v))
-const isCardsVariant = computed(() => ['5', '6', '7', '8', '9'].includes(jv.value))
+const isCardsVariant = computed(() => ['5', '6', '7', '8', '9', '12'].includes(jv.value))
 // Varianten met het extra's-blok in de keuzestap.
 const hasExtras = computed(() => jv.value === '7' || jv.value === '9')
-// Final A (v8/v9): keuzestap heet "Maak je boeking compleet" (met én zonder extra's).
-const isFinalA = computed(() => jv.value === '8' || jv.value === '9')
+// Final A (v8/v9) + v12: keuzestap heet "Maak je boeking compleet".
+const isFinalA = computed(() => ['8', '9', '12'].includes(jv.value))
 const stepTwoTitle = computed(() =>
   isFinalA.value
     ? 'Maak je boeking compleet'
@@ -279,7 +279,10 @@ const fcTotals = computed(() => {
         <h1 class="mtitle">{{ stepTwoTitle }}</h1>
 
         <div ref="fcBlock" class="mfcblock">
+          <!-- V12: super-nudge blok (stapelt zelf onder 700px) -->
+          <CheckoutSuperNudgeChoice v-if="jv === '12'" v-model="forcedChoice" />
           <CheckoutForcedChoice
+            v-else
             v-model="forcedChoice"
             :totals="jv === '6' || jv === '7' ? fcTotals : undefined"
             :highlight-subtitle="hasExtras && choiceHighlight"
