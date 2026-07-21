@@ -158,8 +158,8 @@ const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
 
 <style scoped>
 .sn {
-  --sn-green: #0d7460;
-  --sn-green-soft: #e3f1e9;
+  --sn-green: var(--c-via-green);
+  --sn-green-soft: var(--c-green-soft);
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -171,7 +171,7 @@ const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
   display: flex;
   align-items: center;
   gap: 28px;
-  background: #eef4ef;
+  background: var(--sn-green-soft);
   border-radius: var(--radius);
   padding: 28px 36px;
 }
@@ -204,13 +204,16 @@ const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
 .sn__cards {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 24px;
-  align-items: stretch;
+  column-gap: 24px;
+  row-gap: 18px;
 }
+/* Subgrid: beide kaarten delen dezelfde rijhoogtes, zodat de dividers
+   boven de usp's (en de radio-rij onderin) op gelijke hoogte staan. */
 .sn__card {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
+  display: grid;
+  grid-template-rows: subgrid;
+  grid-row: span 5;
+  align-items: start;
   text-align: left;
   background: var(--c-white);
   border: 1px solid var(--c-light-grey);
@@ -218,12 +221,21 @@ const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
   padding: 24px;
   cursor: pointer;
   font-family: inherit;
+  transition: border-color 0.15s ease;
 }
+/* Zelfde borderpatroon als het bestaande keuzeblok: 1px in rust
+   (groen voor de genudgede kaart), 2px bij selectie met
+   padding-compensatie zodat de kaart niet verspringt. */
 .sn__card--flex {
-  border: 2px solid var(--sn-green);
+  border-color: var(--sn-green);
 }
 .sn__card--on {
-  box-shadow: 0 0 0 3px rgba(13, 116, 96, 0.15);
+  border-width: 2px;
+  border-color: var(--c-via-black);
+  padding: 23px;
+}
+.sn__card--flex.sn__card--on {
+  border-color: var(--sn-green);
 }
 .sn__cardhead {
   display: flex;
@@ -290,7 +302,7 @@ const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
   height: 40px;
 }
 .sn__iconcircle--check {
-  background: #d9efe2;
+  background: var(--sn-green-soft);
   color: var(--sn-green);
   width: 40px;
   height: 40px;
@@ -312,7 +324,7 @@ const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
 .sn__benefits {
   display: flex;
   flex-direction: column;
-  flex: 1;
+  align-self: stretch;
 }
 .sn__benefit {
   display: flex;
