@@ -9,7 +9,7 @@ const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
 </script>
 
 <template>
-  <section class="sn">
+  <section class="card sn">
     <!-- Banner: social proof + uitleg -->
     <div class="sn__banner">
       <svg class="sn__bannericon" width="72" height="80" viewBox="0 0 24 24" fill="none">
@@ -160,6 +160,7 @@ const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
 .sn {
   --sn-green: var(--c-via-green);
   --sn-green-soft: var(--c-green-soft);
+  padding: var(--card-pad);
   display: flex;
   flex-direction: column;
   gap: 20px;

@@ -11,7 +11,7 @@ const route = useRoute()
 const jv = computed(() => journeyKey(route.params.v))
 const isCardsVariant = computed(() => ['5', '6', '7', '8', '9', '12'].includes(jv.value))
 // Varianten met het extra's-blok in de keuzestap.
-const hasExtras = computed(() => jv.value === '7' || jv.value === '9')
+const hasExtras = computed(() => ['7', '9', '12'].includes(jv.value))
 // Final A (v8/v9) + v12: keuzestap heet "Maak je boeking compleet".
 const isFinalA = computed(() => ['8', '9', '12'].includes(jv.value))
 const stepTwoTitle = computed(() =>
