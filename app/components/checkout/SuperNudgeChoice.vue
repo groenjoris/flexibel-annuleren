@@ -12,20 +12,22 @@ const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
   <section class="card sn">
     <!-- Banner: social proof + uitleg -->
     <div class="sn__banner">
-      <svg class="sn__bannericon" width="72" height="80" viewBox="0 0 24 24" fill="none">
-        <path d="M12 2.5l7.5 3v5.5c0 4.8-3.2 8.6-7.5 10-4.3-1.4-7.5-5.2-7.5-10V5.5l7.5-3z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
-        <path d="M8.5 12l2.4 2.4 4.6-4.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
-      </svg>
-      <div class="sn__bannertext">
-        <h2 class="sn__bannertitle">Boek met een gerust gevoel</h2>
-        <p class="sn__bannerlead">
-          <span class="sn__green">Meer dan 60%</span> van onze gasten kiest voor Flexibel Annuleren.
-        </p>
-        <p class="sn__bannerbody">
-          Voor slechts €15 per kamer boek je met extra zekerheid. Zo kun je je boeking
-          tot 2 dagen voor aankomst annuleren of wijzigen en ontvang je de
-          arrangementskosten terug.
-        </p>
+      <h2 class="sn__bannertitle">Boek met een gerust gevoel</h2>
+      <div class="sn__bannerrow">
+        <svg class="sn__bannericon" width="72" height="80" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2.5l7.5 3v5.5c0 4.8-3.2 8.6-7.5 10-4.3-1.4-7.5-5.2-7.5-10V5.5l7.5-3z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
+          <path d="M8.5 12l2.4 2.4 4.6-4.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <div class="sn__bannertext">
+          <p class="sn__bannerlead">
+            <span class="sn__green">Meer dan 60%</span> van onze gasten kiest voor Flexibel Annuleren.
+          </p>
+          <p class="sn__bannerbody">
+            Voor slechts €15 per kamer boek je met extra zekerheid. Zo kun je je boeking
+            tot 2 dagen voor aankomst annuleren of wijzigen en ontvang je de
+            arrangementskosten terug.
+          </p>
+        </div>
       </div>
     </div>
 
@@ -170,11 +172,16 @@ const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
 /* Banner */
 .sn__banner {
   display: flex;
-  align-items: center;
-  gap: 28px;
+  flex-direction: column;
+  gap: 16px;
   background: var(--sn-green-soft);
   border-radius: var(--radius);
   padding: 28px 36px;
+}
+.sn__bannerrow {
+  display: flex;
+  align-items: center;
+  gap: 28px;
 }
 .sn__bannericon {
   color: var(--sn-green);
@@ -185,11 +192,11 @@ const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
   flex-direction: column;
   gap: 2px;
 }
+/* Even groot als de tweede titel ("Kies extra's", t-h1) */
 .sn__bannertitle {
-  font-size: var(--t-h2);
-  line-height: var(--lh-h2);
+  font-size: var(--t-h1);
+  line-height: var(--lh-h1);
   font-weight: var(--w-black);
-  margin-bottom: 6px;
 }
 .sn__bannerlead {
   font-size: var(--t-body);
@@ -416,10 +423,13 @@ const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
 /* Mobiel: kaarten onder elkaar */
 @media (max-width: 700px) {
   .sn__banner {
+    gap: 14px;
+    padding: 20px;
+  }
+  .sn__bannerrow {
     flex-direction: column;
     align-items: flex-start;
     gap: 14px;
-    padding: 20px;
   }
   .sn__cards {
     grid-template-columns: 1fr;
