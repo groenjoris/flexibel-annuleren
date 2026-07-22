@@ -37,14 +37,7 @@ const cancelUntil = computed(() => {
   <section class="card sn" :class="{ 'sn--plain': nudgeVariant === 'b', 'sn--mobile': mobile }">
     <!-- Banner: social proof + uitleg -->
     <div class="sn__banner">
-      <h2 class="sn__bannertitle">
-        <!-- Klein schild vóór de titel (alleen mobiel, even groot als de titel) -->
-        <svg class="sn__bannericon--sm" viewBox="0 0 24 24" fill="none">
-          <path d="M12 2.5l7.5 3v5.5c0 4.8-3.2 8.6-7.5 10-4.3-1.4-7.5-5.2-7.5-10V5.5l7.5-3z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
-          <path d="M8.5 12l2.4 2.4 4.6-4.8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
-        <span>Boek met een gerust gevoel</span>
-      </h2>
+      <h2 class="sn__bannertitle">Boek met een gerust gevoel</h2>
       <div class="sn__bannerrow">
         <svg class="sn__bannericon" width="72" height="80" viewBox="0 0 24 24" fill="none">
           <path d="M12 2.5l7.5 3v5.5c0 4.8-3.2 8.6-7.5 10-4.3-1.4-7.5-5.2-7.5-10V5.5l7.5-3z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
@@ -222,14 +215,6 @@ const cancelUntil = computed(() => {
   gap: 28px;
 }
 .sn__bannericon {
-  color: var(--sn-green);
-  flex-shrink: 0;
-}
-/* Kleine inline-variant van het schild (alleen mobiel) */
-.sn__bannericon--sm {
-  display: none;
-  width: 1em;
-  height: 1em;
   color: var(--sn-green);
   flex-shrink: 0;
 }
@@ -471,19 +456,15 @@ const cancelUntil = computed(() => {
 /* Mobiel: blokken onder elkaar (gestuurd via de `mobile` prop) */
 .sn--mobile {
   padding: 20px;
+  border: none;
+  box-shadow: none;
 }
 .sn--mobile .sn__banner {
   gap: 12px;
   padding: 20px;
 }
-/* Klein schild vóór de titel; de grote versie eronder vervalt */
+/* Banner zonder icoon: alleen de titel + tekst */
 .sn--mobile .sn__bannericon { display: none; }
-.sn--mobile .sn__bannericon--sm { display: inline-block; }
-.sn--mobile .sn__bannertitle {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
 .sn--mobile .sn__bannerrow {
   gap: 14px;
 }
@@ -500,11 +481,15 @@ const cancelUntil = computed(() => {
   gap: 18px;
 }
 
-/* USP's: kale iconen zonder cirkel */
+/* USP's: kale iconen zonder cirkel, boven uitgelijnd met de tekst */
+.sn--mobile .sn__benefit {
+  align-items: flex-start;
+}
 .sn--mobile .sn__benefit .sn__iconcircle {
   width: auto;
   height: auto;
   background: none;
+  margin-top: 2px;
 }
 
 /* Neutrale banner blijft ook op mobiel zonder achtergrond */

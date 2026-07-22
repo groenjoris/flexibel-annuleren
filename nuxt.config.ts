@@ -41,6 +41,9 @@ export default defineNuxtConfig({
       htmlAttrs: { lang: 'nl', 'data-fr-variant': '6' },
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+        // Voorkom dat iOS datums/telefoonnummers als blauwe links detecteert
+        // (bijv. de annuleerdatum "Tot 18 mei 2026").
+        { name: 'format-detection', content: 'telephone=no, date=no, address=no, email=no' },
       ],
       link: [
         { rel: 'icon', type: 'image/svg+xml', href: '/images/logos/logo-vialuxury-horizontal-black.svg' },

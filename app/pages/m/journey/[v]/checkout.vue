@@ -210,8 +210,14 @@ function v7TryContinue() {
   // + de scroll-snap containers op de pagina).
   setTimeout(() => fcBlock.value?.scrollIntoView({ block: 'start' }), 100)
 }
+// V12 (Yvette Super Nudge): na een keuze even wachten en dan naar de
+// extra's scrollen zodat duidelijk is dat de boeking nog afgemaakt wordt.
+const mExtrasBlock = ref<HTMLElement | null>(null)
 watch(forcedChoice, (v) => {
   if (v !== null) choiceHighlight.value = false
+  if (v !== null && jv.value === '12' && import.meta.client) {
+    setTimeout(() => mExtrasBlock.value?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 1000)
+  }
 })
 
 // Kassabon stap 1 (zonder annuleringskeuze — die volgt in de extra stap).
@@ -290,7 +296,7 @@ const fcTotals = computed(() => {
         </div>
 
         <!-- V7: losse extra's (optioneel), gestapeld op mobiel -->
-        <section v-if="hasExtras" class="mextras">
+        <section v-if="hasExtras" ref="mExtrasBlock" class="mextras">
           <h2 class="msectiontitle">Kies extra's</h2>
           <div v-for="extra in fcExtras" :key="extra.id" class="mextra">
             <p class="mextra__title">{{ extra.title }}</p>
