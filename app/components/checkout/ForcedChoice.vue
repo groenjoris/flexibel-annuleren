@@ -39,7 +39,7 @@ const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
       >
         <span class="fc__radio" :class="{ 'fc__radio--on': modelValue === 'nonrefundable' }" />
         <span class="fc__optmain">
-          <span class="t-body-lg t-bold">Niet-restitueerbaar</span>
+          <span class="t-body-lg t-bold">Niet-terugbetaalbaar</span>
           <span class="t-body c-grey">Bij annuleren of wijzigen betaal je het volledige bedrag.</span>
         </span>
         <span v-if="totals" class="fc__price fc__price--total">

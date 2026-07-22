@@ -119,10 +119,12 @@ const cancelUntil = computed(() => {
         <span class="sn__choose">
           <span class="sn__radio" :class="{ 'sn__radio--on': modelValue === 'flexible' }" />
           <span class="sn__choosetext">Kies deze optie</span>
+          <!-- Mobiel: volledige-breedte knop i.p.v. radio -->
+          <span class="sn__choosebtn sn__choosebtn--flex">Kies flexibel</span>
         </span>
       </button>
 
-      <!-- Niet-restitueerbaar -->
+      <!-- Niet-terugbetaalbaar -->
       <button
         type="button"
         class="sn__card"
@@ -134,7 +136,7 @@ const cancelUntil = computed(() => {
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12.6 3.5h6a1.9 1.9 0 0 1 1.9 1.9v6a1.9 1.9 0 0 1-.56 1.35l-7.2 7.2a1.9 1.9 0 0 1-2.68 0l-6-6a1.9 1.9 0 0 1 0-2.68l7.2-7.2a1.9 1.9 0 0 1 1.34-.57z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" /><circle cx="16.2" cy="7.8" r="1.2" fill="currentColor" /></svg>
           </span>
           <span class="sn__headmain">
-            <span class="sn__cardtitle">Niet-restitueerbaar</span>
+            <span class="sn__cardtitle">Niet-terugbetaalbaar</span>
             <span class="sn__subtitle">Geen extra kosten</span>
           </span>
         </span>
@@ -167,6 +169,8 @@ const cancelUntil = computed(() => {
         <span class="sn__choose">
           <span class="sn__radio" :class="{ 'sn__radio--on': modelValue === 'nonrefundable' }" />
           <span class="sn__choosetext">Kies deze optie</span>
+          <!-- Mobiel: volledige-breedte knop i.p.v. radio -->
+          <span class="sn__choosebtn">Kies niet-annuleerbaar</span>
         </span>
       </button>
     </div>
@@ -413,6 +417,10 @@ const cancelUntil = computed(() => {
   font-size: var(--t-body);
   font-weight: var(--w-black);
 }
+/* Mobiele keuze-knop (desktop verborgen) */
+.sn__choosebtn {
+  display: none;
+}
 
 /* Voetnoot */
 /* Tekst links uitgelijnd met het linkerblok, link rechts met het
@@ -478,6 +486,7 @@ const cancelUntil = computed(() => {
   grid-row: auto;
   display: flex;
   flex-direction: column;
+  align-items: stretch;
   gap: 18px;
 }
 
@@ -495,5 +504,41 @@ const cancelUntil = computed(() => {
 /* Neutrale banner blijft ook op mobiel zonder achtergrond */
 .sn--mobile.sn--plain .sn__banner {
   padding: 0;
+}
+
+/* Mobiel: radio vervangen door een volledige-breedte knop per kaart */
+.sn--mobile .sn__radio,
+.sn--mobile .sn__choosetext {
+  display: none;
+}
+.sn--mobile .sn__choose {
+  display: block;
+}
+.sn--mobile .sn__choosebtn {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 14px;
+  border-radius: var(--radius);
+  font-weight: var(--w-black);
+  font-size: var(--t-body-lg);
+  border: 1.5px solid var(--c-via-black);
+  color: var(--c-via-black);
+  background: var(--c-white);
+}
+.sn--mobile .sn__choosebtn--flex {
+  background: var(--sn-green);
+  border-color: var(--sn-green);
+  color: var(--c-white);
+}
+/* Geselecteerde kaart: knop kraagt de selectie (donker gevuld) */
+.sn--mobile .sn__card--on .sn__choosebtn {
+  background: var(--c-via-black);
+  border-color: var(--c-via-black);
+  color: var(--c-white);
+}
+.sn--mobile .sn__card--flex.sn__card--on .sn__choosebtn {
+  background: var(--sn-green);
+  border-color: var(--sn-green);
 }
 </style>

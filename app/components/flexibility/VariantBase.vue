@@ -40,7 +40,7 @@ const showPolicyInfo = ref(false)
         @click="emit('update:modelValue', 'nonrefundable')"
       >
         <span class="radio" :class="{ 'radio--on': modelValue === 'nonrefundable' }" />
-        <span class="opt__label t-body-lg">Niet-restitueerbaar</span>
+        <span class="opt__label t-body-lg">Niet-terugbetaalbaar</span>
         <span class="opt__meta" />
         <span class="opt__price t-body c-grey">- <CheckoutPriceTag :value="cancellation.upgradeDelta" :show-cents="false" size="sm" /> per kamer</span>
       </button>

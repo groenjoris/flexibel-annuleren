@@ -24,7 +24,7 @@ const rateList = reactive(
       id: `${r.id}-nonref`,
       baseId: r.id,
       rateKey: 'nonrefundable' as const,
-      rateLabel: 'Niet-restitueerbaar',
+      rateLabel: 'Niet-terugbetaalbaar',
       subtitle: 'Bij annuleren betaal je het volledige bedrag',
       priceNow: r.priceNow,
       quantity: r.id === 'junior' ? 1 : 0,
@@ -169,7 +169,7 @@ const forcedChoiceLabel = computed(() =>
   forcedChoice.value === 'flexible'
     ? 'Flexibel annuleren'
     : forcedChoice.value === 'nonrefundable'
-      ? 'Niet-restitueerbaar'
+      ? 'Niet-terugbetaalbaar'
       : undefined,
 )
 
@@ -181,7 +181,7 @@ const summaryRooms = computed(() => {
     return incardList.map((r) => ({
       ...r,
       priceNow: r.selectedRate === 'flexible' ? r.flexPrice : r.nonRefPrice,
-      cancelLabel: r.selectedRate === 'flexible' ? 'Flexibel annuleren' : 'Niet-restitueerbaar',
+      cancelLabel: r.selectedRate === 'flexible' ? 'Flexibel annuleren' : 'Niet-terugbetaalbaar',
     }))
   }
   if (isForcedFamily.value) {

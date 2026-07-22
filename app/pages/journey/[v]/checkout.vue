@@ -96,7 +96,7 @@ const forcedChoiceLabel = computed(() =>
   forcedChoice.value === 'flexible'
     ? 'Flexibel annuleren'
     : forcedChoice.value === 'nonrefundable'
-      ? 'Niet-restitueerbaar'
+      ? 'Niet-terugbetaalbaar'
       : undefined,
 )
 const v5SummaryRooms = computed(() =>

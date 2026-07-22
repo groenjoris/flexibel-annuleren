@@ -42,7 +42,7 @@ const emit = defineEmits<{
       </div>
 
       <p class="pop__nonref t-body c-grey">
-        Niet-restitueerbaar (+ €0): bij annuleren of wijzigen betaal je het volledige bedrag.
+        Niet-terugbetaalbaar (+ €0): bij annuleren of wijzigen betaal je het volledige bedrag.
       </p>
 
       <!-- The two choice buttons -->
@@ -51,7 +51,7 @@ const emit = defineEmits<{
           Ja, ik wil flexibel zijn
         </button>
         <button class="pop__btn pop__btn--nonref" type="button" @click="emit('choose', 'nonrefundable')">
-          Nee, ik boek niet-restitueerbaar
+          Nee, ik boek niet-terugbetaalbaar
         </button>
       </div>
     </div>

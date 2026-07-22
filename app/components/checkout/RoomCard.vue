@@ -3,7 +3,7 @@ import type { Room } from '~/data/deal'
 
 const props = defineProps<{
   room: Room
-  rateLabel?: string // e.g. "Niet-restitueerbaar" / "Flexibel annuleren" (booking variant)
+  rateLabel?: string // e.g. "Niet-terugbetaalbaar" / "Flexibel annuleren" (booking variant)
   subtitle?: string // cancellation policy line under the title (booking variant)
   rates?: { nonRef: number; flex: number; deadline: string } // in-card rate switch
   selectedRate?: 'nonrefundable' | 'flexible'
@@ -71,7 +71,7 @@ const benefit = computed(() => {
         <div v-if="showSwitch" class="rateswitch">
           <button class="rateopt" type="button" @click="emit('update:rate', 'nonrefundable')">
             <span class="rateradio" :class="{ 'rateradio--on': selectedRate !== 'flexible' }" />
-            <span class="rateopt__text"><span class="t-body-lg t-bold">Niet-restitueerbaar</span></span>
+            <span class="rateopt__text"><span class="t-body-lg t-bold">Niet-terugbetaalbaar</span></span>
             <span class="rateopt__price">
               <CheckoutPriceTag :value="room.priceWas * room.quantity" :show-cents="false" size="sm" bold strike color="var(--c-medium-grey)" />
               <CheckoutPriceTag :value="rates!.nonRef * room.quantity" :show-cents="false" size="md" bold />
