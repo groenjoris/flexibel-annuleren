@@ -270,6 +270,9 @@ const cancelUntil = computed(() => {
   padding: 24px;
   cursor: pointer;
   font-family: inherit;
+  /* Expliciete kleur: de kaart is een <button>, anders erven titels de
+     blauwe UA-knopkleur (o.a. op iOS). */
+  color: var(--c-via-black);
   transition: border-color 0.15s ease;
 }
 /* Zelfde borderpatroon als het bestaande keuzeblok: zonder selectie zijn
