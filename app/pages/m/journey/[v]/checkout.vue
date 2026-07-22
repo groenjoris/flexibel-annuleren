@@ -280,7 +280,7 @@ const fcTotals = computed(() => {
 
         <div ref="fcBlock" class="mfcblock">
           <!-- V12: super-nudge blok (stapelt zelf onder 700px) -->
-          <CheckoutSuperNudgeChoice v-if="jv === '12'" v-model="forcedChoice" />
+          <CheckoutSuperNudgeChoice v-if="jv === '12'" v-model="forcedChoice" mobile />
           <CheckoutForcedChoice
             v-else
             v-model="forcedChoice"
