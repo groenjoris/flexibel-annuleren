@@ -6,6 +6,23 @@ import type { CancelChoice } from '~/data/cancellation'
 
 defineProps<{ modelValue: CancelChoice }>()
 const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
+
+// Variabele annuleerdatum: 2 dagen voor de gekozen aankomstdatum uit de
+// kalenderstap; zonder keuze valt hij terug op de vaste deal-datum
+// (di 20 mei 2026 -> 18 mei 2026).
+const journeyDay = useState<{
+  price: number
+  checkInYmd?: { year: number; month: number; day: number }
+} | null>('journey-day', () => null)
+const MONTHS = [
+  'januari', 'februari', 'maart', 'april', 'mei', 'juni',
+  'juli', 'augustus', 'september', 'oktober', 'november', 'december',
+]
+const cancelUntil = computed(() => {
+  const ymd = journeyDay.value?.checkInYmd ?? { year: 2026, month: 4, day: 20 }
+  const d = new Date(ymd.year, ymd.month, ymd.day - 2)
+  return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`
+})
 </script>
 
 <template>
@@ -65,8 +82,8 @@ const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="4" y="5.5" width="16" height="15" rx="2" stroke="currentColor" stroke-width="1.6" /><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
             </span>
             <span class="sn__benefittext">
-              <span class="sn__benefittitle">Tot 2 dagen voor aankomst annuleren</span>
-              <span class="sn__benefitsub">Wijzig of annuleer kosteloos.</span>
+              <span class="sn__benefittitle">Tot {{ cancelUntil }} annuleren</span>
+              <span class="sn__benefitsub">Kosteloos je boeking wijzigen en/of annuleren.</span>
             </span>
           </span>
           <span class="sn__benefit">
@@ -132,7 +149,7 @@ const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
             </span>
             <span class="sn__benefittext">
               <span class="sn__benefittitle">Geen terugbetaling</span>
-              <span class="sn__benefitsub">Bij annuleren of wijzigen ontvang je geen bedrag retour.</span>
+              <span class="sn__benefitsub">Bij annuleren of het wijzigen van je boeking ontvang je geen bedrag retour.</span>
             </span>
           </span>
         </span>

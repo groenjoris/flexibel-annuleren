@@ -66,7 +66,16 @@ const stepTwoTitle = computed(() =>
 )
 // Kamerprijzen volgen de kalenderkeuze (zelfde patroon als de room table):
 // het goedkoopste kamertype = de dagprijs, was-prijzen via de gedeelde factor.
-const journeyDay = useState<{ price: number } | null>('journey-day', () => null)
+const journeyDay = useState<{ price: number; checkIn?: string; checkOut?: string } | null>(
+  'journey-day',
+  () => null,
+)
+// Kassabon volgt de gekozen kalenderdatums (zoals de room-table sidebars).
+const summaryHotel = computed(() => ({
+  ...hotel,
+  checkInDate: journeyDay.value?.checkIn || hotel.checkInDate,
+  checkOutDate: journeyDay.value?.checkOut || hotel.checkOutDate,
+}))
 const CHEAPEST_BASE = Math.min(...roomsData.map((r) => r.priceNow))
 const priceDelta = computed(() => (journeyDay.value ? journeyDay.value.price - CHEAPEST_BASE : 0))
 const v5Rooms = reactive(roomsData.map((r) => ({ ...r })))
@@ -232,11 +241,11 @@ watch(forcedChoice, (v) => {
             <div class="side__dates">
               <div class="side__datecell">
                 <p class="t-caption c-mgrey">Inchecken</p>
-                <p class="t-body t-bold">{{ hotel.checkInDate }}</p>
+                <p class="t-body t-bold">{{ summaryHotel.checkInDate }}</p>
               </div>
               <div class="side__datecell">
                 <p class="t-caption c-mgrey">Uitchecken</p>
-                <p class="t-body t-bold">{{ hotel.checkOutDate }}</p>
+                <p class="t-body t-bold">{{ summaryHotel.checkOutDate }}</p>
               </div>
             </div>
             <NuxtLink class="side__link side__link--center t-body" :to="`/journey/${jv}/date`">
@@ -432,7 +441,7 @@ watch(forcedChoice, (v) => {
 
         <div class="col-summary">
           <CheckoutOrderSummary
-            :hotel="hotel"
+            :hotel="summaryHotel"
             :rooms="v5SummaryRooms"
             :includes="includes"
             :pricing="v5Pricing"

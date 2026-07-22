@@ -109,15 +109,22 @@ const dayPrice = computed(() => {
 
 // Kalenderprijs + datums delen met de room table en de mobiele checkout:
 // het goedkoopste kamertype volgt de gekozen dag (in alle varianten).
-const journeyDay = useState<{ price: number; checkIn?: string; checkOut?: string } | null>(
-  'journey-day',
-  () => null,
-)
+const journeyDay = useState<{
+  price: number
+  checkIn?: string
+  checkOut?: string
+  checkInYmd?: { year: number; month: number; day: number }
+} | null>('journey-day', () => null)
 watch(
   [selected, dayPrice],
   () => {
     journeyDay.value = selected.value
-      ? { price: dayPrice.value, checkIn: formatDay(0), checkOut: formatDay(NIGHTS) }
+      ? {
+          price: dayPrice.value,
+          checkIn: formatDay(0),
+          checkOut: formatDay(NIGHTS),
+          checkInYmd: { ...selected.value },
+        }
       : null
   },
   { immediate: true },

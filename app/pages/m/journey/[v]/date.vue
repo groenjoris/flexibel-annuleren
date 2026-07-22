@@ -104,15 +104,22 @@ function formatDay(offset: number) {
 }
 
 // Kalenderprijs + datums delen met de checkout (zelfde state als desktop).
-const journeyDay = useState<{ price: number; checkIn?: string; checkOut?: string } | null>(
-  'journey-day',
-  () => null,
-)
+const journeyDay = useState<{
+  price: number
+  checkIn?: string
+  checkOut?: string
+  checkInYmd?: { year: number; month: number; day: number }
+} | null>('journey-day', () => null)
 watch(
   [selected, dayPrice],
   () => {
     journeyDay.value = selected.value
-      ? { price: dayPrice.value, checkIn: formatDay(0), checkOut: formatDay(NIGHTS) }
+      ? {
+          price: dayPrice.value,
+          checkIn: formatDay(0),
+          checkOut: formatDay(NIGHTS),
+          checkInYmd: { ...selected.value },
+        }
       : null
   },
   { immediate: true },
