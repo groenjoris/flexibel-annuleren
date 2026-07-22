@@ -120,7 +120,10 @@ const cancelUntil = computed(() => {
           <span class="sn__radio" :class="{ 'sn__radio--on': modelValue === 'flexible' }" />
           <span class="sn__choosetext">Kies deze optie</span>
           <!-- Mobiel: volledige-breedte knop i.p.v. radio -->
-          <span class="sn__choosebtn sn__choosebtn--flex">Kies flexibel</span>
+          <span class="sn__choosebtn sn__choosebtn--flex">
+            <svg class="sn__choosecheck" width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            Kies flexibel
+          </span>
         </span>
       </button>
 
@@ -170,7 +173,10 @@ const cancelUntil = computed(() => {
           <span class="sn__radio" :class="{ 'sn__radio--on': modelValue === 'nonrefundable' }" />
           <span class="sn__choosetext">Kies deze optie</span>
           <!-- Mobiel: volledige-breedte knop i.p.v. radio -->
-          <span class="sn__choosebtn">Kies niet-annuleerbaar</span>
+          <span class="sn__choosebtn">
+            <svg class="sn__choosecheck" width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            Kies niet-annuleerbaar
+          </span>
         </span>
       </button>
     </div>
@@ -461,9 +467,11 @@ const cancelUntil = computed(() => {
   color: var(--c-via-orange);
 }
 
-/* Mobiel: blokken onder elkaar (gestuurd via de `mobile` prop) */
+/* Mobiel: blokken onder elkaar (gestuurd via de `mobile` prop).
+   Geen eigen padding/rand: de banner en kaarten lijnen zo uit met het
+   "Kies extra's"-blok (dat op de pagina-marge van 20px staat). */
 .sn--mobile {
-  padding: 20px;
+  padding: 0;
   border: none;
   box-shadow: none;
 }
@@ -515,7 +523,10 @@ const cancelUntil = computed(() => {
   display: block;
 }
 .sn--mobile .sn__choosebtn {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   width: 100%;
   text-align: center;
   padding: 14px;
@@ -531,14 +542,24 @@ const cancelUntil = computed(() => {
   border-color: var(--sn-green);
   color: var(--c-white);
 }
-/* Geselecteerde kaart: knop kraagt de selectie (donker gevuld) */
+/* Vinkje alleen tonen zodra de kaart gekozen is */
+.sn__choosecheck {
+  display: none;
+  flex-shrink: 0;
+}
+.sn--mobile .sn__card--on .sn__choosecheck {
+  display: inline-block;
+}
+/* Geselecteerde kaart: knop oogt 'disabled'/bevestigd (gedempt, met vinkje) */
 .sn--mobile .sn__card--on .sn__choosebtn {
-  background: var(--c-via-black);
-  border-color: var(--c-via-black);
-  color: var(--c-white);
+  background: var(--c-surface);
+  border-color: var(--c-light-grey);
+  color: var(--c-medium-grey);
+  cursor: default;
 }
 .sn--mobile .sn__card--flex.sn__card--on .sn__choosebtn {
-  background: var(--sn-green);
+  background: var(--c-green-soft);
   border-color: var(--sn-green);
+  color: var(--sn-green);
 }
 </style>
