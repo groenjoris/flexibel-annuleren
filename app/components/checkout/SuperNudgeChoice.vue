@@ -73,10 +73,12 @@ const cancelUntil = computed(() => {
             </svg>
           </span>
           <span class="sn__headmain">
-            <span class="sn__cardtitle">Flexibel annuleren</span>
-            <span class="sn__badge">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6L3.3 9.3l6.1-.7L12 3z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" /></svg>
-              Aanbevolen
+            <span class="sn__titlerow">
+              <span class="sn__cardtitle">Flexibel annuleren</span>
+              <span class="sn__badge">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6L3.3 9.3l6.1-.7L12 3z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" /></svg>
+                Aanbevolen
+              </span>
             </span>
             <span class="sn__price">Voor slechts <strong class="sn__green">€15</strong> per kamer</span>
           </span>
@@ -292,6 +294,13 @@ const cancelUntil = computed(() => {
   gap: 16px;
 }
 .sn__headmain {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+/* Titel + badge: gestapeld op desktop, naast elkaar op mobiel */
+.sn__titlerow {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -515,6 +524,22 @@ const cancelUntil = computed(() => {
 /* Neutrale banner blijft ook op mobiel zonder achtergrond */
 .sn--mobile.sn--plain .sn__banner {
   padding: 0;
+}
+
+/* Mobiel: badge "Aanbevolen" naast de titel i.p.v. eronder */
+.sn--mobile .sn__titlerow {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+/* Mobiel: kaart-iconen (schild / label) 1,5x zo groot */
+.sn--mobile .sn__cardhead .sn__iconcircle {
+  width: 66px;
+  height: 66px;
+}
+.sn--mobile .sn__cardhead .sn__iconcircle svg {
+  width: 34px;
+  height: 34px;
 }
 
 /* Mobiel: radio vervangen door een volledige-breedte knop per kaart */
