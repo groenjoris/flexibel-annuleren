@@ -211,7 +211,7 @@ watch(forcedChoice, (v) => {
 <template>
   <!-- V5/V6 gebruiken de grijze paginakleur van de concepten (witte kaarten) -->
   <div class="page" :class="{ 'page--white': !isCardsVariant }">
-    <CheckoutTopNav :label="label" />
+    <CheckoutTopNav :label="label" :nudge-switcher="jv === '12'" />
 
     <div class="page__stepper">
       <CheckoutStepper :active="2" />

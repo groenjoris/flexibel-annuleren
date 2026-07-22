@@ -1,6 +1,9 @@
 <script setup lang="ts">
 // Optioneel variant-label naast het logo (journey-pagina's).
-defineProps<{ label?: string }>()
+// nudgeSwitcher: toont de sub-variant-switcher voor Yvette's Super Nudge
+// (v12): variant A = groene banner, variant B = neutrale (witte) banner.
+defineProps<{ label?: string; nudgeSwitcher?: boolean }>()
+const nudgeVariant = useState<'a' | 'b'>('nudge-variant', () => 'a')
 </script>
 
 <template>
@@ -15,6 +18,28 @@ defineProps<{ label?: string }>()
           />
         </NuxtLink>
         <span v-if="label" class="nav__label">{{ label }}</span>
+
+        <div v-if="nudgeSwitcher" class="nav__switch" role="group" aria-label="Banner-variant">
+          <span class="nav__switchlabel">Banner</span>
+          <div class="nav__switchgroup">
+            <button
+              class="nav__switchbtn"
+              :class="{ 'nav__switchbtn--on': nudgeVariant === 'a' }"
+              type="button"
+              @click="nudgeVariant = 'a'"
+            >
+              Groen
+            </button>
+            <button
+              class="nav__switchbtn"
+              :class="{ 'nav__switchbtn--on': nudgeVariant === 'b' }"
+              type="button"
+              @click="nudgeVariant = 'b'"
+            >
+              Neutraal
+            </button>
+          </div>
+        </div>
       </div>
 
       <button class="nav__service" type="button">
@@ -73,6 +98,35 @@ defineProps<{ label?: string }>()
   border-radius: 100px;
   padding: 4px 12px;
   white-space: nowrap;
+}
+/* Sub-variant switcher (v12): segmented control op de donkere balk */
+.nav__switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.nav__switchlabel {
+  font-size: var(--t-caption);
+  color: rgba(255, 255, 255, 0.6);
+}
+.nav__switchgroup {
+  display: inline-flex;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 100px;
+  padding: 2px;
+}
+.nav__switchbtn {
+  font-size: var(--t-caption);
+  font-weight: 500;
+  color: var(--c-white);
+  padding: 4px 12px;
+  border-radius: 100px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.nav__switchbtn--on {
+  background: var(--c-white);
+  color: var(--c-via-black);
 }
 .nav__service {
   display: inline-flex;

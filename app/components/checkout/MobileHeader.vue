@@ -1,7 +1,9 @@
 <script setup lang="ts">
 // Mobiele site: donkere balk (gestapeld logo, "Veilig uitchecken", hamburger)
 // met daaronder de voortgangsbalkjes (terug-pijl, 3 segmenten, koffertje).
-withDefaults(defineProps<{ step?: number }>(), { step: 1 })
+// nudgeSwitcher: sub-variant-switcher voor Yvette's Super Nudge (v12).
+withDefaults(defineProps<{ step?: number; nudgeSwitcher?: boolean }>(), { step: 1 })
+const nudgeVariant = useState<'a' | 'b'>('nudge-variant', () => 'a')
 
 function goBack() {
   if (import.meta.client) window.history.back()
@@ -43,6 +45,28 @@ function goBack() {
         <path d="M9 8V6a2 2 0 012-2h2a2 2 0 012 2v2" stroke="currentColor" stroke-width="1.8" />
         <path d="M9 8v12M15 8v12" stroke="currentColor" stroke-width="1.8" />
       </svg>
+    </div>
+
+    <div v-if="nudgeSwitcher" class="mswitch" role="group" aria-label="Banner-variant">
+      <span class="mswitch__label">Banner</span>
+      <div class="mswitch__group">
+        <button
+          class="mswitch__btn"
+          :class="{ 'mswitch__btn--on': nudgeVariant === 'a' }"
+          type="button"
+          @click="nudgeVariant = 'a'"
+        >
+          Groen
+        </button>
+        <button
+          class="mswitch__btn"
+          :class="{ 'mswitch__btn--on': nudgeVariant === 'b' }"
+          type="button"
+          @click="nudgeVariant = 'b'"
+        >
+          Neutraal
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -103,5 +127,35 @@ function goBack() {
 .mprogress__icon {
   color: var(--c-via-black);
   margin-left: 4px;
+}
+
+/* Sub-variant switcher (v12) */
+.mswitch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 20px 16px;
+}
+.mswitch__label {
+  font-size: var(--t-caption);
+  color: var(--c-medium-grey);
+}
+.mswitch__group {
+  display: inline-flex;
+  background: var(--c-surface);
+  border: 1px solid var(--c-light-grey);
+  border-radius: 100px;
+  padding: 2px;
+}
+.mswitch__btn {
+  font-size: var(--t-caption);
+  font-weight: 500;
+  color: var(--c-via-black);
+  padding: 6px 14px;
+  border-radius: 100px;
+}
+.mswitch__btn--on {
+  background: var(--c-via-black);
+  color: var(--c-white);
 }
 </style>

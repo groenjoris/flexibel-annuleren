@@ -271,7 +271,7 @@ const fcTotals = computed(() => {
 
 <template>
   <div class="mpage">
-    <CheckoutMobileHeader :step="2" />
+    <CheckoutMobileHeader :step="2" :nudge-switcher="jv === '12'" />
 
     <main class="mpage__main">
       <!-- Forced-choice varianten (5/6/7): extra stap zonder samenvatting -->

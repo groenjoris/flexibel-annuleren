@@ -7,6 +7,10 @@ import type { CancelChoice } from '~/data/cancellation'
 defineProps<{ modelValue: CancelChoice }>()
 const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
 
+// Sub-variant (switcher in de top nav): 'a' = groene banner (default),
+// 'b' = neutrale banner zonder groene achtergrond.
+const nudgeVariant = useState<'a' | 'b'>('nudge-variant', () => 'a')
+
 // Variabele annuleerdatum: 2 dagen voor de gekozen aankomstdatum uit de
 // kalenderstap; zonder keuze valt hij terug op de vaste deal-datum
 // (di 20 mei 2026 -> 18 mei 2026).
@@ -26,7 +30,7 @@ const cancelUntil = computed(() => {
 </script>
 
 <template>
-  <section class="card sn">
+  <section class="card sn" :class="{ 'sn--plain': nudgeVariant === 'b' }">
     <!-- Banner: social proof + uitleg -->
     <div class="sn__banner">
       <h2 class="sn__bannertitle">Boek met een gerust gevoel</h2>
@@ -193,6 +197,13 @@ const cancelUntil = computed(() => {
   background: var(--sn-green-soft);
   border-radius: var(--radius);
   padding: 28px 36px;
+}
+/* Sub-variant B: neutrale banner zonder groene achtergrond. Zonder de
+   box lijnt de banner-inhoud uit met de kaartranden eronder. */
+.sn--plain .sn__banner {
+  background: none;
+  border-radius: 0;
+  padding: 0;
 }
 .sn__bannerrow {
   display: flex;
