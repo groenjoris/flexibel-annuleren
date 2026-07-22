@@ -400,10 +400,12 @@ const cancelUntil = computed(() => {
 }
 
 /* Voetnoot */
+/* Tekst links uitgelijnd met het linkerblok, link rechts met het
+   rechterblok erboven. */
 .sn__foot {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px;
   font-size: var(--t-body);
