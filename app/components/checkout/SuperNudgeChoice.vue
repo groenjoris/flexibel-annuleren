@@ -70,7 +70,7 @@ const cancelUntil = computed(() => {
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6L3.3 9.3l6.1-.7L12 3z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" /></svg>
               Aanbevolen
             </span>
-            <span class="sn__price">Voor slechts <strong>€15</strong> per kamer</span>
+            <span class="sn__price">Voor slechts <strong class="sn__green">€15</strong> per kamer</span>
           </span>
         </span>
 
@@ -169,7 +169,6 @@ const cancelUntil = computed(() => {
         <span class="sn__footicon">i</span>
         Je keuze geldt voor de gehele boeking.
       </span>
-      <span class="sn__footsep">|</span>
       <a class="sn__footlink" href="#">Meer informatie over onze annuleringsvoorwaarden</a>
     </p>
   </section>
@@ -291,7 +290,7 @@ const cancelUntil = computed(() => {
   padding: 4px 12px;
 }
 .sn__price {
-  color: var(--sn-green);
+  color: var(--c-via-black);
   font-size: var(--t-body);
 }
 .sn__price strong {
@@ -428,13 +427,13 @@ const cancelUntil = computed(() => {
   font-style: italic;
   flex-shrink: 0;
 }
-.sn__footsep {
-  color: var(--c-medium-grey);
-}
 .sn__footlink {
-  color: var(--sn-green);
+  color: var(--c-via-black);
   text-decoration: underline;
   font-weight: 500;
+}
+.sn__footlink:hover {
+  color: var(--c-via-orange);
 }
 
 /* Mobiel: kaarten onder elkaar */
