@@ -122,7 +122,7 @@ const cancelUntil = computed(() => {
           <!-- Mobiel: volledige-breedte knop i.p.v. radio -->
           <span class="sn__choosebtn sn__choosebtn--flex">
             <svg class="sn__choosecheck" width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
-            Kies flexibel
+            {{ modelValue === 'flexible' ? 'Flexibel gekozen' : 'Kies flexibel' }}
           </span>
         </span>
       </button>
@@ -175,7 +175,7 @@ const cancelUntil = computed(() => {
           <!-- Mobiel: volledige-breedte knop i.p.v. radio -->
           <span class="sn__choosebtn">
             <svg class="sn__choosecheck" width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
-            Kies niet-annuleerbaar
+            {{ modelValue === 'nonrefundable' ? 'Niet-annuleerbaar gekozen' : 'Kies niet-annuleerbaar' }}
           </span>
         </span>
       </button>
