@@ -483,7 +483,7 @@ const arrangementIncludes = [
 
     <!-- Toast die naar de keuze-kolom wijst bij een lege selectie -->
     <div v-if="bottomCta && selectInvalid" class="rt__toast" role="alert">
-      Kies een of meer kamers
+      Kies één of meerdere kamers
     </div>
     </div>
 
@@ -583,7 +583,8 @@ const arrangementIncludes = [
   content: '';
   position: absolute;
   left: -9px;
-  top: 22px;
+  top: 50%;
+  transform: translateY(-50%);
   border-top: 9px solid transparent;
   border-bottom: 9px solid transparent;
   border-right: 9px solid #b3402e;
@@ -592,7 +593,8 @@ const arrangementIncludes = [
   content: '';
   position: absolute;
   left: -7px;
-  top: 23px;
+  top: 50%;
+  transform: translateY(-50%);
   border-top: 8px solid transparent;
   border-bottom: 8px solid transparent;
   border-right: 8px solid #fff5f4;
