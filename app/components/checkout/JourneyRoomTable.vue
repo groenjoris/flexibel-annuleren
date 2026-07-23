@@ -734,7 +734,7 @@ const arrangementIncludes = [
   color: var(--c-white);
   font-size: var(--t-caption);
   font-weight: var(--w-black);
-  padding: 3px 10px;
+  padding: 1px 10px;
   border-radius: 100px;
 }
 .rt__scarcity {
