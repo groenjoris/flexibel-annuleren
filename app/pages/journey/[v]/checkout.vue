@@ -333,7 +333,7 @@ watch(forcedChoice, (v) => {
 
           <!-- V6/V7: totaalprijzen i.p.v. meerprijs; V12: super-nudge blok -->
           <div ref="fcBlock" class="fcblock">
-            <CheckoutSuperNudgeChoice v-if="jv === '12'" v-model="forcedChoice" />
+            <CheckoutSuperNudgeChoice v-if="jv === '12'" v-model="forcedChoice" :highlight="choiceHighlight" />
             <CheckoutForcedChoice
               v-else
               v-model="forcedChoice"

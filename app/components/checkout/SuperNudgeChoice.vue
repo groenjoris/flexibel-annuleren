@@ -8,7 +8,9 @@ import type { CancelChoice } from '~/data/cancellation'
 // schild vóór de titel). De mobiele site rendert in een smalle kolom maar
 // op desktop-vensterbreedte, dus dit wordt via een prop gestuurd i.p.v.
 // een viewport-media-query.
-defineProps<{ modelValue: CancelChoice; mobile?: boolean }>()
+// highlight: toont de rode "maak een keuze"-waarschuwing als er zonder
+// keuze op de CTA is geklikt (zelfde patroon als de andere Variant A's).
+defineProps<{ modelValue: CancelChoice; mobile?: boolean; highlight?: boolean }>()
 const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
 
 // Sub-variant (switcher in de top nav): 'a' = groene banner (default),
@@ -29,7 +31,7 @@ const MONTHS = [
 const cancelUntil = computed(() => {
   const ymd = journeyDay.value?.checkInYmd ?? { year: 2026, month: 4, day: 20 }
   const d = new Date(ymd.year, ymd.month, ymd.day - 2)
-  return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`
+  return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()} 23:59`
 })
 </script>
 
@@ -45,7 +47,7 @@ const cancelUntil = computed(() => {
         </svg>
         <div class="sn__bannertext">
           <p class="sn__bannerlead">
-            <span class="sn__green">Meer dan 60%</span> van onze gasten kiest voor Flexibel Annuleren.
+            <span class="sn__green">Meer dan 70%</span> van onze gasten kiest voor Flexibel Annuleren.
           </p>
           <p class="sn__bannerbody">
             Voor slechts €15 per kamer boek je met extra zekerheid. Zo kun je je boeking
@@ -55,6 +57,9 @@ const cancelUntil = computed(() => {
         </div>
       </div>
     </div>
+
+    <!-- Waarschuwing bij doorgaan zonder keuze (zelfde patroon als andere Variant A's) -->
+    <p v-if="highlight" class="sn__warn">Maak een keuze om verder te gaan.</p>
 
     <!-- Vergelijkingskaarten -->
     <div class="sn__cards">
@@ -150,15 +155,6 @@ const cancelUntil = computed(() => {
 
         <span class="sn__benefits">
           <span class="sn__benefit">
-            <span class="sn__iconcircle sn__iconcircle--check">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
-            </span>
-            <span class="sn__benefittext">
-              <span class="sn__benefittitle">Laagste prijs</span>
-              <span class="sn__benefitsub">Je profiteert van het laagste tarief.</span>
-            </span>
-          </span>
-          <span class="sn__benefit">
             <span class="sn__iconcircle sn__iconcircle--cross">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" /></svg>
             </span>
@@ -249,6 +245,15 @@ const cancelUntil = computed(() => {
 .sn__bannerbody {
   font-size: var(--t-body);
   line-height: var(--lh-body);
+}
+
+/* Waarschuwing bij doorgaan zonder keuze (zelfde stijl als ForcedChoice) */
+.sn__warn {
+  background: #fbebe9;
+  color: #b3402e;
+  font-weight: 500;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
 }
 
 /* Kaarten */
@@ -432,7 +437,7 @@ const cancelUntil = computed(() => {
   background: var(--sn-green);
 }
 .sn__choosetext {
-  font-size: var(--t-body);
+  font-size: var(--t-body-lg);
   font-weight: var(--w-black);
 }
 /* Mobiele keuze-knop (desktop verborgen) */
