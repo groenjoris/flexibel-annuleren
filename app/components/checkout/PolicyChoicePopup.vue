@@ -74,7 +74,6 @@ const emit = defineEmits<{
   background: var(--c-surface);
 }
 .pc__title {
-  padding-right: 32px;
   line-height: 28px;
 }
 .pc__actions {
