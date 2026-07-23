@@ -21,6 +21,16 @@ interface SelRow {
 }
 const BOOKING_FEE = 27.5
 const tableSelection = ref<SelRow[]>([])
+// v3/v10: de kassabon-knop werkt als de knop onder de tabel — bij een lege
+// selectie de room table laten valideren (rode kolom + toast + autoscroll).
+const roomTableRef = ref<{ promptSelection: () => void } | null>(null)
+function onSidebarBook() {
+  if (tableSelection.value.reduce((s, r) => s + r.quantity, 0) === 0) {
+    roomTableRef.value?.promptSelection()
+    return
+  }
+  navigateTo(`/journey/${jv.value}/details`)
+}
 const roomsSel = computed(() => tableSelection.value.reduce((s, r) => s + r.quantity, 0))
 const roomsPrice = computed(() => tableSelection.value.reduce((s, r) => s + r.quantity * r.price, 0))
 const roomsWas = computed(() => tableSelection.value.reduce((s, r) => s + r.quantity * r.priceWas, 0))
@@ -223,6 +233,7 @@ watch(forcedChoice, (v) => {
         <div class="col-form">
           <h1 class="t-display">Kies je kamertype</h1>
           <CheckoutJourneyRoomTable
+            ref="roomTableRef"
             :show-reserve="false"
             bottom-cta
             :book-to="`/journey/${jv}/details`"
@@ -312,13 +323,8 @@ watch(forcedChoice, (v) => {
               </p>
             </template>
 
-            <button
-              class="btn-primary"
-              type="button"
-              :disabled="roomsSel === 0"
-              @click="navigateTo(`/journey/${jv}/details`)"
-            >
-              {{ roomsSel === 0 ? 'Selecteer een kamer' : 'Ik ga boeken' }}
+            <button class="btn-primary" type="button" @click="onSidebarBook">
+              Ik ga boeken
             </button>
 
             <div class="side__trust">

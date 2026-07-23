@@ -204,12 +204,20 @@ function onBook() {
   if (props.bookTo && totalRooms.value > 0) navigateTo(props.bookTo)
 }
 
-// Extra CTA onder de tabel: blijft actief. Zonder kamer -> keuze-kolom
-// licht rood + toast; met kamer -> door naar de volgende stap.
+// Extra CTA onder de tabel + kassabon-knop: blijven actief. Zonder kamer ->
+// keuze-kolom licht rood + toast + autoscroll naar de tabeltop; met kamer ->
+// door naar de volgende stap.
+const rootEl = ref<HTMLElement | null>(null)
 const selectInvalid = ref(false)
+function promptSelection() {
+  selectInvalid.value = true
+  if (import.meta.client) {
+    rootEl.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+}
 function onBottomCta() {
   if (totalRooms.value === 0) {
-    selectInvalid.value = true
+    promptSelection()
     return
   }
   if (props.bookTo) navigateTo(props.bookTo)
@@ -217,6 +225,8 @@ function onBottomCta() {
 watch(totalRooms, (n) => {
   if (n > 0) selectInvalid.value = false
 })
+// De kassabon-knop (in de ouder) roept deze methode aan bij een lege selectie.
+defineExpose({ promptSelection })
 
 function onDropdownMousedown(row: TableRow, event: Event) {
   if (!isInactive(row)) return
@@ -255,7 +265,7 @@ const arrangementIncludes = [
 </script>
 
 <template>
-  <div class="rt-wrap" :class="{ 'rt-wrap--hybrid': hybrid }">
+  <div ref="rootEl" class="rt-wrap" :class="{ 'rt-wrap--hybrid': hybrid }">
     <!-- Datum-widget boven de tabel, met wijzig-link rechts ernaast
          (vervalt in 1d: de sidebar toont de data al) -->
     <div v-if="showReserve" class="rt__tophead">
@@ -537,6 +547,8 @@ const arrangementIncludes = [
 }
 .rt {
   position: relative;
+  /* boven de (sticky) sidebar zodat de toast eroverheen mag vallen */
+  z-index: 20;
   background: var(--c-white);
   border: 1px solid var(--c-light-grey);
   border-radius: var(--radius);
@@ -546,12 +558,14 @@ const arrangementIncludes = [
 .rt__select--invalid {
   background: #fdecea;
 }
+/* Toast rechts van de tabel (overlapt de sidebar), pijl wijst naar links
+   naar de rand van de keuze-kolom. */
 .rt__toast {
   position: absolute;
-  top: 64px;
-  right: 6px;
+  left: calc(100% + 14px);
+  top: 72px;
   z-index: 20;
-  max-width: 220px;
+  width: 200px;
   text-align: center;
   background: #fff5f4;
   border: 1.5px solid #b3402e;
@@ -566,20 +580,20 @@ const arrangementIncludes = [
 .rt__toast::before {
   content: '';
   position: absolute;
-  top: -9px;
-  right: 38px;
-  border-left: 9px solid transparent;
-  border-right: 9px solid transparent;
-  border-bottom: 9px solid #b3402e;
+  left: -9px;
+  top: 22px;
+  border-top: 9px solid transparent;
+  border-bottom: 9px solid transparent;
+  border-right: 9px solid #b3402e;
 }
 .rt__toast::after {
   content: '';
   position: absolute;
-  top: -7px;
-  right: 39px;
-  border-left: 8px solid transparent;
-  border-right: 8px solid transparent;
-  border-bottom: 8px solid #fff5f4;
+  left: -7px;
+  top: 23px;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 8px solid #fff5f4;
 }
 .rt__footer {
   display: flex;
