@@ -73,20 +73,20 @@ const tableRooms = reactive<TableRoom[]>(
     facilities: r.facilities,
     rows: [
       {
-        id: `${r.id}-nonref`,
-        baseId: r.id,
-        rateKey: 'nonrefundable',
-        priceWas: r.priceWas,
-        price: r.priceNow,
-        quantity: 0,
-        scarcity: r.id === 'junior' ? 'Nog 2 kamers over' : undefined,
-      },
-      {
         id: `${r.id}-flex`,
         baseId: r.id,
         rateKey: 'flexible',
         priceWas: r.priceWas,
         price: r.priceNow + pricing.flexibilityPerRoom,
+        quantity: 0,
+        scarcity: r.id === 'junior' ? 'Nog 2 kamers over' : undefined,
+      },
+      {
+        id: `${r.id}-nonref`,
+        baseId: r.id,
+        rateKey: 'nonrefundable',
+        priceWas: r.priceWas,
+        price: r.priceNow,
         quantity: 0,
         scarcity: r.id === 'junior' ? 'Nog 2 kamers over' : undefined,
       },
@@ -371,6 +371,8 @@ const arrangementIncludes = [
                 Flexibel annuleren
               </p>
               <p class="rt__optsub">tot 3 mei 23:59</p>
+              <p class="rt__optsub">Volledige terugbetaling</p>
+              <span class="rt__rec">Aanbevolen</span>
             </template>
             <template v-else>
               <p class="rt__opt">
@@ -721,6 +723,17 @@ const arrangementIncludes = [
   font-size: var(--t-body);
   color: var(--c-dark-grey);
   margin: -2px 0 6px 20px;
+}
+/* Groene "Aanbevolen"-tag onder de flexibele optie */
+.rt__rec {
+  display: inline-block;
+  margin: 0 0 6px 20px;
+  background: var(--c-via-green);
+  color: var(--c-white);
+  font-size: var(--t-caption);
+  font-weight: var(--w-black);
+  padding: 3px 10px;
+  border-radius: 100px;
 }
 .rt__scarcity {
   display: flex;
