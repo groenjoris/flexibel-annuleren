@@ -52,7 +52,7 @@ const emit = defineEmits<{
   box-shadow: var(--shadow-pop);
   width: 480px;
   max-width: 100%;
-  padding: 40px;
+  padding: 40px 24px;
   display: flex;
   flex-direction: column;
   gap: 12px;
