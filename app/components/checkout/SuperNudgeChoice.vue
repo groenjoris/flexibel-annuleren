@@ -58,9 +58,6 @@ const cancelUntil = computed(() => {
       </div>
     </div>
 
-    <!-- Waarschuwing bij doorgaan zonder keuze (zelfde patroon als andere Variant A's) -->
-    <p v-if="highlight" class="sn__warn">Maak een keuze om verder te gaan.</p>
-
     <!-- Vergelijkingskaarten -->
     <div class="sn__cards">
       <!-- Flexibel annuleren (genudged) -->
@@ -178,6 +175,10 @@ const cancelUntil = computed(() => {
         </span>
       </button>
     </div>
+
+    <!-- Waarschuwing bij doorgaan zonder keuze: onder de opties, dicht bij
+         de CTA (zelfde patroon als andere Variant A's) -->
+    <p v-if="highlight" class="sn__warn">Maak een keuze om verder te gaan.</p>
 
     <!-- Voetnoot -->
     <p class="sn__foot">
@@ -412,37 +413,54 @@ const cancelUntil = computed(() => {
   color: var(--c-via-black);
 }
 
-/* Radio */
+/* Keuze-knop per kaart (radio vervangen door een knop, op alle platforms) */
 .sn__choose {
+  display: block;
+}
+.sn__radio,
+.sn__choosetext {
+  display: none;
+}
+.sn__choosebtn {
   display: flex;
   align-items: center;
-  gap: 14px;
-}
-.sn__radio {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  border: 2px solid var(--c-dark-grey);
-  flex-shrink: 0;
-  position: relative;
-}
-.sn__radio--on {
-  border-color: var(--sn-green);
-}
-.sn__radio--on::after {
-  content: '';
-  position: absolute;
-  inset: 3px;
-  border-radius: 50%;
-  background: var(--sn-green);
-}
-.sn__choosetext {
-  font-size: var(--t-body-lg);
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  text-align: center;
+  padding: 14px;
+  border-radius: var(--radius);
   font-weight: var(--w-black);
+  font-size: var(--t-body-lg);
+  border: 1.5px solid var(--c-via-black);
+  color: var(--c-via-black);
+  background: var(--c-white);
+  cursor: pointer;
 }
-/* Mobiele keuze-knop (desktop verborgen) */
-.sn__choosebtn {
+.sn__choosebtn--flex {
+  background: var(--sn-green);
+  border-color: var(--sn-green);
+  color: var(--c-white);
+}
+/* Vinkje alleen tonen zodra de kaart gekozen is */
+.sn__choosecheck {
   display: none;
+  flex-shrink: 0;
+}
+.sn__card--on .sn__choosecheck {
+  display: inline-block;
+}
+/* Geselecteerde kaart: knop oogt 'disabled'/bevestigd (gedempt, met vinkje) */
+.sn__card--on .sn__choosebtn {
+  background: var(--c-surface);
+  border-color: var(--c-light-grey);
+  color: var(--c-medium-grey);
+  cursor: default;
+}
+.sn__card--flex.sn__card--on .sn__choosebtn {
+  background: var(--c-green-soft);
+  border-color: var(--sn-green);
+  color: var(--sn-green);
 }
 
 /* Voetnoot */
@@ -547,52 +565,4 @@ const cancelUntil = computed(() => {
   height: 34px;
 }
 
-/* Mobiel: radio vervangen door een volledige-breedte knop per kaart */
-.sn--mobile .sn__radio,
-.sn--mobile .sn__choosetext {
-  display: none;
-}
-.sn--mobile .sn__choose {
-  display: block;
-}
-.sn--mobile .sn__choosebtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  width: 100%;
-  text-align: center;
-  padding: 14px;
-  border-radius: var(--radius);
-  font-weight: var(--w-black);
-  font-size: var(--t-body-lg);
-  border: 1.5px solid var(--c-via-black);
-  color: var(--c-via-black);
-  background: var(--c-white);
-}
-.sn--mobile .sn__choosebtn--flex {
-  background: var(--sn-green);
-  border-color: var(--sn-green);
-  color: var(--c-white);
-}
-/* Vinkje alleen tonen zodra de kaart gekozen is */
-.sn__choosecheck {
-  display: none;
-  flex-shrink: 0;
-}
-.sn--mobile .sn__card--on .sn__choosecheck {
-  display: inline-block;
-}
-/* Geselecteerde kaart: knop oogt 'disabled'/bevestigd (gedempt, met vinkje) */
-.sn--mobile .sn__card--on .sn__choosebtn {
-  background: var(--c-surface);
-  border-color: var(--c-light-grey);
-  color: var(--c-medium-grey);
-  cursor: default;
-}
-.sn--mobile .sn__card--flex.sn__card--on .sn__choosebtn {
-  background: var(--c-green-soft);
-  border-color: var(--sn-green);
-  color: var(--sn-green);
-}
 </style>
