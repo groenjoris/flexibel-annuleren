@@ -306,7 +306,7 @@ const arrangementIncludes = [
             </span>
           </th>
           <th class="rt__th rt__th--options">Je opties</th>
-          <th class="rt__th rt__th--select">Kies kamers</th>
+          <th class="rt__th rt__th--select">Kies aantal</th>
           <th v-if="showReserve" class="rt__th rt__th--reserve" />
         </tr>
       </thead>
@@ -323,7 +323,7 @@ const arrangementIncludes = [
           <!-- Kamertype (één cel per kamertype) -->
           <td v-if="rowIndex === 0" class="rt__td" :rowspan="room.rows.length">
             <div class="rt__type">
-              <button class="rt__name" type="button">{{ room.name }}</button>
+              <span class="rt__name">{{ room.name }}</span>
               <img class="rt__img" :src="room.image" :alt="room.name" />
               <p class="rt__desc t-body c-grey">{{ shortDescription(room.description) }}</p>
               <div class="rt__facilities">
@@ -403,7 +403,7 @@ const arrangementIncludes = [
               <option v-for="n in 5" :key="n" :value="n">{{ row.quantity === n ? n : `${n} (€${n * rowPrice(row)})` }}</option>
             </select>
             <p v-if="row.quantity > 0" class="rt__max">
-              (Maximaal)<br>{{ row.quantity * 2 }} personen
+              {{ row.quantity }} {{ row.quantity === 1 ? 'arrangement' : 'arrangementen' }}<br>(max.) {{ row.quantity * 2 }} personen
             </p>
           </td>
 
@@ -659,10 +659,7 @@ const arrangementIncludes = [
   font-weight: var(--w-black);
   color: var(--c-via-black);
   text-align: left;
-  text-decoration: underline;
-  cursor: pointer;
 }
-.rt__name:hover { color: var(--c-via-orange); }
 .rt__img {
   width: 100%;
   border-radius: var(--radius-sm);
