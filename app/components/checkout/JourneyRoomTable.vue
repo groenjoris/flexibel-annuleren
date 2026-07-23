@@ -299,7 +299,7 @@ const arrangementIncludes = [
         <tr>
           <th class="rt__th rt__th--type">Kamertype</th>
           <th class="rt__th rt__th--guests">Aantal gasten</th>
-          <th class="rt__th">
+          <th class="rt__th rt__th--price">
             <span class="rt__thprice">
               <span class="rt__thprice-line">Prijs voor</span>
               <span class="rt__thprice-line">2 nachten<FirstReleasePriceInfoTooltip variant="deal" /></span>
@@ -627,12 +627,14 @@ const arrangementIncludes = [
 }
 .rt__th:first-child { border-top-left-radius: var(--radius); }
 .rt__th:last-child { border-top-right-radius: var(--radius); }
-.rt__th--type { width: 280px; }
+.rt__th--type { width: 260px; }
 /* Smallere gasten-kolom zodat "Je opties" (Flexibel annuleren op 1 regel)
    en de prijskolom genoeg breedte houden */
 .rt__th--guests { width: 74px; }
-.rt__th--options { width: 25%; }
-.rt__th--select { width: 132px; }
+.rt__th--options { width: 24%; }
+/* Prijskolom vaste, ruime breedte zodat "€597 €344" niet afbreekt */
+.rt__th--price { width: 140px; }
+.rt__th--select { width: 104px; }
 /* Rechterkolom: groene headercel (band loopt door), daaronder één
    doorlopend grijs paneel zonder dividers. */
 .rt__th--reserve {
@@ -772,7 +774,6 @@ const arrangementIncludes = [
   font-size: var(--t-caption);
   line-height: 1.3;
   color: var(--c-medium-grey);
-  white-space: nowrap;
 }
 /* Andere policy geselecteerd: uitgegrijsd, klik opent de keuze-popup */
 .rt__dropdown--inactive {
