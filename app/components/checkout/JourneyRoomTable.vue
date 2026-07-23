@@ -403,7 +403,7 @@ const arrangementIncludes = [
               <option v-for="n in 5" :key="n" :value="n">{{ row.quantity === n ? n : `${n} (€${n * rowPrice(row)})` }}</option>
             </select>
             <p v-if="row.quantity > 0" class="rt__max">
-              {{ row.quantity }} {{ row.quantity === 1 ? 'arrangement' : 'arrangementen' }}<br>(max.) {{ row.quantity * 2 }} personen
+              (max.) {{ row.quantity * 2 }} personen
             </p>
           </td>
 
@@ -630,7 +630,7 @@ const arrangementIncludes = [
    en de prijskolom genoeg breedte houden */
 .rt__th--guests { width: 74px; }
 .rt__th--options { width: 25%; }
-.rt__th--select { width: 96px; }
+.rt__th--select { width: 132px; }
 /* Rechterkolom: groene headercel (band loopt door), daaronder één
    doorlopend grijs paneel zonder dividers. */
 .rt__th--reserve {
@@ -759,6 +759,7 @@ const arrangementIncludes = [
   font-size: var(--t-caption);
   line-height: 1.3;
   color: var(--c-medium-grey);
+  white-space: nowrap;
 }
 /* Andere policy geselecteerd: uitgegrijsd, klik opent de keuze-popup */
 .rt__dropdown--inactive {
