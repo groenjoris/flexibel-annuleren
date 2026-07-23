@@ -465,7 +465,7 @@ const arrangementIncludes = [
 
             <!-- 1e: arrangement-includes staan er vanaf het begin -->
             <div v-if="hybrid || totalRooms > 0" class="rt__includes">
-              <p class="t-body t-bold">Jouw arrangement bevat</p>
+              <p class="t-body t-bold">{{ totalRooms > 1 ? 'Elk arrangement bevat' : 'Jouw arrangement bevat' }}</p>
               <p v-for="item in arrangementIncludes" :key="item" class="rt__inc t-body">
                 <svg class="rt__check" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
                 {{ item }}

@@ -266,7 +266,7 @@ watch(forcedChoice, (v) => {
             </NuxtLink>
 
             <div class="side__includes">
-              <p class="t-body t-bold">Jouw arrangement bevat</p>
+              <p class="t-body t-bold">{{ roomsSel > 1 ? 'Elk arrangement bevat' : 'Jouw arrangement bevat' }}</p>
               <p v-for="item in arrangementIncludes" :key="item" class="side__inc t-body">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
                 {{ item }}
