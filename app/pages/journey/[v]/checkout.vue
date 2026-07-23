@@ -224,6 +224,8 @@ watch(forcedChoice, (v) => {
           <h1 class="t-display">Kies je kamertype</h1>
           <CheckoutJourneyRoomTable
             :show-reserve="false"
+            bottom-cta
+            :book-to="`/journey/${jv}/details`"
             @update:selection="tableSelection = $event"
           />
         </div>

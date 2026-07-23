@@ -23,12 +23,16 @@ const props = withDefaults(defineProps<{
   deferPolicyPopup?: boolean
   // Route voor "Ik ga boeken" (de gegevenspagina); leeg = geen navigatie
   bookTo?: string
+  // Extra CTA-knop onder de tabel (rechts uitgelijnd). Blijft actief; bij
+  // een lege selectie kleurt de keuze-kolom licht rood + een toast erbij.
+  bottomCta?: boolean
 }>(), {
   showReserve: true,
   initialCheapest: false,
   hybrid: true, // journey draait standaard in hybride (1e) modus
   deferPolicyPopup: false,
   bookTo: undefined,
+  bottomCta: false,
 })
 
 const emit = defineEmits<{
@@ -200,6 +204,20 @@ function onBook() {
   if (props.bookTo && totalRooms.value > 0) navigateTo(props.bookTo)
 }
 
+// Extra CTA onder de tabel: blijft actief. Zonder kamer -> keuze-kolom
+// licht rood + toast; met kamer -> door naar de volgende stap.
+const selectInvalid = ref(false)
+function onBottomCta() {
+  if (totalRooms.value === 0) {
+    selectInvalid.value = true
+    return
+  }
+  if (props.bookTo) navigateTo(props.bookTo)
+}
+watch(totalRooms, (n) => {
+  if (n > 0) selectInvalid.value = false
+})
+
 function onDropdownMousedown(row: TableRow, event: Event) {
   if (!isInactive(row)) return
   // Laat Tab e.d. met rust; alleen interacties die het menu zouden openen.
@@ -359,7 +377,7 @@ const arrangementIncludes = [
 
           <!-- Kies kamers: dropdown 0-5. Bij een selectie van de andere policy
                wordt de dropdown inactief; klikken opent dan de keuze-popup. -->
-          <td class="rt__td rt__select">
+          <td class="rt__td rt__select" :class="{ 'rt__select--invalid': selectInvalid }">
             <select
               class="rt__dropdown"
               :class="{ 'rt__dropdown--inactive': isInactive(row) }"
@@ -450,6 +468,18 @@ const arrangementIncludes = [
         </template>
       </tbody>
     </table>
+
+    <!-- Toast die naar de keuze-kolom wijst bij een lege selectie -->
+    <div v-if="bottomCta && selectInvalid" class="rt__toast" role="alert">
+      Kies een of meer kamers
+    </div>
+    </div>
+
+    <!-- Extra CTA onder de tabel, rechts uitgelijnd -->
+    <div v-if="bottomCta" class="rt__footer">
+      <button class="btn-primary rt__bottombtn" type="button" @click="onBottomCta">
+        Opslaan en doorgaan
+      </button>
     </div>
 
     <CheckoutPolicyChoicePopup
@@ -506,10 +536,58 @@ const arrangementIncludes = [
   min-width: 300px;
 }
 .rt {
+  position: relative;
   background: var(--c-white);
   border: 1px solid var(--c-light-grey);
   border-radius: var(--radius);
   /* geen overflow:hidden — dat zou de sticky header breken */
+}
+/* Lege selectie: keuze-kolom licht rood + toast + rechts uitgelijnde knop */
+.rt__select--invalid {
+  background: #fdecea;
+}
+.rt__toast {
+  position: absolute;
+  top: 64px;
+  right: 6px;
+  z-index: 20;
+  max-width: 220px;
+  text-align: center;
+  background: #fff5f4;
+  border: 1.5px solid #b3402e;
+  color: #b3402e;
+  font-weight: var(--w-black);
+  font-size: var(--t-body);
+  line-height: 1.35;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+.rt__toast::before {
+  content: '';
+  position: absolute;
+  top: -9px;
+  right: 38px;
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-bottom: 9px solid #b3402e;
+}
+.rt__toast::after {
+  content: '';
+  position: absolute;
+  top: -7px;
+  right: 39px;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid #fff5f4;
+}
+.rt__footer {
+  display: flex;
+  justify-content: flex-end;
+}
+.rt__bottombtn {
+  width: auto;
+  min-width: 254px;
 }
 .rt__table {
   width: 100%;
