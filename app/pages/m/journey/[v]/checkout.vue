@@ -120,7 +120,18 @@ function setQty(row: RateRow, next: number) {
     policyPopupOpen.value = true
     return
   }
+  const increased = next > row.quantity
   row.quantity = Math.max(0, Math.min(5, next))
+  // Na een selectie iets meescrollen zodat de "Opslaan en doorgaan"-knop
+  // in de uitgeklapte kaart altijd zichtbaar is. Kleine vertraging: de
+  // kassabon rendert eerst en de focus-scroll van de knop is dan klaar.
+  if (increased && import.meta.client) {
+    setTimeout(() => {
+      document
+        .querySelector(`.mroom[data-room="${row.baseId}"] .mcta`)
+        ?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    }, 200)
+  }
 }
 
 function applyPolicy(policy: 'flexible' | 'nonrefundable') {
@@ -572,7 +583,7 @@ const fcTotals = computed(() => {
             <p class="t-body c-grey">Je krijgt één van de beste kamers, voor veel minder dan normaal!</p>
           </div>
 
-          <article v-for="room in listRooms" :key="room.id" class="mroom">
+          <article v-for="room in listRooms" :key="room.id" class="mroom" :data-room="room.id">
             <h3 class="mroom__name">{{ room.name }}</h3>
             <img class="mroom__img" :src="room.image" :alt="room.name" />
             <p class="t-body c-grey">{{ room.description }}</p>
