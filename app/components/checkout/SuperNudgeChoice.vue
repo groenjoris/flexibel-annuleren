@@ -390,9 +390,10 @@ const cancelUntil = computed(() => {
   flex-direction: column;
   align-self: stretch;
 }
+/* Icoon boven uitgelijnd met de tekst (niet verticaal gecentreerd) */
 .sn__benefit {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 14px;
   padding: 12px 0;
 }
@@ -534,9 +535,6 @@ const cancelUntil = computed(() => {
 }
 
 /* USP's: kale iconen zonder cirkel, boven uitgelijnd met de tekst */
-.sn--mobile .sn__benefit {
-  align-items: flex-start;
-}
 .sn--mobile .sn__benefit .sn__iconcircle {
   width: auto;
   height: auto;
