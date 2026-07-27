@@ -324,7 +324,7 @@ watch(forcedChoice, (v) => {
             </template>
 
             <button class="btn-primary" type="button" @click="onSidebarBook">
-              Ik ga boeken
+              Opslaan en doorgaan
             </button>
 
             <div class="side__trust">
