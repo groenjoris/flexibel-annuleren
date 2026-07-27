@@ -28,8 +28,9 @@ const sections = computed<StartSection[]>(() => [
     heading: 'Newsletter opt-in',
     groups: [
       {
+        // Newsletter-flow start op de homepage (met kortingspopup na 1s).
         title: 'Base',
-        buttons: [{ label: 'Start', to: '/journey/11/deal' }],
+        buttons: [{ label: 'Start', to: '/journey/11/home' }],
       },
     ],
   },
