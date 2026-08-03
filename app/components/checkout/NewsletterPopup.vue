@@ -27,6 +27,15 @@ const npDismissed = useState('np-dismissed', () => false)
 const npCompleted = useState('np-completed', () => false)
 const npLabelHidden = useState('np-label-hidden', () => false)
 
+// Vanaf het startscherm (knoppen dragen ?popup=...) begint alles opnieuw;
+// het label verschijnt dus pas weer na de eerste dismissal.
+if (route.query.popup) {
+  popupOpen.value = false
+  npDismissed.value = false
+  npCompleted.value = false
+  npLabelHidden.value = false
+}
+
 // Sluiten zonder afgeronde inschrijving: de popup morft naar het
 // labeltje aan de rechterrand (krimpt + schuift ernaartoe), daarna
 // verschijnt het label met een slide-in.
@@ -192,14 +201,14 @@ function npSubmit() {
         <div class="np__left">
           <template v-if="npState === 'form'">
             <p class="np__eyebrow">Nieuw bij ViaLuxury?</p>
-            <h2 class="np__title">{{ isDopamine ? 'Kras voor korting!' : 'Ontvang 10% welkomstkorting!' }}</h2>
+            <h2 class="np__title">{{ isDopamine ? 'Kras voor korting!' : 'Ontvang €10 welkomstkorting!' }}</h2>
 
             <!-- Dopamine: kraskaart bedekt de kortingstekst; bij ~50%
                  weggekrast verschijnt het formulier eronder. -->
             <template v-if="isDopamine">
               <div class="np__scratch" :class="{ 'np__scratch--done': scratchDone }">
                 <div class="np__scratch-under">
-                  <p class="np__scratchtext">Je krijgt 10% korting!</p>
+                  <p class="np__scratchtext">Je krijgt €10 korting!</p>
                 </div>
                 <canvas
                   ref="scratchCanvas"
@@ -271,7 +280,7 @@ function npSubmit() {
 
           <template v-else>
             <template v-if="npState === 'success'">
-              <h2 class="np__title">{{ isDopamine ? 'Je krijgt 10% korting' : 'Gelukt!' }}</h2>
+              <h2 class="np__title">{{ isDopamine ? 'Je krijgt €10 korting' : 'Gelukt!' }}</h2>
               <p class="np__para">{{ isDopamine ? 'Check je e-mail voor je kortingscode.' : 'Check je inbox voor de kortingscode.' }}</p>
             </template>
             <template v-else>
@@ -314,7 +323,7 @@ function npSubmit() {
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" /></svg>
       </button>
       <button class="npl__body" type="button" @click="popupOpen = true">
-        <span class="npl__text">Krijg 10% korting</span>
+        <span class="npl__text">Krijg €10 korting</span>
         <svg class="npl__icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="5.5" width="18" height="13" rx="2" stroke="currentColor" stroke-width="1.8" /><path d="M3.5 7l8.5 6 8.5-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
       </button>
     </div>
@@ -505,15 +514,12 @@ function npSubmit() {
   opacity: 1;
 }
 
-/* Kraskaart (dopamine-variant) */
+/* Kraskaart (dopamine-variant): stippellijn-contour als een coupon */
 .np__scratch {
   position: relative;
   border-radius: 10px;
   overflow: hidden;
-  border: 1px solid #d9d9d9;
-}
-.np__scratch--done {
-  border-color: transparent;
+  border: 2px dashed #9a9a9a;
 }
 .np__scratch-under {
   display: flex;

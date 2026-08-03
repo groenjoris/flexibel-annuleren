@@ -31,8 +31,9 @@ const sections = computed<StartSection[]>(() => [
         // Newsletter-flow start op de homepage (met kortingspopup na 1s).
         // Twee popup-varianten: Simple (invulveld) en Dopamine (kraskaart).
         title: 'Base',
+        // De ?popup-query markeert een verse start: alle popup-state reset.
         buttons: [
-          { label: 'Simple', to: '/journey/11/home' },
+          { label: 'Simple', to: '/journey/11/home?popup=simple' },
           { label: 'Dopamine', to: '/journey/11/home?popup=dopamine' },
         ],
       },

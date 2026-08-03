@@ -157,7 +157,7 @@ const en: Record<string, string> = {
   'footer.allRightsReserved': 'All rights reserved.',
   'footer.newsletterTitle': 'New to ViaLuxury?',
   'footer.newsletterPlaceholder': 'Email address',
-  'footer.newsletterIntro': 'Sign up for the newsletter and get a 10% welcome discount',
+  'footer.newsletterIntro': 'Sign up for the newsletter and get a €10 welcome discount',
   'footer.newsletterTerms': "You'll receive the discount code by email right away and subscribe to our email updates full of offers. Unsubscribe anytime with one click. One-time, new members only; not valid with other discounts.",
   'footer.newsletterCta': 'Sign up',
   'footer.trustpilotScore': '4.5',

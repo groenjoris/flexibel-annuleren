@@ -157,7 +157,7 @@ const nl: Record<string, string> = {
   'footer.allRightsReserved': 'Alle rechten voorbehouden.',
   'footer.newsletterTitle': 'Nieuw bij ViaLuxury?',
   'footer.newsletterPlaceholder': 'E-mailadres',
-  'footer.newsletterIntro': 'Schrijf je in voor de nieuwsbrief en ontvang 10% welkomstkorting',
+  'footer.newsletterIntro': 'Schrijf je in voor de nieuwsbrief en ontvang €10 welkomstkorting',
   'footer.newsletterTerms': 'Je ontvangt de kortingscode direct per e-mail en schrijft je in voor onze e-mailupdates vol aanbiedingen. Uitschrijven kan altijd met één klik. Eenmalig, alleen voor nieuwe leden; niet geldig i.c.m. andere kortingen.',
   'footer.newsletterCta': 'Inschrijven',
   'footer.trustpilotScore': '4.5',

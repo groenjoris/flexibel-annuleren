@@ -157,7 +157,7 @@ const de: Record<string, string> = {
   'footer.allRightsReserved': 'Alle Rechte vorbehalten.',
   'footer.newsletterTitle': 'Neu bei ViaLuxury?',
   'footer.newsletterPlaceholder': 'E-Mail-Adresse',
-  'footer.newsletterIntro': 'Melde dich für den Newsletter an und erhalte 10 % Willkommensrabatt',
+  'footer.newsletterIntro': 'Melde dich für den Newsletter an und erhalte 10 € Willkommensrabatt',
   'footer.newsletterTerms': 'Du erhältst den Rabattcode sofort per E-Mail und abonnierst unsere E-Mail-Updates voller Angebote. Abmelden jederzeit mit einem Klick. Einmalig, nur für neue Mitglieder; nicht mit anderen Rabatten kombinierbar.',
   'footer.newsletterCta': 'Anmelden',
   'footer.trustpilotScore': '4.5',
