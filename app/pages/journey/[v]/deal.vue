@@ -936,6 +936,9 @@
     />
 
     <FirstReleaseSiteFooter />
+
+    <!-- Newsletter-flow (v11): heropen-label voor de kortingspopup -->
+    <CheckoutNewsletterPopup v-if="jv === '11'" show-label />
   </div>
 </template>
 
