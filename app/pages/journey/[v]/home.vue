@@ -222,7 +222,7 @@ EXPERIENCES</span>
             <template v-if="isDopamine">
               <div class="np__scratch" :class="{ 'np__scratch--done': scratchDone }">
                 <div class="np__scratch-under">
-                  <p class="np__scratchtext">Je krijgt 5%, 10% of 25% korting!</p>
+                  <p class="np__scratchtext">Je krijgt 10% korting</p>
                 </div>
                 <canvas
                   ref="scratchCanvas"
@@ -242,7 +242,7 @@ EXPERIENCES</span>
                 :disabled="!scratchDone"
                 @click="dopStep = 'email'"
               >
-                <span>Claim nu</span>
+                <span>Doorgaan</span>
                 <span v-if="scratchDone" class="np__timer">{{ claimTimer }}</span>
               </button>
 
@@ -258,7 +258,7 @@ EXPERIENCES</span>
                     placeholder="naam@voorbeeld.nl"
                   />
                   <p v-if="npError" class="np__errormsg">Vul een geldig e-mailadres in.</p>
-                  <button class="np__cta" type="submit">Toon mijn korting</button>
+                  <button class="np__cta" type="submit">Claim mijn korting</button>
                 </form>
 
                 <p class="np__terms">
