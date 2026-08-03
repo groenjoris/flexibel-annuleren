@@ -216,13 +216,37 @@ EXPERIENCES</span>
             <p class="np__eyebrow">Nieuw bij ViaLuxury?</p>
             <h2 class="np__title">{{ isDopamine ? 'Kras om je korting te zien' : 'Ontvang 10% welkomstkorting' }}</h2>
 
-            <!-- Dopamine: de kraskaart bedekt alles onder de titel (subtitel,
-                 uitleg, formulier én disclaimer); wegkrassen onthult het blok. -->
-            <div v-if="isDopamine" class="np__scratch" :class="{ 'np__scratch--done': scratchDone }">
-              <div class="np__scratch-under">
-                <p class="np__subtitle">Je krijgt 5%, 10% of 25% korting</p>
-                <p class="np__para">Schrijf je in om te zien hoeveel het is.</p>
+            <!-- Dopamine: kraskaart bedekt alleen de kortingstekst. Krassen
+                 activeert de "Claim nu"-knop (met aflopende timer); die knop
+                 maakt plaats voor het e-mailveld + "Toon mijn korting". -->
+            <template v-if="isDopamine">
+              <div class="np__scratch" :class="{ 'np__scratch--done': scratchDone }">
+                <div class="np__scratch-under">
+                  <p class="np__scratchtext">Je krijgt 5%, 10% of 25% korting!</p>
+                </div>
+                <canvas
+                  ref="scratchCanvas"
+                  class="np__scratch-canvas"
+                  :class="{ 'np__scratch-canvas--done': scratchDone }"
+                  @pointerdown="onScratchDown"
+                  @pointermove="onScratchMove"
+                  @pointerup="onScratchUp"
+                  @pointercancel="onScratchUp"
+                />
+              </div>
 
+              <button
+                v-if="dopStep === 'claim'"
+                class="np__cta np__cta--claim"
+                type="button"
+                :disabled="!scratchDone"
+                @click="dopStep = 'email'"
+              >
+                <span>Claim nu</span>
+                <span v-if="scratchDone" class="np__timer">{{ claimTimer }}</span>
+              </button>
+
+              <template v-else>
                 <form class="np__form" novalidate @submit.prevent="npSubmit">
                   <label class="np__label" for="np-email-d">Type je e-mailadres</label>
                   <input
@@ -234,7 +258,7 @@ EXPERIENCES</span>
                     placeholder="naam@voorbeeld.nl"
                   />
                   <p v-if="npError" class="np__errormsg">Vul een geldig e-mailadres in.</p>
-                  <button class="np__cta" type="submit">Check je korting</button>
+                  <button class="np__cta" type="submit">Toon mijn korting</button>
                 </form>
 
                 <p class="np__terms">
@@ -244,17 +268,8 @@ EXPERIENCES</span>
                   geldt eenmalig en alleen voor nieuwe leden; niet geldig in combinatie
                   met andere kortingen. Zie onze actievoorwaarden en privacyverklaring.
                 </p>
-              </div>
-              <canvas
-                ref="scratchCanvas"
-                class="np__scratch-canvas"
-                :class="{ 'np__scratch-canvas--done': scratchDone }"
-                @pointerdown="onScratchDown"
-                @pointermove="onScratchMove"
-                @pointerup="onScratchUp"
-                @pointercancel="onScratchUp"
-              />
-            </div>
+              </template>
+            </template>
 
             <!-- Simple: formulier direct zichtbaar -->
             <template v-else>
@@ -484,9 +499,28 @@ function initScratch() {
   ctx.letterSpacing = '2px'
   ctx.fillText('KRAS HIER', w / 2, h / 2)
 }
-// Zodra ~40% is weggekrast fadet de kraslaag weg, zodat het formulier
-// eronder klikbaar wordt (de canvas vangt anders alle kliks af).
+// Dopamine-fase: eerst "Claim nu" (na het krassen), daarna het e-mailveld.
+const dopStep = ref<'claim' | 'email'>('claim')
+// Urgentie-timer in de Claim nu-knop: start zodra er gekrast is.
+const claimSecs = ref(600)
+let claimInterval: ReturnType<typeof setInterval> | null = null
+const claimTimer = computed(() => {
+  const m = Math.floor(claimSecs.value / 60)
+  const sec = String(claimSecs.value % 60).padStart(2, '0')
+  return `${m}:${sec}`
+})
+// Zodra ~40% is weggekrast fadet de kraslaag weg en gaat de knop aan.
 const scratchDone = ref(false)
+watch(scratchDone, (done) => {
+  if (done && !claimInterval) {
+    claimInterval = setInterval(() => {
+      if (claimSecs.value > 0) claimSecs.value -= 1
+    }, 1000)
+  }
+})
+onUnmounted(() => {
+  if (claimInterval) clearInterval(claimInterval)
+})
 let strokeCount = 0
 function checkScratchProgress() {
   const c = scratchCanvas.value
@@ -1511,6 +1545,23 @@ onMounted(() => {
 .np__cta:hover {
   background: #d4642a;
 }
+.np__cta:disabled {
+  background: #e5e5e5;
+  color: #9a9a9a;
+  cursor: not-allowed;
+}
+/* Claim nu: timer rechts van de CTA-tekst */
+.np__cta--claim {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.np__timer {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  opacity: 0.92;
+}
 .np__terms {
   margin-top: 12px;
   font-size: 11.5px;
@@ -1566,15 +1617,18 @@ onMounted(() => {
 }
 .np__scratch-under {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 18px;
+  align-items: center;
+  justify-content: center;
+  padding: 22px 18px;
   background: #fff;
 }
-.np__subtitle {
-  font-size: 18px;
-  font-weight: 700;
+/* Kortingstekst onder de kraslaag: 2x zo groot */
+.np__scratchtext {
+  font-size: 36px;
+  line-height: 1.15;
+  font-weight: 800;
   color: #1a1e1e;
+  text-align: center;
 }
 .np__scratch-canvas {
   position: absolute;
