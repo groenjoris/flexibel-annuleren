@@ -229,7 +229,23 @@ EXPERIENCES</span>
         <div class="np__left">
           <template v-if="npState === 'form'">
             <p class="np__eyebrow">Nieuw bij ViaLuxury?</p>
-            <h2 class="np__title">Ontvang 10% welkomstkorting</h2>
+            <h2 class="np__title">{{ isDopamine ? 'Kras om je korting te zien' : 'Ontvang 10% welkomstkorting' }}</h2>
+
+            <!-- Dopamine: gouden kraskaart met de korting eronder -->
+            <template v-if="isDopamine">
+              <div class="np__scratch">
+                <div class="np__scratch-under"><span>10%</span></div>
+                <canvas
+                  ref="scratchCanvas"
+                  class="np__scratch-canvas"
+                  @pointerdown="onScratchDown"
+                  @pointermove="onScratchMove"
+                  @pointerup="onScratchUp"
+                  @pointercancel="onScratchUp"
+                />
+              </div>
+              <p class="np__scratchhint">Je korting is 5%, 10% of 25%</p>
+            </template>
 
             <form class="np__form" novalidate @submit.prevent="npSubmit">
               <label class="np__label" for="np-email">Je e-mail</label>
@@ -241,7 +257,7 @@ EXPERIENCES</span>
                 type="email"
               />
               <p v-if="npError" class="np__errormsg">Vul een geldig e-mailadres in.</p>
-              <button class="np__cta" type="submit">Claim mijn korting</button>
+              <button class="np__cta" type="submit">{{ isDopamine ? 'Check je korting' : 'Claim mijn korting' }}</button>
             </form>
 
             <p class="np__terms">
@@ -259,8 +275,8 @@ EXPERIENCES</span>
 
           <template v-else>
             <template v-if="npState === 'success'">
-              <h2 class="np__title">Gelukt!</h2>
-              <p class="np__para">Check je inbox voor de kortingscode.</p>
+              <h2 class="np__title">{{ isDopamine ? 'Je krijgt 10% korting' : 'Gelukt!' }}</h2>
+              <p class="np__para">{{ isDopamine ? 'Check je e-mail voor je kortingscode.' : 'Check je inbox voor de kortingscode.' }}</p>
             </template>
             <template v-else>
               <h2 class="np__title">Welkom terug!</h2>
@@ -424,7 +440,63 @@ function goJourneyDeal() {
 }
 
 // Kortingspopup: 1 seconde na aankomst tonen.
+// Twee varianten: 'simple' (default) en 'dopamine' (kraskaart), gekozen
+// via ?popup=dopamine op de URL (startscherm heeft een knop per variant).
 const popupOpen = ref(false)
+const isDopamine = computed(() => route.query.popup === 'dopamine')
+
+// Kraskaart (dopamine): gouden canvas-laag die je met de muis wegkrast.
+const scratchCanvas = ref<HTMLCanvasElement | null>(null)
+let scratching = false
+function initScratch() {
+  const c = scratchCanvas.value
+  if (!c) return
+  const w = c.offsetWidth
+  const h = c.offsetHeight
+  c.width = w
+  c.height = h
+  const ctx = c.getContext('2d')
+  if (!ctx) return
+  const grad = ctx.createLinearGradient(0, 0, w, h)
+  grad.addColorStop(0, '#e9c96b')
+  grad.addColorStop(0.45, '#c9a437')
+  grad.addColorStop(0.55, '#dfbd55')
+  grad.addColorStop(1, '#f0d98c')
+  ctx.fillStyle = grad
+  ctx.fillRect(0, 0, w, h)
+  ctx.fillStyle = 'rgba(109, 84, 15, 0.9)'
+  ctx.font = '700 15px inherit, sans-serif'
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.letterSpacing = '2px'
+  ctx.fillText('KRAS HIER', w / 2, h / 2)
+}
+function scratchAt(e: PointerEvent) {
+  const c = scratchCanvas.value
+  if (!c) return
+  const ctx = c.getContext('2d')
+  if (!ctx) return
+  const r = c.getBoundingClientRect()
+  ctx.globalCompositeOperation = 'destination-out'
+  ctx.beginPath()
+  ctx.arc(e.clientX - r.left, e.clientY - r.top, 20, 0, Math.PI * 2)
+  ctx.fill()
+}
+function onScratchDown(e: PointerEvent) {
+  scratching = true
+  ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
+  scratchAt(e)
+}
+function onScratchMove(e: PointerEvent) {
+  if (scratching) scratchAt(e)
+}
+function onScratchUp() {
+  scratching = false
+}
+// Canvas initialiseren zodra de popup (met kraskaart) in de DOM staat.
+watch(popupOpen, (open) => {
+  if (open && isDopamine.value) nextTick(initScratch)
+})
 // Afbeeldingsvarianten (switcher rechts onderin de popup).
 const POPUP_IMAGES = [
   '/images/pop-up/welness.jpg',
@@ -1449,6 +1521,41 @@ onMounted(() => {
   margin-top: 8px;
   align-self: flex-start;
 }
+/* Kraskaart (dopamine-variant) */
+.np__scratch {
+  position: relative;
+  height: 130px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #d9d9d9;
+}
+.np__scratch-under {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+}
+.np__scratch-under span {
+  font-size: 44px;
+  font-weight: 800;
+  color: #e97132;
+}
+.np__scratch-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  /* Wijsvingertje tijdens het krassen */
+  cursor: pointer;
+  touch-action: none;
+}
+.np__scratchhint {
+  font-size: 14px;
+  color: #6b6b6b;
+}
+
 /* Laad-animatie tussen stap 1 en 2 */
 .np__loading {
   display: flex;
