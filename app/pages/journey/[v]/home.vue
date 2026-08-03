@@ -214,7 +214,7 @@ EXPERIENCES</span>
         <div class="np__left">
           <template v-if="npState === 'form'">
             <p class="np__eyebrow">Nieuw bij ViaLuxury?</p>
-            <h2 class="np__title">{{ isDopamine ? 'Kras om je korting te zien' : 'Ontvang 10% welkomstkorting' }}</h2>
+            <h2 class="np__title">{{ isDopamine ? 'Kras voor korting!' : 'Ontvang 10% welkomstkorting!' }}</h2>
 
             <!-- Dopamine: kraskaart bedekt alleen de kortingstekst. Krassen
                  activeert de "Claim nu"-knop (met aflopende timer); die knop
