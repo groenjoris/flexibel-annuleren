@@ -222,7 +222,7 @@ EXPERIENCES</span>
             <template v-if="isDopamine">
               <div class="np__scratch" :class="{ 'np__scratch--done': scratchDone }">
                 <div class="np__scratch-under">
-                  <p class="np__scratchtext">Je krijgt 10% korting</p>
+                  <p class="np__scratchtext">Je krijgt 10% korting!</p>
                 </div>
                 <canvas
                   ref="scratchCanvas"
@@ -236,8 +236,9 @@ EXPERIENCES</span>
               </div>
 
               <!-- Zodra de kaart ~50% is weggekrast verschijnen het
-                   e-mailveld, de knop en de disclaimer -->
-              <template v-if="scratchDone">
+                   e-mailveld, de knop en de disclaimer. Ze staan er vanaf
+                   het begin (onzichtbaar) zodat het scherm niet verspringt. -->
+              <div class="np__reveal" :class="{ 'np__reveal--on': scratchDone }">
                 <form class="np__form" novalidate @submit.prevent="npSubmit">
                   <label class="np__label" for="np-email-d">Type je e-mailadres</label>
                   <input
@@ -259,7 +260,7 @@ EXPERIENCES</span>
                   geldt eenmalig en alleen voor nieuwe leden; niet geldig in combinatie
                   met andere kortingen. Zie onze actievoorwaarden en privacyverklaring.
                 </p>
-              </template>
+              </div>
             </template>
 
             <!-- Simple: formulier direct zichtbaar -->
@@ -1561,6 +1562,21 @@ onMounted(() => {
   margin-top: 8px;
   align-self: flex-start;
 }
+/* Formulier onder de kraskaart: neemt vanaf het begin ruimte in
+   (geen layout-versprong), wordt zichtbaar na het krassen */
+.np__reveal {
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.np__reveal--on {
+  visibility: visible;
+  opacity: 1;
+}
+
 /* Kraskaart (dopamine-variant): bedekt subtitel t/m disclaimer */
 .np__scratch {
   position: relative;
@@ -1580,11 +1596,12 @@ onMounted(() => {
 }
 /* Kortingstekst onder de kraslaag: 2x zo groot */
 .np__scratchtext {
-  font-size: 36px;
-  line-height: 1.15;
+  font-size: 28px;
+  line-height: 1.2;
   font-weight: 800;
   color: #1a1e1e;
   text-align: center;
+  white-space: nowrap;
 }
 .np__scratch-canvas {
   position: absolute;
