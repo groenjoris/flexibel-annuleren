@@ -61,7 +61,9 @@ const labelVisible = computed(
 )
 
 onMounted(() => {
-  if (props.autoOpen && !npDismissed.value && !npCompleted.value) {
+  // De popup verschijnt op deze pagina altijd vanzelf na 1 seconde
+  // (alle varianten); alleen na een afgeronde inschrijving niet meer.
+  if (props.autoOpen && !npCompleted.value) {
     setTimeout(() => { popupOpen.value = true }, 1000)
   }
 })
@@ -145,6 +147,14 @@ const POPUP_IMAGES = [
   '/images/pop-up/FotoMetSMaak-8423.jpg',
   '/images/pop-up/Jan_Wegenaar_Via_Luxury_Crowdfunding_Campagne_d61420d1bc.jpg',
   '/images/pop-up/closed-offer3.BhMytyk-.jpg',
+]
+// Per-foto "camerapositie": translate verschuift de uitsnede, scale
+// voorkomt gaten (cover heeft verticaal geen speling).
+const POPUP_IMAGE_TRANSFORMS = [
+  'translateY(-100px) scale(1.35)', // 1: camera 100px omlaag
+  'translateY(100px) scale(1.35)',  // 2: camera 100px omhoog
+  'none',                            // 3
+  'translateX(-200px) scale(1.1)',  // 4: camera 200px naar rechts
 ]
 const popupImage = ref(0)
 
@@ -280,7 +290,7 @@ function npSubmit() {
 
         <!-- Rechterhelft: afbeelding met variant-switcher -->
         <div class="np__right">
-          <img class="np__img" :src="POPUP_IMAGES[popupImage]" alt="" />
+          <img class="np__img" :src="POPUP_IMAGES[popupImage]" :style="{ transform: POPUP_IMAGE_TRANSFORMS[popupImage] }" alt="" />
           <!-- Variant-switcher: kleine onderstreepte nummertjes rechts onderin -->
           <div class="np__switch">
             <button
@@ -301,11 +311,11 @@ function npSubmit() {
     <!-- Heropen-label aan de rechterrand (na het wegklikken van de popup) -->
     <div v-if="labelVisible" class="npl">
       <button class="npl__x" type="button" aria-label="Label sluiten" @click="npLabelHidden = true">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" /></svg>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" /></svg>
       </button>
       <button class="npl__body" type="button" @click="popupOpen = true">
         <span class="npl__text">Krijg 10% korting</span>
-        <svg class="npl__icon" width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="5.5" width="18" height="13" rx="2" stroke="currentColor" stroke-width="1.8" /><path d="M3.5 7l8.5 6 8.5-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        <svg class="npl__icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="5.5" width="18" height="13" rx="2" stroke="currentColor" stroke-width="1.8" /><path d="M3.5 7l8.5 6 8.5-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
       </button>
     </div>
   </div>
@@ -445,6 +455,7 @@ function npSubmit() {
 .np__right {
   position: relative;
   flex: 1 1 50%;
+  overflow: hidden;
 }
 .np__img {
   position: absolute;
@@ -580,7 +591,7 @@ function npSubmit() {
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  padding: 10px 7px 12px;
+  padding: 12px 12px 14px;
   animation: npl-in 0.3s ease-out;
 }
 @keyframes npl-in {
@@ -607,7 +618,7 @@ function npSubmit() {
 }
 .npl__text {
   writing-mode: vertical-rl;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.09em;
   text-transform: uppercase;
