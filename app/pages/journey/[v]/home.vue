@@ -235,18 +235,9 @@ EXPERIENCES</span>
                 />
               </div>
 
-              <button
-                v-if="dopStep === 'claim'"
-                class="np__cta np__cta--claim"
-                type="button"
-                :disabled="!scratchDone"
-                @click="dopStep = 'email'"
-              >
-                <span>Doorgaan</span>
-                <span v-if="scratchDone" class="np__timer">{{ claimTimer }}</span>
-              </button>
-
-              <template v-else>
+              <!-- Zodra de kaart ~50% is weggekrast verschijnen het
+                   e-mailveld, de knop en de disclaimer -->
+              <template v-if="scratchDone">
                 <form class="np__form" novalidate @submit.prevent="npSubmit">
                   <label class="np__label" for="np-email-d">Type je e-mailadres</label>
                   <input
@@ -499,28 +490,9 @@ function initScratch() {
   ctx.letterSpacing = '2px'
   ctx.fillText('KRAS HIER', w / 2, h / 2)
 }
-// Dopamine-fase: eerst "Claim nu" (na het krassen), daarna het e-mailveld.
-const dopStep = ref<'claim' | 'email'>('claim')
-// Urgentie-timer in de Claim nu-knop: start zodra er gekrast is.
-const claimSecs = ref(600)
-let claimInterval: ReturnType<typeof setInterval> | null = null
-const claimTimer = computed(() => {
-  const m = Math.floor(claimSecs.value / 60)
-  const sec = String(claimSecs.value % 60).padStart(2, '0')
-  return `${m}:${sec}`
-})
-// Zodra ~40% is weggekrast fadet de kraslaag weg en gaat de knop aan.
+// Zodra ~50% is weggekrast fadet de kraslaag weg en verschijnt het
+// inschrijfformulier (e-mailveld + knop + disclaimer).
 const scratchDone = ref(false)
-watch(scratchDone, (done) => {
-  if (done && !claimInterval) {
-    claimInterval = setInterval(() => {
-      if (claimSecs.value > 0) claimSecs.value -= 1
-    }, 1000)
-  }
-})
-onUnmounted(() => {
-  if (claimInterval) clearInterval(claimInterval)
-})
 let strokeCount = 0
 function checkScratchProgress() {
   const c = scratchCanvas.value
@@ -534,7 +506,7 @@ function checkScratchProgress() {
     total++
     if (data[i] === 0) clear++
   }
-  if (clear / total > 0.4) scratchDone.value = true
+  if (clear / total > 0.5) scratchDone.value = true
 }
 function scratchAt(e: PointerEvent) {
   const c = scratchCanvas.value
@@ -1545,23 +1517,7 @@ onMounted(() => {
 .np__cta:hover {
   background: #d4642a;
 }
-.np__cta:disabled {
-  background: #e5e5e5;
-  color: #9a9a9a;
-  cursor: not-allowed;
-}
-/* Claim nu: timer rechts van de CTA-tekst */
-.np__cta--claim {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-}
-.np__timer {
-  font-variant-numeric: tabular-nums;
-  font-weight: 600;
-  opacity: 0.92;
-}
+
 .np__terms {
   margin-top: 12px;
   font-size: 11.5px;
