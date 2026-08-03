@@ -576,15 +576,54 @@ function npSubmit() {
   to { transform: rotate(360deg); }
 }
 @media (max-width: 760px) {
+  .np {
+    padding: 14px;
+  }
+  /* Gestapeld: foto boven, formulier eronder; kaart schaalt met de
+     inhoud en scrolt als het niet past. */
   .np__card {
     flex-direction: column-reverse;
-    min-height: 0;
+    height: auto;
+    max-height: calc(100vh - 28px);
+    overflow-y: auto;
   }
   .np__right {
-    min-height: 200px;
+    flex: 0 0 auto;
+    min-height: 170px;
+  }
+  /* Camera-shifts zijn getuned op de hoge desktopkolom; op de lage
+     mobiele strook geven ze gaten — daar de standaard uitsnede. */
+  .np__img {
+    transform: none !important;
   }
   .np__left {
-    padding: 28px 24px 24px;
+    flex: 0 0 auto;
+    justify-content: flex-start;
+    padding: 22px 20px 20px;
+    gap: 12px;
+  }
+  .np__eyebrow {
+    font-size: 13px;
+  }
+  .np__title {
+    font-size: 24px;
+    line-height: 30px;
+  }
+  .np__scratchtext {
+    font-size: 20px;
+  }
+  .np__input {
+    padding: 12px 14px;
+  }
+  .np__cta {
+    padding: 14px 20px;
+  }
+  .np__terms {
+    font-size: 10.5px;
+    line-height: 15px;
+  }
+  .np__loading {
+    min-height: 140px;
   }
 }
 

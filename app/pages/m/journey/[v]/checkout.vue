@@ -761,6 +761,9 @@ const fcTotals = computed(() => {
 
     <CheckoutSiteFooter />
 
+    <!-- Newsletter-flow (v11): heropen-label voor de kortingspopup -->
+    <CheckoutNewsletterPopup v-if="jv === '11'" show-label />
+
     <CheckoutPolicyChoicePopup
       v-if="policyPopupOpen"
       @choose="applyPolicy"
