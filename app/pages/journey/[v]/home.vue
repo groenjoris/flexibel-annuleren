@@ -230,16 +230,15 @@ EXPERIENCES</span>
           <template v-if="npState === 'form'">
             <p class="np__eyebrow">Nieuw bij ViaLuxury?</p>
             <h2 class="np__title">Ontvang 10% welkomstkorting</h2>
-            <p class="np__para">En alle andere exclusieve aanbiedingen via mail.</p>
 
             <form class="np__form" novalidate @submit.prevent="npSubmit">
+              <label class="np__label" for="np-email">Je e-mail</label>
               <input
+                id="np-email"
                 v-model="npEmail"
                 class="np__input"
                 :class="{ 'np__input--invalid': npError }"
                 type="email"
-                placeholder="E-mailadres"
-                aria-label="E-mailadres"
               />
               <p v-if="npError" class="np__errormsg">Vul een geldig e-mailadres in.</p>
               <button class="np__cta" type="submit">Claim mijn korting</button>
@@ -253,6 +252,10 @@ EXPERIENCES</span>
               met andere kortingen. Zie onze actievoorwaarden en privacyverklaring.
             </p>
           </template>
+
+          <div v-else-if="npState === 'loading'" class="np__loading" aria-label="Bezig met verwerken">
+            <span class="np__spinner" />
+          </div>
 
           <template v-else>
             <template v-if="npState === 'success'">
@@ -424,15 +427,15 @@ function goJourneyDeal() {
 const popupOpen = ref(false)
 // Afbeeldingsvarianten (switcher rechts onderin de popup).
 const POPUP_IMAGES = [
-  '/images/pop-up/Boutique_Hotel_Ter_Zand_-42.jpg',
-  '/images/pop-up/FotoMetSMaak-8423.jpg',
   '/images/pop-up/welness.jpg',
+  '/images/pop-up/FotoMetSMaak-8423.jpg',
+  '/images/pop-up/Boutique_Hotel_Ter_Zand_-42.jpg',
 ]
 const popupImage = ref(0)
 // Inschrijfformulier: e-mailvalidatie + succes-/al-bekend-melding.
 const npEmail = ref('')
 const npError = ref(false)
-const npState = ref<'form' | 'success' | 'known'>('form')
+const npState = ref<'form' | 'loading' | 'success' | 'known'>('form')
 function npSubmit() {
   const email = npEmail.value.trim()
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
@@ -440,9 +443,12 @@ function npSubmit() {
     return
   }
   npError.value = false
-  // Bestaande leden (e-mail eindigt op vialuxury.com) krijgen de
-  // "al bekend"-variant van de melding.
-  npState.value = email.toLowerCase().endsWith('vialuxury.com') ? 'known' : 'success'
+  // 2s laad-animatie tussen stap 1 en stap 2; bestaande leden (e-mail
+  // eindigt op vialuxury.com) krijgen de "al bekend"-variant.
+  npState.value = 'loading'
+  setTimeout(() => {
+    npState.value = email.toLowerCase().endsWith('vialuxury.com') ? 'known' : 'success'
+  }, 2000)
 }
 onMounted(() => {
   setFrNavVariant('1')
@@ -1325,7 +1331,7 @@ onMounted(() => {
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.25);
   width: 960px;
   max-width: 100%;
-  height: 960px;
+  height: 640px;
   max-height: calc(100vh - 48px);
   display: flex;
   overflow: hidden;
@@ -1339,7 +1345,7 @@ onMounted(() => {
   gap: 16px;
 }
 .np__eyebrow {
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1360,6 +1366,11 @@ onMounted(() => {
   flex-direction: column;
   gap: 10px;
   margin-top: 8px;
+}
+.np__label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1e1e;
 }
 .np__input {
   border: 1px solid #d9d9d9;
@@ -1437,6 +1448,24 @@ onMounted(() => {
 .np__cta--back {
   margin-top: 8px;
   align-self: flex-start;
+}
+/* Laad-animatie tussen stap 1 en 2 */
+.np__loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+.np__spinner {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 4px solid #e5e5e5;
+  border-top-color: #e97132;
+  animation: np-spin 0.8s linear infinite;
+}
+@keyframes np-spin {
+  to { transform: rotate(360deg); }
 }
 @media (max-width: 760px) {
   .np__card {
