@@ -216,43 +216,70 @@ EXPERIENCES</span>
             <p class="np__eyebrow">Nieuw bij ViaLuxury?</p>
             <h2 class="np__title">{{ isDopamine ? 'Kras om je korting te zien' : 'Ontvang 10% welkomstkorting' }}</h2>
 
-            <!-- Dopamine: gouden kraskaart met de korting eronder -->
-            <template v-if="isDopamine">
-              <div class="np__scratch">
-                <div class="np__scratch-under"><span>10%</span></div>
-                <canvas
-                  ref="scratchCanvas"
-                  class="np__scratch-canvas"
-                  @pointerdown="onScratchDown"
-                  @pointermove="onScratchMove"
-                  @pointerup="onScratchUp"
-                  @pointercancel="onScratchUp"
-                />
+            <!-- Dopamine: de kraskaart bedekt alles onder de titel (subtitel,
+                 uitleg, formulier én disclaimer); wegkrassen onthult het blok. -->
+            <div v-if="isDopamine" class="np__scratch" :class="{ 'np__scratch--done': scratchDone }">
+              <div class="np__scratch-under">
+                <p class="np__subtitle">Je krijgt 5%, 10% of 25% korting</p>
+                <p class="np__para">Schrijf je in om te zien hoeveel het is.</p>
+
+                <form class="np__form" novalidate @submit.prevent="npSubmit">
+                  <label class="np__label" for="np-email-d">Type je e-mailadres</label>
+                  <input
+                    id="np-email-d"
+                    v-model="npEmail"
+                    class="np__input"
+                    :class="{ 'np__input--invalid': npError }"
+                    type="email"
+                    placeholder="naam@voorbeeld.nl"
+                  />
+                  <p v-if="npError" class="np__errormsg">Vul een geldig e-mailadres in.</p>
+                  <button class="np__cta" type="submit">Check je korting</button>
+                </form>
+
+                <p class="np__terms">
+                  Je ontvangt de kortingscode direct per e-mail en schrijft je daarmee in
+                  voor onze e-mailupdates vol exclusieve aanbiedingen. Uitschrijven kan
+                  altijd met één klik via de link onderaan elke mail. De welkomstkorting
+                  geldt eenmalig en alleen voor nieuwe leden; niet geldig in combinatie
+                  met andere kortingen. Zie onze actievoorwaarden en privacyverklaring.
+                </p>
               </div>
-              <p class="np__scratchhint">Je korting is 5%, 10% of 25%</p>
-            </template>
-
-            <form class="np__form" novalidate @submit.prevent="npSubmit">
-              <label class="np__label" for="np-email">Type je e-mailadres</label>
-              <input
-                id="np-email"
-                v-model="npEmail"
-                class="np__input"
-                :class="{ 'np__input--invalid': npError }"
-                type="email"
-                placeholder="naam@voorbeeld.nl"
+              <canvas
+                ref="scratchCanvas"
+                class="np__scratch-canvas"
+                :class="{ 'np__scratch-canvas--done': scratchDone }"
+                @pointerdown="onScratchDown"
+                @pointermove="onScratchMove"
+                @pointerup="onScratchUp"
+                @pointercancel="onScratchUp"
               />
-              <p v-if="npError" class="np__errormsg">Vul een geldig e-mailadres in.</p>
-              <button class="np__cta" type="submit">{{ isDopamine ? 'Check je korting' : 'Claim mijn korting' }}</button>
-            </form>
+            </div>
 
-            <p class="np__terms">
-              Je ontvangt de kortingscode direct per e-mail en schrijft je daarmee in
-              voor onze e-mailupdates vol exclusieve aanbiedingen. Uitschrijven kan
-              altijd met één klik via de link onderaan elke mail. De welkomstkorting
-              geldt eenmalig en alleen voor nieuwe leden; niet geldig in combinatie
-              met andere kortingen. Zie onze actievoorwaarden en privacyverklaring.
-            </p>
+            <!-- Simple: formulier direct zichtbaar -->
+            <template v-else>
+              <form class="np__form" novalidate @submit.prevent="npSubmit">
+                <label class="np__label" for="np-email">Type je e-mailadres</label>
+                <input
+                  id="np-email"
+                  v-model="npEmail"
+                  class="np__input"
+                  :class="{ 'np__input--invalid': npError }"
+                  type="email"
+                  placeholder="naam@voorbeeld.nl"
+                />
+                <p v-if="npError" class="np__errormsg">Vul een geldig e-mailadres in.</p>
+                <button class="np__cta" type="submit">Claim mijn korting</button>
+              </form>
+
+              <p class="np__terms">
+                Je ontvangt de kortingscode direct per e-mail en schrijft je daarmee in
+                voor onze e-mailupdates vol exclusieve aanbiedingen. Uitschrijven kan
+                altijd met één klik via de link onderaan elke mail. De welkomstkorting
+                geldt eenmalig en alleen voor nieuwe leden; niet geldig in combinatie
+                met andere kortingen. Zie onze actievoorwaarden en privacyverklaring.
+              </p>
+            </template>
           </template>
 
           <div v-else-if="npState === 'loading'" class="np__loading" aria-label="Bezig met verwerken">
@@ -457,6 +484,24 @@ function initScratch() {
   ctx.letterSpacing = '2px'
   ctx.fillText('KRAS HIER', w / 2, h / 2)
 }
+// Zodra ~40% is weggekrast fadet de kraslaag weg, zodat het formulier
+// eronder klikbaar wordt (de canvas vangt anders alle kliks af).
+const scratchDone = ref(false)
+let strokeCount = 0
+function checkScratchProgress() {
+  const c = scratchCanvas.value
+  if (!c || scratchDone.value) return
+  const ctx = c.getContext('2d')
+  if (!ctx) return
+  const data = ctx.getImageData(0, 0, c.width, c.height).data
+  let clear = 0
+  let total = 0
+  for (let i = 3; i < data.length; i += 4 * 16) {
+    total++
+    if (data[i] === 0) clear++
+  }
+  if (clear / total > 0.4) scratchDone.value = true
+}
 function scratchAt(e: PointerEvent) {
   const c = scratchCanvas.value
   if (!c) return
@@ -465,8 +510,9 @@ function scratchAt(e: PointerEvent) {
   const r = c.getBoundingClientRect()
   ctx.globalCompositeOperation = 'destination-out'
   ctx.beginPath()
-  ctx.arc(e.clientX - r.left, e.clientY - r.top, 20, 0, Math.PI * 2)
+  ctx.arc(e.clientX - r.left, e.clientY - r.top, 26, 0, Math.PI * 2)
   ctx.fill()
+  if (++strokeCount % 10 === 0) checkScratchProgress()
 }
 function onScratchDown(e: PointerEvent) {
   scratching = true
@@ -478,6 +524,7 @@ function onScratchMove(e: PointerEvent) {
 }
 function onScratchUp() {
   scratching = false
+  checkScratchProgress()
 }
 // Canvas initialiseren zodra de popup (met kraskaart) in de DOM staat.
 watch(popupOpen, (open) => {
@@ -1507,26 +1554,27 @@ onMounted(() => {
   margin-top: 8px;
   align-self: flex-start;
 }
-/* Kraskaart (dopamine-variant) */
+/* Kraskaart (dopamine-variant): bedekt subtitel t/m disclaimer */
 .np__scratch {
   position: relative;
-  height: 130px;
   border-radius: 10px;
   overflow: hidden;
   border: 1px solid #d9d9d9;
 }
+.np__scratch--done {
+  border-color: transparent;
+}
 .np__scratch-under {
-  position: absolute;
-  inset: 0;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px;
   background: #fff;
 }
-.np__scratch-under span {
-  font-size: 44px;
-  font-weight: 800;
-  color: #e97132;
+.np__subtitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1e1e;
 }
 .np__scratch-canvas {
   position: absolute;
@@ -1536,10 +1584,11 @@ onMounted(() => {
   /* Wijsvingertje tijdens het krassen */
   cursor: pointer;
   touch-action: none;
+  transition: opacity 0.5s ease;
 }
-.np__scratchhint {
-  font-size: 14px;
-  color: #6b6b6b;
+.np__scratch-canvas--done {
+  opacity: 0;
+  pointer-events: none;
 }
 
 /* Laad-animatie tussen stap 1 en 2 */
