@@ -155,7 +155,10 @@ const POPUP_IMAGES = [
   '/images/pop-up/welness.jpg',
   '/images/pop-up/FotoMetSMaak-8423.jpg',
   '/images/pop-up/Jan_Wegenaar_Via_Luxury_Crowdfunding_Campagne_d61420d1bc.jpg',
-  '/images/pop-up/closed-offer3.BhMytyk-.jpg',
+  '/images/pop-up/3-gangendiner.jpg',
+  '/images/pop-up/des-indes-exterior.jpg',
+  '/images/pop-up/inntel-marina-beach.jpg',
+  '/images/pop-up/istock-1270074974.jpg',
 ]
 // Per-foto "camerapositie": translate verschuift de uitsnede, scale
 // voorkomt gaten (cover heeft verticaal geen speling).
@@ -163,7 +166,10 @@ const POPUP_IMAGE_TRANSFORMS = [
   'translateY(-100px) scale(1.35)', // 1: camera 100px omlaag
   'translateY(100px) scale(1.35)',  // 2: camera 100px omhoog
   'none',                            // 3
-  'translateX(-200px) scale(1.1)',  // 4: camera 200px naar rechts
+  'none',                            // 4
+  'none',                            // 5
+  'none',                            // 6
+  'none',                            // 7
 ]
 const popupImage = ref(0)
 
