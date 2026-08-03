@@ -225,66 +225,69 @@ EXPERIENCES</span>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
         </button>
 
-        <!-- Linkerhelft: welkomstkorting + inschrijfformulier -->
+        <!-- Linkerhelft: stap 1 (formulier) of stap 2 (melding) op dezelfde plek -->
         <div class="np__left">
-          <p class="np__eyebrow">Nieuw bij ViaLuxury?</p>
-          <h2 class="np__title">Ontvang 10% welkomstkorting</h2>
-          <p class="np__para">En alle andere exclusieve aanbiedingen via mail.</p>
-
-          <form class="np__form" novalidate @submit.prevent="npSubmit">
-            <input
-              v-model="npEmail"
-              class="np__input"
-              :class="{ 'np__input--invalid': npError }"
-              type="email"
-              placeholder="E-mailadres"
-              aria-label="E-mailadres"
-            />
-            <p v-if="npError" class="np__errormsg">Vul een geldig e-mailadres in.</p>
-            <button class="np__cta" type="submit">Claim mijn korting</button>
-          </form>
-
-          <p class="np__terms">
-            Je ontvangt de kortingscode direct per e-mail en schrijft je daarmee in
-            voor onze e-mailupdates vol exclusieve aanbiedingen. Uitschrijven kan
-            altijd met één klik via de link onderaan elke mail. De welkomstkorting
-            geldt eenmalig en alleen voor nieuwe leden; niet geldig in combinatie
-            met andere kortingen. Zie onze actievoorwaarden en privacyverklaring.
-          </p>
-        </div>
-
-        <!-- Rechterhelft: afbeelding (met variant-switcher) of de melding na inschrijven -->
-        <div class="np__right">
           <template v-if="npState === 'form'">
-            <img class="np__img" :src="POPUP_IMAGES[popupImage]" alt="" />
-            <!-- Variant-switcher: kleine onderstreepte nummertjes rechts onderin -->
-            <div class="np__switch">
-              <button
-                v-for="(img, i) in POPUP_IMAGES"
-                :key="img"
-                class="np__switchnr"
-                :class="{ 'np__switchnr--on': i === popupImage }"
-                type="button"
-                @click="popupImage = i"
-              >
-                {{ i + 1 }}
-              </button>
-            </div>
+            <p class="np__eyebrow">Nieuw bij ViaLuxury?</p>
+            <h2 class="np__title">Ontvang 10% welkomstkorting</h2>
+            <p class="np__para">En alle andere exclusieve aanbiedingen via mail.</p>
+
+            <form class="np__form" novalidate @submit.prevent="npSubmit">
+              <input
+                v-model="npEmail"
+                class="np__input"
+                :class="{ 'np__input--invalid': npError }"
+                type="email"
+                placeholder="E-mailadres"
+                aria-label="E-mailadres"
+              />
+              <p v-if="npError" class="np__errormsg">Vul een geldig e-mailadres in.</p>
+              <button class="np__cta" type="submit">Claim mijn korting</button>
+            </form>
+
+            <p class="np__terms">
+              Je ontvangt de kortingscode direct per e-mail en schrijft je daarmee in
+              voor onze e-mailupdates vol exclusieve aanbiedingen. Uitschrijven kan
+              altijd met één klik via de link onderaan elke mail. De welkomstkorting
+              geldt eenmalig en alleen voor nieuwe leden; niet geldig in combinatie
+              met andere kortingen. Zie onze actievoorwaarden en privacyverklaring.
+            </p>
           </template>
 
-          <div v-else class="np__result">
+          <template v-else>
             <template v-if="npState === 'success'">
-              <p class="np__result-title">Gelukt!</p>
-              <p class="np__result-body">Check je inbox voor de kortingscode.</p>
+              <h2 class="np__title">Gelukt!</h2>
+              <p class="np__para">Check je inbox voor de kortingscode.</p>
             </template>
             <template v-else>
-              <p class="np__result-title">Welkom terug!</p>
-              <p class="np__result-body">
+              <h2 class="np__title">Welkom terug!</h2>
+              <p class="np__para">
                 <strong>{{ npEmail }}</strong> is al bekend — de korting is voor
                 nieuwe leden. Maar we zijn blij je weer te zien: check je mail
                 voor een surprise!
               </p>
             </template>
+            <button class="np__cta np__cta--back" type="button" @click="popupOpen = false">
+              Terug naar de site
+            </button>
+          </template>
+        </div>
+
+        <!-- Rechterhelft: afbeelding met variant-switcher -->
+        <div class="np__right">
+          <img class="np__img" :src="POPUP_IMAGES[popupImage]" alt="" />
+          <!-- Variant-switcher: kleine onderstreepte nummertjes rechts onderin -->
+          <div class="np__switch">
+            <button
+              v-for="(img, i) in POPUP_IMAGES"
+              :key="img"
+              class="np__switchnr"
+              :class="{ 'np__switchnr--on': i === popupImage }"
+              type="button"
+              @click="popupImage = i"
+            >
+              {{ i + 1 }}
+            </button>
           </div>
         </div>
       </div>
@@ -1322,23 +1325,25 @@ onMounted(() => {
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.25);
   width: 960px;
   max-width: 100%;
-  min-height: 480px;
+  height: 960px;
+  max-height: calc(100vh - 48px);
   display: flex;
   overflow: hidden;
 }
 .np__left {
   flex: 1 1 50%;
-  padding: 56px 48px 40px;
+  padding: 56px 48px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  justify-content: center;
+  gap: 16px;
 }
 .np__eyebrow {
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #e97132;
+  color: #1a1e1e;
 }
 .np__title {
   font-size: 34px;
@@ -1391,7 +1396,7 @@ onMounted(() => {
   background: #d4642a;
 }
 .np__terms {
-  margin-top: auto;
+  margin-top: 12px;
   font-size: 11.5px;
   line-height: 17px;
   color: #6b6b6b;
@@ -1428,28 +1433,10 @@ onMounted(() => {
   text-decoration: none;
   color: #e97132;
 }
-/* Melding na inschrijven (zelfde rechterkolom) */
-.np__result {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  text-align: center;
-  padding: 48px;
-  background: #eef4ef;
-}
-.np__result-title {
-  font-size: 28px;
-  font-weight: 700;
-}
-.np__result-body {
-  font-size: 16px;
-  line-height: 24px;
-  color: #1a1e1e;
-  overflow-wrap: anywhere;
+/* Stap 2: terug-CTA onder de melding */
+.np__cta--back {
+  margin-top: 8px;
+  align-self: flex-start;
 }
 @media (max-width: 760px) {
   .np__card {
