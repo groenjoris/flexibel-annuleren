@@ -40,21 +40,6 @@
 
     </section>
 
-    <!-- Flex-only banner: persuasive claim that EVERY arrangement is
-         flexibly cancellable — no surcharge in the checkout. -->
-    <section class="home-flexbanner">
-      <div class="container home-flexbanner__inner">
-        <span class="home-flexbanner__icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z" />
-            <path d="M9 12l2 2 4-4" />
-          </svg>
-        </span>
-        <p class="home-flexbanner__text">
-          <strong>Al onze arrangementen flexibel annuleren</strong> tot 3 dagen voor vertrek.
-        </p>
-      </div>
-    </section>
 
     <!-- Persuasion block — three short claims directly below the hero
          photo. Trustpilot on the left, social-proof in the middle,
@@ -248,13 +233,14 @@ EXPERIENCES</span>
             </template>
 
             <form class="np__form" novalidate @submit.prevent="npSubmit">
-              <label class="np__label" for="np-email">Je e-mail</label>
+              <label class="np__label" for="np-email">Type je e-mailadres</label>
               <input
                 id="np-email"
                 v-model="npEmail"
                 class="np__input"
                 :class="{ 'np__input--invalid': npError }"
                 type="email"
+                placeholder="naam@voorbeeld.nl"
               />
               <p v-if="npError" class="np__errormsg">Vul een geldig e-mailadres in.</p>
               <button class="np__cta" type="submit">{{ isDopamine ? 'Check je korting' : 'Claim mijn korting' }}</button>
@@ -1440,7 +1426,7 @@ onMounted(() => {
   margin-top: 8px;
 }
 .np__label {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   color: #1a1e1e;
 }

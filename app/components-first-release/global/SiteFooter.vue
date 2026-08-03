@@ -20,6 +20,7 @@
         <!-- Newsletter / VIP-member CTA -->
         <form class="footer-newsletter" @submit.prevent>
           <p class="footer-newsletter__title">{{ t('footer.newsletterTitle') }}</p>
+          <p class="footer-newsletter__intro">{{ t('footer.newsletterIntro') }}</p>
           <div class="footer-newsletter__row">
             <input
               type="email"
@@ -32,6 +33,7 @@
             />
             <button type="submit" class="footer-newsletter__btn">{{ t('footer.newsletterCta') }}</button>
           </div>
+          <p class="footer-newsletter__terms">{{ t('footer.newsletterTerms') }}</p>
         </form>
       </div>
 
@@ -193,7 +195,24 @@ function onNewsletterInput(e: Event) {
   font-weight: 600;
   line-height: 1.4;
   color: #fff;
+  margin: 0 0 6px;
+}
+
+.footer-newsletter__intro {
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.85);
   margin: 0 0 10px;
+}
+
+/* Disclaimer onder het inschrijfveld: zo klein mogelijk */
+.footer-newsletter__terms {
+  font-family: var(--font-body);
+  font-size: 10px;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.55);
+  margin: 8px 0 0;
 }
 
 .footer-newsletter__row {
