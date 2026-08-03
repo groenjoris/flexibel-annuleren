@@ -27,7 +27,29 @@ const npDismissed = useState('np-dismissed', () => false)
 const npCompleted = useState('np-completed', () => false)
 const npLabelHidden = useState('np-label-hidden', () => false)
 
+// Sluiten zonder afgeronde inschrijving: de popup morft naar het
+// labeltje aan de rechterrand (krimpt + schuift ernaartoe), daarna
+// verschijnt het label met een slide-in.
+const npCardEl = ref<HTMLElement | null>(null)
+const morphing = ref(false)
 function closePopup() {
+  if (morphing.value) return
+  if (props.showLabel && !npCompleted.value && import.meta.client && npCardEl.value) {
+    morphing.value = true
+    const card = npCardEl.value
+    const r = card.getBoundingClientRect()
+    const tx = window.innerWidth - 24 - (r.left + r.width / 2)
+    const ty = window.innerHeight * 0.45 - (r.top + r.height / 2)
+    card.style.transition = 'transform 0.45s cubic-bezier(0.55, 0, 0.85, 0.36), opacity 0.45s ease'
+    card.style.transform = `translate(${tx}px, ${ty}px) scale(0.05)`
+    card.style.opacity = '0'
+    setTimeout(() => {
+      popupOpen.value = false
+      npDismissed.value = true
+      morphing.value = false
+    }, 450)
+    return
+  }
   popupOpen.value = false
   npDismissed.value = true
 }
@@ -150,8 +172,8 @@ function npSubmit() {
 <template>
   <div>
     <!-- Kortingspopup -->
-    <div v-if="popupOpen" class="np" role="dialog" aria-modal="true" @click.self="closePopup">
-      <div class="np__card">
+    <div v-if="popupOpen" class="np" :class="{ 'np--morph': morphing }" role="dialog" aria-modal="true" @click.self="closePopup">
+      <div ref="npCardEl" class="np__card">
         <button class="np__close" type="button" aria-label="Sluiten" @click="closePopup">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
         </button>
@@ -305,6 +327,12 @@ function npSubmit() {
 @keyframes np-fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+/* Tijdens de morf naar het label: achtergrond wegfaden */
+.np--morph {
+  background: rgba(26, 30, 30, 0);
+  transition: background 0.45s ease;
+  pointer-events: none;
 }
 .np__card {
   position: relative;
@@ -553,6 +581,11 @@ function npSubmit() {
   align-items: center;
   gap: 10px;
   padding: 10px 7px 12px;
+  animation: npl-in 0.3s ease-out;
+}
+@keyframes npl-in {
+  from { transform: translateY(-50%) translateX(110%); }
+  to { transform: translateY(-50%) translateX(0); }
 }
 .npl__x {
   color: #fff;
