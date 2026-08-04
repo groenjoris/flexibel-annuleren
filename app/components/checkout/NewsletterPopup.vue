@@ -16,10 +16,12 @@ const route = useRoute()
 
 // Popup-variant reist mee door de flow (de dealpagina heeft de
 // ?popup-query niet meer): eenmaal gezien op de URL -> gedeelde state.
-const npVariant = useState<'simple' | 'dopamine'>('np-variant', () => 'simple')
+const npVariant = useState<'simple' | 'dopamine' | 'huidige'>('np-variant', () => 'simple')
 if (route.query.popup === 'dopamine') npVariant.value = 'dopamine'
+else if (route.query.popup === 'huidige') npVariant.value = 'huidige'
 else if (route.query.popup === 'simple') npVariant.value = 'simple'
 const isDopamine = computed(() => npVariant.value === 'dopamine')
+const isHuidige = computed(() => npVariant.value === 'huidige')
 
 // Gedeelde popup-status over pagina's heen.
 const popupOpen = useState('np-open', () => false)
@@ -203,8 +205,87 @@ function npSubmit() {
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
         </button>
 
+        <!-- Variant "Huidige": full-bleed foto als achtergrond, alles
+             gecentreerd in wit (naar de huidige live-site popup). -->
+        <div v-if="isHuidige" class="nph">
+          <img class="nph__bg" :src="POPUP_IMAGES[popupImage]" alt="" />
+          <div class="nph__scrim" />
+
+          <div class="nph__inner">
+            <img class="nph__logo" src="/images/logos/logo-vialuxury-horizontal-black.svg" alt="ViaLuxury" />
+
+            <template v-if="npState === 'form'">
+              <h2 class="nph__title">Word gratis VIP member!<br />Ontvang €10</h2>
+
+              <ul class="nph__usps">
+                <li v-for="usp in ['Gratis upgrades', 'Secret deals tot -80% korting', 'Voorrang op hotelboekingen']" :key="usp" class="nph__usp">
+                  <svg class="nph__star" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6.2 6.6.8-4.9 4.6 1.3 6.6-5.9-3.3-5.9 3.3 1.3-6.6L2.5 9.5l6.6-.8L12 2.5z" /></svg>
+                  <span>{{ usp }}</span>
+                </li>
+              </ul>
+
+              <form class="nph__form" novalidate @submit.prevent="npSubmit">
+                <input
+                  v-model="npEmail"
+                  class="nph__input"
+                  :class="{ 'nph__input--invalid': npError }"
+                  type="email"
+                  placeholder="naam@voorbeeld.nl"
+                  aria-label="E-mailadres"
+                />
+                <button class="np__cta nph__cta" type="submit">Gratis Ontdekken</button>
+              </form>
+              <p v-if="npError" class="nph__error">Vul een geldig e-mailadres in.</p>
+
+              <img class="nph__trust" src="/images/trustpilot-white.svg" alt="Trustpilot" />
+            </template>
+
+            <div v-else-if="npState === 'loading'" class="np__loading" aria-label="Bezig met verwerken">
+              <span class="np__spinner" />
+            </div>
+
+            <template v-else>
+              <template v-if="npState === 'success'">
+                <h2 class="nph__title">Gelukt!</h2>
+                <p class="nph__para">Check je inbox voor de kortingscode.</p>
+              </template>
+              <template v-else>
+                <h2 class="nph__title">Welkom terug!</h2>
+                <p class="nph__para">
+                  <strong>{{ npEmail }}</strong> is al bekend — de korting is voor
+                  nieuwe leden. Maar we zijn blij je weer te zien: check je mail
+                  voor een surprise!
+                </p>
+              </template>
+              <button class="np__cta nph__cta" type="button" @click="popupOpen = false">
+                Terug naar de site
+              </button>
+            </template>
+          </div>
+
+          <!-- Variant-switcher (boven de voorwaardenbalk) -->
+          <div class="np__switch nph__switchpos">
+            <button
+              v-for="(img, i) in POPUP_IMAGES"
+              :key="img"
+              class="np__switchnr"
+              :class="{ 'np__switchnr--on': i === popupImage }"
+              type="button"
+              @click="popupImage = i"
+            >
+              {{ i + 1 }}
+            </button>
+          </div>
+
+          <!-- Halftransparante voorwaardenbalk -->
+          <div class="nph__footer">
+            <a class="nph__footerlink" href="#">Algemene voorwaarden</a>
+            <a class="nph__footerlink" href="#">Privacyvoorwaarden</a>
+          </div>
+        </div>
+
         <!-- Linkerhelft: stap 1 (formulier) of stap 2 (melding) op dezelfde plek -->
-        <div class="np__left">
+        <div v-else class="np__left">
           <template v-if="npState === 'form'">
             <p class="np__eyebrow">Nieuw bij ViaLuxury?</p>
             <h2 class="np__title">{{ isDopamine ? 'Kras voor korting!' : 'Ontvang €10 welkomstkorting!' }}</h2>
@@ -304,7 +385,7 @@ function npSubmit() {
         </div>
 
         <!-- Rechterhelft: afbeelding met variant-switcher -->
-        <div class="np__right">
+        <div v-if="!isHuidige" class="np__right">
           <img class="np__img" :src="POPUP_IMAGES[popupImage]" :style="{ transform: POPUP_IMAGE_TRANSFORMS[popupImage] }" alt="" />
           <!-- Variant-switcher: kleine onderstreepte nummertjes rechts onderin -->
           <div class="np__switch">
@@ -625,6 +706,161 @@ function npSubmit() {
   .np__loading {
     min-height: 140px;
   }
+  /* Variant "Huidige" op mobiel: usp's onder elkaar, formulier gestapeld */
+  .nph__inner {
+    padding: 40px 20px 64px;
+    gap: 18px;
+  }
+  .nph__title {
+    font-size: 24px;
+    line-height: 31px;
+  }
+  .nph__usps {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .nph__form {
+    flex-direction: column;
+  }
+  .nph__footer {
+    gap: 18px;
+  }
+}
+
+/* Variant "Huidige": full-bleed foto, alles gecentreerd in wit */
+.nph {
+  position: relative;
+  flex: 1 1 100%;
+  display: flex;
+  flex-direction: column;
+}
+.nph__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.nph__scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(rgba(15, 17, 17, 0.45), rgba(15, 17, 17, 0.55));
+}
+.nph__inner {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  text-align: center;
+  color: #fff;
+  padding: 48px 48px 72px;
+}
+.nph__logo {
+  height: 22px;
+  width: auto;
+  /* Zwart woordmerk -> wit op de foto */
+  filter: brightness(0) invert(1);
+}
+.nph__title {
+  font-size: 34px;
+  line-height: 42px;
+  font-weight: 700;
+  text-transform: uppercase;
+  /* Expliciet wit: fr-scope headings erven anders donker */
+  color: #fff;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
+}
+.nph__para {
+  font-size: 16px;
+  line-height: 24px;
+  max-width: 480px;
+  overflow-wrap: anywhere;
+}
+.nph__usps {
+  display: flex;
+  gap: 26px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.nph__usp {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.nph__star {
+  color: #f0c85c;
+  flex-shrink: 0;
+}
+.nph__form {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  max-width: 480px;
+}
+.nph__input {
+  flex: 1;
+  border: none;
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-family: inherit;
+  font-size: 16px;
+  color: #1a1e1e;
+  background: #fff;
+  min-width: 0;
+}
+.nph__input:focus {
+  outline: 2px solid #e97132;
+}
+.nph__input--invalid {
+  outline: 2px solid #b3402e;
+  background: #fff5f4;
+}
+.nph__cta {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.nph__error {
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffb4a8;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+.nph__trust {
+  height: 46px;
+  width: auto;
+}
+/* Switcher boven de voorwaardenbalk */
+.nph__switchpos {
+  bottom: 46px;
+}
+/* Halftransparante witte voorwaardenbalk */
+.nph__footer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  padding: 10px 16px;
+}
+.nph__footerlink {
+  font-size: 13px;
+  color: #1a1e1e;
+  text-decoration: underline;
+}
+.nph__footerlink:hover {
+  color: #e97132;
 }
 
 /* Heropen-label aan de rechterrand (zie Sklum-voorbeeld) */
