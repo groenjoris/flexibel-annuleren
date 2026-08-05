@@ -2,14 +2,14 @@
 // Journey-checkout op basis van concept 1e (eigen kopie: JourneyRoomTable),
 // bereikt via "Ik ga boeken" op de dealpagina of via de kalenderstap.
 // Variant 3: room table zonder rechterkolom + sticky sidebar.
-import { journeyKey, journeyLabel, JOURNEY_WAS_FACTOR } from '~/data/journeys'
+import { journeyKey, JOURNEY_WAS_FACTOR } from '~/data/journeys'
 import { hotel, trustpilot, rooms as roomsData, dealName, includes, pricing } from '~/data/deal'
 import type { CancelChoice } from '~/data/cancellation'
 import { useStickyFit } from '~/composables/useStickyFit'
 
 const route = useRoute()
 const jv = computed(() => journeyKey(route.params.v))
-const label = computed(() => journeyLabel(jv.value))
+const label = useJourneyLabel(jv)
 
 // V3: kamer-selectie uit de tabel drijft de sidebar-prijzen (stap-0 layout).
 interface SelRow {

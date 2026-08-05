@@ -3,13 +3,13 @@
 // (naar concept 2c), maar ZONDER het annuleringsblok — die keuze is al
 // in de room table gemaakt. De kamer-selectie komt via gedeelde state
 // uit JourneyRoomTable ('journey-selection').
-import { journeyKey, journeyLabel } from '~/data/journeys'
+import { journeyKey } from '~/data/journeys'
 import { hotel, trustpilot, rooms as roomsData, dealName } from '~/data/deal'
 import { useStickyFit } from '~/composables/useStickyFit'
 
 const route = useRoute()
 const jv = computed(() => journeyKey(route.params.v))
-const label = computed(() => journeyLabel(jv.value))
+const label = useJourneyLabel(jv)
 
 interface SelRow {
   baseId: string

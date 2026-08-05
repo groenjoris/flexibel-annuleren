@@ -323,10 +323,10 @@ import { useFirstReleaseHomeVariant } from '~/composables-first-release/useFirst
 const { setFrNavVariant, heroPhotoUrl, heroPhotoIndex, restoreHeroPhotoIndex, restoreHomeLayoutVariant } = useFirstReleaseHomeVariant()
 
 // Journey-context: dit is de startstap van de newsletter-flow (v11).
-import { journeyKey, journeyLabel } from '~/data/journeys'
+import { journeyKey } from '~/data/journeys'
 const route = useRoute()
 const jv = computed(() => journeyKey(route.params.v))
-const journeyBadge = computed(() => journeyLabel(jv.value))
+const journeyBadge = useJourneyLabel(jv)
 
 // Alle deal-/zoek-CTA's leiden in deze flow naar de journey-dealpagina.
 function goJourneyDeal() {

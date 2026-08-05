@@ -3,12 +3,12 @@
 // Vanaf de dealpagina kom je hier als er nog geen datum gekozen is;
 // "Opslaan en verder" leidt naar de checkout (kopie van concept 1e).
 import { hotel, trustpilot, rooms as roomsData, dealName } from '~/data/deal'
-import { journeyKey, journeyLabel, JOURNEY_WAS_FACTOR } from '~/data/journeys'
+import { journeyKey, JOURNEY_WAS_FACTOR } from '~/data/journeys'
 import { useStickyFit } from '~/composables/useStickyFit'
 
 const route = useRoute()
 const jv = computed(() => journeyKey(route.params.v))
-const label = computed(() => journeyLabel(jv.value))
+const label = useJourneyLabel(jv)
 
 const MONTH_NAMES = [
   'januari', 'februari', 'maart', 'april', 'mei', 'juni',

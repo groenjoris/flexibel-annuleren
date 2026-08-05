@@ -43,8 +43,6 @@ const isVipmember = computed(() => npVariant.value === 'vipmember')
 const isHans = computed(() => npVariant.value === 'hans')
 // "Foto bg" en "VIP member" delen het full-bleed frame van "Huidige".
 const isPhotoLayout = computed(() => isHuidige.value || isFotobg.value || isVipmember.value)
-// Sweepstake en Hans gebruiken een smalle 1-koloms kaart (geen foto).
-const isNarrow = computed(() => isSweepstake.value || isHans.value)
 // "Sweepstake" deelt de kraskaart-opbouw van "Dopamine".
 const isScratchLayout = computed(() => isDopamine.value || isSweepstake.value)
 
@@ -134,17 +132,8 @@ function initScratch() {
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
   ctx.letterSpacing = '2px'
-  if (isSweepstake.value) {
-    // Sweepstake: de garantie staat op de kraslaag zelf
-    ctx.font = '700 16px inherit, sans-serif'
-    ctx.fillText('GEGARANDEERD €5, €10 OF €50', w / 2, h / 2 - 11)
-    ctx.font = '600 12px inherit, sans-serif'
-    ctx.fillStyle = 'rgba(109, 84, 15, 0.7)'
-    ctx.fillText('KRAS HIER', w / 2, h / 2 + 14)
-  } else {
-    ctx.font = '700 15px inherit, sans-serif'
-    ctx.fillText('KRAS HIER', w / 2, h / 2)
-  }
+  ctx.font = '700 15px inherit, sans-serif'
+  ctx.fillText('KRAS HIER', w / 2, h / 2)
 }
 // Zodra ~50% is weggekrast fadet de kraslaag weg en verschijnt het
 // inschrijfformulier (e-mailveld + knop + disclaimer).
@@ -280,7 +269,7 @@ function npSubmit() {
   <div>
     <!-- Kortingspopup -->
     <div v-if="popupOpen" class="np" :class="{ 'np--morph': morphing }" role="dialog" aria-modal="true" @click.self="closePopup">
-      <div ref="npCardEl" class="np__card" :class="{ 'np__card--narrow': isNarrow }">
+      <div ref="npCardEl" class="np__card">
         <button class="np__close" type="button" aria-label="Sluiten" @click="closePopup">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
         </button>
@@ -470,7 +459,7 @@ function npSubmit() {
             <template v-else-if="isScratchLayout">
               <div class="np__scratch" :class="{ 'np__scratch--done': scratchDone }">
                 <div class="np__scratch-under">
-                  <p class="np__scratchtext" :class="{ 'np__scratchtext--big': isSweepstake }">{{ isSweepstake ? '€10' : 'Je krijgt €10 korting!' }}</p>
+                  <p class="np__scratchtext">{{ isSweepstake ? 'Gegarandeerd €5, €10 of €50' : 'Je krijgt €10 korting!' }}</p>
                 </div>
                 <canvas
                   ref="scratchCanvas"
@@ -497,7 +486,7 @@ function npSubmit() {
                     placeholder="naam@voorbeeld.nl"
                   />
                   <p v-if="npError" class="np__errormsg">Vul een geldig e-mailadres in.</p>
-                  <button class="np__cta" type="submit">{{ isSweepstake ? 'Schrijf je in en krijg je korting' : 'Claim mijn korting' }}</button>
+                  <button class="np__cta" type="submit">{{ isSweepstake ? 'Schrijf je in en zie je korting' : 'Claim mijn korting' }}</button>
                 </form>
 
                 <p class="np__terms">
@@ -560,7 +549,7 @@ function npSubmit() {
         </div>
 
         <!-- Rechterhelft: afbeelding met variant-switcher -->
-        <div v-if="!isPhotoLayout && !isNarrow" class="np__right">
+        <div v-if="!isPhotoLayout" class="np__right">
           <img class="np__img" :src="POPUP_IMAGES[popupImage]" :style="{ transform: POPUP_IMAGE_TRANSFORMS[popupImage] }" alt="" />
           <p v-if="isJanPhoto" class="np__handnote">Leuk om je hier te zien<span class="np__handnote-sig">— Jan Wegenaar</span></p>
           <!-- Variant-switcher: kleine onderstreepte nummertjes rechts onderin -->
@@ -798,11 +787,6 @@ function npSubmit() {
   color: #1a1e1e;
   text-align: center;
   white-space: nowrap;
-}
-/* Sweepstake: alleen het bedrag, extra groot */
-.np__scratchtext--big {
-  font-size: 44px;
-  color: #e97132;
 }
 
 .np__scratch-canvas {
@@ -1082,22 +1066,10 @@ function npSubmit() {
   color: #e97132;
 }
 
-/* Smalle 1-koloms kaart (sweepstake / Hans van der Togt) */
-.np__card--narrow {
-  width: 560px;
-  height: auto;
-  max-height: calc(100vh - 48px);
-  overflow-y: auto;
-}
-.np__card--narrow .np__left {
-  flex: 1 1 100%;
-  padding: 52px 44px 36px;
-}
-
 /* Rad van fortuin */
 .np__wheelwrap {
   position: relative;
-  width: 280px;
+  width: 240px;
   align-self: center;
   cursor: pointer;
 }
@@ -1116,8 +1088,8 @@ function npSubmit() {
   filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.3));
 }
 .np__wheel {
-  width: 280px;
-  height: 280px;
+  width: 240px;
+  height: 240px;
   transition: transform 3.2s cubic-bezier(0.12, 0.8, 0.22, 1);
   will-change: transform;
 }

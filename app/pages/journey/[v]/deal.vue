@@ -944,7 +944,7 @@
 
 <script setup lang="ts">
 import { useFirstReleaseDealStore } from '~/stores-first-release/deal'
-import { journeyKey, journeyLabel } from '~/data/journeys'
+import { journeyKey } from '~/data/journeys'
 import { useSearchNavLock } from '~/composables-first-release/useMobileSearchModalControl'
 import { useBodyScrollLock } from '~/composables-first-release/useBodyScrollLock'
 import { usePinToViewportBottom } from '~/composables-first-release/usePinToViewportBottom'
@@ -1223,7 +1223,7 @@ function handleFavoriteClick() {
 // Journey: boek-CTA. Zonder gekozen datum eerst naar de kalenderpagina
 // (stap 0); met datum direct naar de checkout (kopie van concept 1e).
 const jv = computed(() => journeyKey(route.params.v))
-const journeyBadge = computed(() => journeyLabel(jv.value))
+const journeyBadge = useJourneyLabel(jv)
 // Verse start van een journey: eerdere kalenderkeuze wissen.
 useState<{ price: number } | null>('journey-day', () => null).value = null
 function goToCheckout() {
