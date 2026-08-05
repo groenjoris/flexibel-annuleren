@@ -347,7 +347,7 @@ function npSubmit() {
                     placeholder="naam@voorbeeld.nl"
                   />
                   <p v-if="npError" class="nph__error nph__error--left">Vul een geldig e-mailadres in.</p>
-                  <button class="np__cta nph__cta nph__cta--full" type="submit">Stuur mij alle deals en onthul mijn korting</button>
+                  <button class="np__cta nph__cta nph__cta--full" type="submit">Ontvang aanbiedingen en onthul je korting</button>
                 </form>
 
                 <p class="nph__terms">
