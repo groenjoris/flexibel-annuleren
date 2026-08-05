@@ -16,12 +16,16 @@ const route = useRoute()
 
 // Popup-variant reist mee door de flow (de dealpagina heeft de
 // ?popup-query niet meer): eenmaal gezien op de URL -> gedeelde state.
-const npVariant = useState<'simple' | 'dopamine' | 'huidige'>('np-variant', () => 'simple')
+const npVariant = useState<'simple' | 'dopamine' | 'huidige' | 'fotobg'>('np-variant', () => 'simple')
 if (route.query.popup === 'dopamine') npVariant.value = 'dopamine'
 else if (route.query.popup === 'huidige') npVariant.value = 'huidige'
+else if (route.query.popup === 'fotobg') npVariant.value = 'fotobg'
 else if (route.query.popup === 'simple') npVariant.value = 'simple'
 const isDopamine = computed(() => npVariant.value === 'dopamine')
 const isHuidige = computed(() => npVariant.value === 'huidige')
+const isFotobg = computed(() => npVariant.value === 'fotobg')
+// "Foto bg" deelt het full-bleed frame van "Huidige".
+const isPhotoLayout = computed(() => isHuidige.value || isFotobg.value)
 
 // Gedeelde popup-status over pagina's heen.
 const popupOpen = useState('np-open', () => false)
@@ -207,14 +211,42 @@ function npSubmit() {
 
         <!-- Variant "Huidige": full-bleed foto als achtergrond, alles
              gecentreerd in wit (naar de huidige live-site popup). -->
-        <div v-if="isHuidige" class="nph">
+        <div v-if="isPhotoLayout" class="nph">
           <img class="nph__bg" :src="POPUP_IMAGES[popupImage]" alt="" />
           <div class="nph__scrim" />
 
           <div class="nph__inner">
             <img class="nph__logo" src="/images/logos/logo-vialuxury-horizontal-black.svg" alt="ViaLuxury" />
 
-            <template v-if="npState === 'form'">
+            <!-- "Foto bg": content van de simple-variant, gecentreerd op de foto -->
+            <template v-if="npState === 'form' && isFotobg">
+              <p class="nph__eyebrow">Nieuw bij ViaLuxury?</p>
+              <h2 class="nph__title nph__title--normal">Ontvang €10 welkomstkorting!</h2>
+
+              <form class="nph__form nph__form--stacked" novalidate @submit.prevent="npSubmit">
+                <label class="nph__label" for="np-email-f">Type je e-mailadres</label>
+                <input
+                  id="np-email-f"
+                  v-model="npEmail"
+                  class="nph__input"
+                  :class="{ 'nph__input--invalid': npError }"
+                  type="email"
+                  placeholder="naam@voorbeeld.nl"
+                />
+                <p v-if="npError" class="nph__error nph__error--left">Vul een geldig e-mailadres in.</p>
+                <button class="np__cta nph__cta nph__cta--full" type="submit">Claim mijn korting</button>
+              </form>
+
+              <p class="nph__terms">
+                Je ontvangt de kortingscode direct per e-mail en schrijft je daarmee in
+                voor onze e-mailupdates vol exclusieve aanbiedingen. Uitschrijven kan
+                altijd met één klik via de link onderaan elke mail. De welkomstkorting
+                geldt eenmalig en alleen voor nieuwe leden; niet geldig in combinatie
+                met andere kortingen. Zie onze actievoorwaarden en privacyverklaring.
+              </p>
+            </template>
+
+            <template v-else-if="npState === 'form'">
               <h2 class="nph__title">Word gratis VIP member!<br />Ontvang €10</h2>
 
               <ul class="nph__usps">
@@ -385,7 +417,7 @@ function npSubmit() {
         </div>
 
         <!-- Rechterhelft: afbeelding met variant-switcher -->
-        <div v-if="!isHuidige" class="np__right">
+        <div v-if="!isPhotoLayout" class="np__right">
           <img class="np__img" :src="POPUP_IMAGES[popupImage]" :style="{ transform: POPUP_IMAGE_TRANSFORMS[popupImage] }" alt="" />
           <!-- Variant-switcher: kleine onderstreepte nummertjes rechts onderin -->
           <div class="np__switch">
@@ -773,6 +805,43 @@ function npSubmit() {
   /* Expliciet wit: fr-scope headings erven anders donker */
   color: #fff;
   text-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
+}
+/* "Foto bg": simple-titel zonder caps */
+.nph__title--normal {
+  text-transform: none;
+}
+.nph__eyebrow {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+}
+.nph__label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  text-align: left;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+}
+.nph__terms {
+  font-size: 11.5px;
+  line-height: 17px;
+  color: rgba(255, 255, 255, 0.88);
+  max-width: 480px;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+}
+.nph__form--stacked {
+  flex-direction: column;
+  align-items: stretch;
+}
+.nph__cta--full {
+  width: 100%;
+}
+.nph__error--left {
+  text-align: left;
+  align-self: flex-start;
 }
 .nph__para {
   font-size: 16px;
