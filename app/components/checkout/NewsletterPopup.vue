@@ -14,6 +14,15 @@ const props = withDefaults(defineProps<{ autoOpen?: boolean; showLabel?: boolean
 
 const route = useRoute()
 
+// Handgeschreven font (Oooh Baby) voor de groet op de Jan Wegenaar-foto.
+useHead({
+  link: [
+    { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+    { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
+    { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Oooh+Baby&display=swap' },
+  ],
+})
+
 // Popup-variant reist mee door de flow (de dealpagina heeft de
 // ?popup-query niet meer): eenmaal gezien op de URL -> gedeelde state.
 const npVariant = useState<'simple' | 'dopamine' | 'huidige' | 'fotobg' | 'sweepstake'>('np-variant', () => 'simple')
@@ -162,25 +171,27 @@ watch(popupOpen, (open) => {
 
 // Afbeeldingsvarianten (switcher rechts onderin de popup).
 const POPUP_IMAGES = [
+  '/images/pop-up/inntel-marina-beach.jpg',
   '/images/pop-up/welness.jpg',
   '/images/pop-up/FotoMetSMaak-8423.jpg',
   '/images/pop-up/Jan_Wegenaar_Via_Luxury_Crowdfunding_Campagne_d61420d1bc.jpg',
   '/images/pop-up/3-gangendiner.jpg',
   '/images/pop-up/des-indes-exterior.jpg',
-  '/images/pop-up/inntel-marina-beach.jpg',
   '/images/pop-up/istock-1270074974.jpg',
 ]
 // Per-foto "camerapositie": translate verschuift de uitsnede, scale
 // voorkomt gaten (cover heeft verticaal geen speling).
 const POPUP_IMAGE_TRANSFORMS = [
-  'translateY(-100px) scale(1.35)', // 1: camera 100px omlaag
-  'translateY(100px) scale(1.35)',  // 2: camera 100px omhoog
-  'none',                            // 3
-  'none',                            // 4
+  'none',                            // 1: Inntel Marina Beach
+  'translateY(-100px) scale(1.35)', // 2: wellness, camera 100px omlaag
+  'translateY(100px) scale(1.35)',  // 3: restaurant, camera 100px omhoog
+  'none',                            // 4: Jan Wegenaar
   'none',                            // 5
   'none',                            // 6
   'none',                            // 7
 ]
+// De Jan Wegenaar-foto krijgt een handgeschreven groet als overlay.
+const isJanPhoto = computed(() => POPUP_IMAGES[popupImage.value].includes('Jan_Wegenaar'))
 const popupImage = ref(0)
 
 // Inschrijfformulier: e-mailvalidatie + succes-/al-bekend-melding.
@@ -218,6 +229,7 @@ function npSubmit() {
         <div v-if="isPhotoLayout" class="nph">
           <img class="nph__bg" :src="POPUP_IMAGES[popupImage]" alt="" />
           <div class="nph__scrim" />
+          <p v-if="isJanPhoto" class="np__handnote np__handnote--bg">Leuk om je hier te zien<span class="np__handnote-sig">— Jan Wegenaar</span></p>
 
           <div class="nph__inner">
             <img class="nph__logo" src="/images/logos/logo-vialuxury-horizontal-black.svg" alt="ViaLuxury" />
@@ -426,6 +438,7 @@ function npSubmit() {
         <!-- Rechterhelft: afbeelding met variant-switcher -->
         <div v-if="!isPhotoLayout" class="np__right">
           <img class="np__img" :src="POPUP_IMAGES[popupImage]" :style="{ transform: POPUP_IMAGE_TRANSFORMS[popupImage] }" alt="" />
+          <p v-if="isJanPhoto" class="np__handnote">Leuk om je hier te zien<span class="np__handnote-sig">— Jan Wegenaar</span></p>
           <!-- Variant-switcher: kleine onderstreepte nummertjes rechts onderin -->
           <div class="np__switch">
             <button
@@ -883,7 +896,7 @@ function npSubmit() {
   white-space: nowrap;
 }
 .nph__star {
-  color: #f0c85c;
+  color: #fff;
   flex-shrink: 0;
 }
 .nph__form {
@@ -948,6 +961,32 @@ function npSubmit() {
 }
 .nph__footerlink:hover {
   color: #e97132;
+}
+
+/* Handgeschreven groet op de Jan Wegenaar-foto */
+.np__handnote {
+  position: absolute;
+  top: 26px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-4deg);
+  z-index: 3;
+  font-family: 'Oooh Baby', cursive;
+  font-size: 32px;
+  line-height: 1.15;
+  color: #fff;
+  text-align: center;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.55);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.np__handnote-sig {
+  display: block;
+  font-size: 22px;
+  margin-top: 2px;
+}
+/* Full-bleed layout: iets lager zodat hij onder de sluitknop blijft */
+.np__handnote--bg {
+  top: 60px;
 }
 
 /* Heropen-label aan de rechterrand (zie Sklum-voorbeeld) */
