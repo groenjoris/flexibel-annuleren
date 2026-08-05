@@ -37,6 +37,7 @@ const sections = computed<StartSection[]>(() => [
           { label: 'Dopamine', to: '/journey/11/home?popup=dopamine' },
           { label: 'Huidige', to: '/journey/11/home?popup=huidige' },
           { label: 'Foto bg', to: '/journey/11/home?popup=fotobg' },
+          { label: 'Sweepstake', to: '/journey/11/home?popup=sweepstake' },
         ],
       },
     ],

@@ -16,16 +16,20 @@ const route = useRoute()
 
 // Popup-variant reist mee door de flow (de dealpagina heeft de
 // ?popup-query niet meer): eenmaal gezien op de URL -> gedeelde state.
-const npVariant = useState<'simple' | 'dopamine' | 'huidige' | 'fotobg'>('np-variant', () => 'simple')
+const npVariant = useState<'simple' | 'dopamine' | 'huidige' | 'fotobg' | 'sweepstake'>('np-variant', () => 'simple')
 if (route.query.popup === 'dopamine') npVariant.value = 'dopamine'
 else if (route.query.popup === 'huidige') npVariant.value = 'huidige'
 else if (route.query.popup === 'fotobg') npVariant.value = 'fotobg'
+else if (route.query.popup === 'sweepstake') npVariant.value = 'sweepstake'
 else if (route.query.popup === 'simple') npVariant.value = 'simple'
 const isDopamine = computed(() => npVariant.value === 'dopamine')
 const isHuidige = computed(() => npVariant.value === 'huidige')
 const isFotobg = computed(() => npVariant.value === 'fotobg')
+const isSweepstake = computed(() => npVariant.value === 'sweepstake')
 // "Foto bg" deelt het full-bleed frame van "Huidige".
 const isPhotoLayout = computed(() => isHuidige.value || isFotobg.value)
+// "Sweepstake" deelt de kraskaart-opbouw van "Dopamine".
+const isScratchLayout = computed(() => isDopamine.value || isSweepstake.value)
 
 // Gedeelde popup-status over pagina's heen.
 const popupOpen = useState('np-open', () => false)
@@ -153,7 +157,7 @@ function onScratchUp() {
 }
 // Canvas initialiseren zodra de popup (met kraskaart) in de DOM staat.
 watch(popupOpen, (open) => {
-  if (open && isDopamine.value && !scratchDone.value) nextTick(initScratch)
+  if (open && isScratchLayout.value && !scratchDone.value) nextTick(initScratch)
 })
 
 // Afbeeldingsvarianten (switcher rechts onderin de popup).
@@ -320,14 +324,17 @@ function npSubmit() {
         <div v-else class="np__left">
           <template v-if="npState === 'form'">
             <p class="np__eyebrow">Nieuw bij ViaLuxury?</p>
-            <h2 class="np__title">{{ isDopamine ? 'Kras voor korting!' : 'Ontvang €10 welkomstkorting!' }}</h2>
+            <h2 class="np__title">{{ isScratchLayout ? 'Kras voor korting!' : 'Ontvang €10 welkomstkorting!' }}</h2>
 
             <!-- Dopamine: kraskaart bedekt de kortingstekst; bij ~50%
                  weggekrast verschijnt het formulier eronder. -->
-            <template v-if="isDopamine">
+            <template v-if="isScratchLayout">
+              <!-- Sweepstake: de garantie staat zichtbaar boven de kaart -->
+              <p v-if="isSweepstake" class="np__guarantee">Gegarandeerd €5, €10 of €50</p>
+
               <div class="np__scratch" :class="{ 'np__scratch--done': scratchDone }">
                 <div class="np__scratch-under">
-                  <p class="np__scratchtext">Je krijgt €10 korting!</p>
+                  <p class="np__scratchtext" :class="{ 'np__scratchtext--big': isSweepstake }">{{ isSweepstake ? '€10' : 'Je krijgt €10 korting!' }}</p>
                 </div>
                 <canvas
                   ref="scratchCanvas"
@@ -399,8 +406,8 @@ function npSubmit() {
 
           <template v-else>
             <template v-if="npState === 'success'">
-              <h2 class="np__title">{{ isDopamine ? 'Je krijgt €10 korting' : 'Gelukt!' }}</h2>
-              <p class="np__para">{{ isDopamine ? 'Check je e-mail voor je kortingscode.' : 'Check je inbox voor de kortingscode.' }}</p>
+              <h2 class="np__title">{{ isScratchLayout ? 'Je krijgt €10 korting' : 'Gelukt!' }}</h2>
+              <p class="np__para">{{ isScratchLayout ? 'Check je e-mail voor je kortingscode.' : 'Check je inbox voor de kortingscode.' }}</p>
             </template>
             <template v-else>
               <h2 class="np__title">Welkom terug!</h2>
@@ -654,6 +661,17 @@ function npSubmit() {
   color: #1a1e1e;
   text-align: center;
   white-space: nowrap;
+}
+/* Sweepstake: alleen het bedrag, extra groot */
+.np__scratchtext--big {
+  font-size: 44px;
+  color: #e97132;
+}
+/* Sweepstake: zichtbare garantie boven de kraskaart */
+.np__guarantee {
+  font-size: 17px;
+  font-weight: 700;
+  color: #1a1e1e;
 }
 .np__scratch-canvas {
   position: absolute;
