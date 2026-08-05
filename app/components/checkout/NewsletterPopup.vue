@@ -279,7 +279,7 @@ function npSubmit() {
         <div v-if="isPhotoLayout" class="nph">
           <img class="nph__bg" :src="POPUP_IMAGES[popupImage]" alt="" />
           <div class="nph__scrim" />
-          <p v-if="isJanPhoto" class="np__handnote np__handnote--bg">Leuk om je hier te zien<span class="np__handnote-sig">— Jan Wegenaar</span></p>
+          <p v-if="isJanPhoto" class="np__handnote np__handnote--bg">Leuk om je hier te zien!<span class="np__handnote-sig">— Jan Wegenaar, oprichter ViaLuxury</span></p>
 
           <div class="nph__inner">
             <img class="nph__logo" src="/images/logos/logo-vialuxury-horizontal-black.svg" alt="ViaLuxury" />
@@ -551,7 +551,7 @@ function npSubmit() {
         <!-- Rechterhelft: afbeelding met variant-switcher -->
         <div v-if="!isPhotoLayout" class="np__right">
           <img class="np__img" :src="POPUP_IMAGES[popupImage]" :style="{ transform: POPUP_IMAGE_TRANSFORMS[popupImage] }" alt="" />
-          <p v-if="isJanPhoto" class="np__handnote">Leuk om je hier te zien<span class="np__handnote-sig">— Jan Wegenaar</span></p>
+          <p v-if="isJanPhoto" class="np__handnote">Leuk om je hier te zien!<span class="np__handnote-sig">— Jan Wegenaar, oprichter ViaLuxury</span></p>
           <!-- Variant-switcher: kleine onderstreepte nummertjes rechts onderin -->
           <div class="np__switch">
             <button
@@ -1118,7 +1118,7 @@ function npSubmit() {
 }
 .np__handnote-sig {
   display: block;
-  font-size: 22px;
+  font-size: 20px;
   margin-top: 2px;
 }
 /* Full-bleed layout: iets lager zodat hij onder de sluitknop blijft */
