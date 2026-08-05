@@ -25,12 +25,13 @@ useHead({
 
 // Popup-variant reist mee door de flow (de dealpagina heeft de
 // ?popup-query niet meer): eenmaal gezien op de URL -> gedeelde state.
-const npVariant = useState<'simple' | 'dopamine' | 'huidige' | 'fotobg' | 'sweepstake' | 'vipmember'>('np-variant', () => 'simple')
+const npVariant = useState<'simple' | 'dopamine' | 'huidige' | 'fotobg' | 'sweepstake' | 'vipmember' | 'hans'>('np-variant', () => 'simple')
 if (route.query.popup === 'dopamine') npVariant.value = 'dopamine'
 else if (route.query.popup === 'huidige') npVariant.value = 'huidige'
 else if (route.query.popup === 'fotobg') npVariant.value = 'fotobg'
 else if (route.query.popup === 'sweepstake') npVariant.value = 'sweepstake'
 else if (route.query.popup === 'vipmember') npVariant.value = 'vipmember'
+else if (route.query.popup === 'hans') npVariant.value = 'hans'
 else if (route.query.popup === 'simple') npVariant.value = 'simple'
 const isDopamine = computed(() => npVariant.value === 'dopamine')
 const isHuidige = computed(() => npVariant.value === 'huidige')
@@ -38,8 +39,12 @@ const isFotobg = computed(() => npVariant.value === 'fotobg')
 const isSweepstake = computed(() => npVariant.value === 'sweepstake')
 // "VIP member" = huidige zonder usp's, met de disclaimer onderaan.
 const isVipmember = computed(() => npVariant.value === 'vipmember')
+// "Hans van der Tocht": rad van fortuin i.p.v. kraskaart.
+const isHans = computed(() => npVariant.value === 'hans')
 // "Foto bg" en "VIP member" delen het full-bleed frame van "Huidige".
 const isPhotoLayout = computed(() => isHuidige.value || isFotobg.value || isVipmember.value)
+// Sweepstake en Hans gebruiken een smalle 1-koloms kaart (geen foto).
+const isNarrow = computed(() => isSweepstake.value || isHans.value)
 // "Sweepstake" deelt de kraskaart-opbouw van "Dopamine".
 const isScratchLayout = computed(() => isDopamine.value || isSweepstake.value)
 
@@ -126,11 +131,20 @@ function initScratch() {
   ctx.fillStyle = grad
   ctx.fillRect(0, 0, w, h)
   ctx.fillStyle = 'rgba(109, 84, 15, 0.9)'
-  ctx.font = '700 15px inherit, sans-serif'
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
   ctx.letterSpacing = '2px'
-  ctx.fillText('KRAS HIER', w / 2, h / 2)
+  if (isSweepstake.value) {
+    // Sweepstake: de garantie staat op de kraslaag zelf
+    ctx.font = '700 16px inherit, sans-serif'
+    ctx.fillText('GEGARANDEERD €5, €10 OF €50', w / 2, h / 2 - 11)
+    ctx.font = '600 12px inherit, sans-serif'
+    ctx.fillStyle = 'rgba(109, 84, 15, 0.7)'
+    ctx.fillText('KRAS HIER', w / 2, h / 2 + 14)
+  } else {
+    ctx.font = '700 15px inherit, sans-serif'
+    ctx.fillText('KRAS HIER', w / 2, h / 2)
+  }
 }
 // Zodra ~50% is weggekrast fadet de kraslaag weg en verschijnt het
 // inschrijfformulier (e-mailveld + knop + disclaimer).
@@ -178,6 +192,43 @@ function onScratchUp() {
 watch(popupOpen, (open) => {
   if (open && isScratchLayout.value && !scratchDone.value) nextTick(initScratch)
 })
+
+// Rad van fortuin (Hans van der Tocht): 7 vakken, stopt op Mystery korting.
+const WHEEL_SEGMENTS = [
+  { label: '€5', color: '#36c890' },
+  { label: 'Mystery korting', color: '#1a1e1e' },
+  { label: '€10', color: '#e97132' },
+  { label: '€1', color: '#2b6cb0' },
+  { label: '€50', color: '#e53e3e' },
+  { label: 'Mystery korting', color: '#7a5ea8' },
+  { label: '€15', color: '#d8a92d' },
+]
+const WHEEL_SEG_DEG = 360 / WHEEL_SEGMENTS.length
+function wheelSlicePath(i: number) {
+  const r = 118
+  const cx = 120
+  const cy = 120
+  const a0 = ((i * WHEEL_SEG_DEG - 90) * Math.PI) / 180
+  const a1 = (((i + 1) * WHEEL_SEG_DEG - 90) * Math.PI) / 180
+  return `M ${cx} ${cy} L ${cx + r * Math.cos(a0)} ${cy + r * Math.sin(a0)} A ${r} ${r} 0 0 1 ${cx + r * Math.cos(a1)} ${cy + r * Math.sin(a1)} Z`
+}
+const wheelRotation = ref(0)
+const wheelSpun = ref(false)
+let wheelSpinning = false
+function finishWheel() {
+  if (wheelSpun.value) return
+  wheelSpinning = false
+  wheelSpun.value = true
+}
+function spinWheel() {
+  if (wheelSpinning || wheelSpun.value) return
+  wheelSpinning = true
+  // Stopt altijd op het eerste Mystery korting-vak (index 1), na 4 rondjes.
+  const mysteryIndex = 1
+  wheelRotation.value = 4 * 360 - (mysteryIndex * WHEEL_SEG_DEG + WHEEL_SEG_DEG / 2)
+  // Vangnet voor het geval transitionend niet vuurt (tab-throttling).
+  setTimeout(finishWheel, 3600)
+}
 
 // Afbeeldingsvarianten (switcher rechts onderin de popup).
 const POPUP_IMAGES = [
@@ -229,7 +280,7 @@ function npSubmit() {
   <div>
     <!-- Kortingspopup -->
     <div v-if="popupOpen" class="np" :class="{ 'np--morph': morphing }" role="dialog" aria-modal="true" @click.self="closePopup">
-      <div ref="npCardEl" class="np__card">
+      <div ref="npCardEl" class="np__card" :class="{ 'np__card--narrow': isNarrow }">
         <button class="np__close" type="button" aria-label="Sluiten" @click="closePopup">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
         </button>
@@ -355,14 +406,68 @@ function npSubmit() {
         <div v-else class="np__left">
           <template v-if="npState === 'form'">
             <p class="np__eyebrow">Nieuw bij ViaLuxury?</p>
-            <h2 class="np__title">{{ isScratchLayout ? 'Kras voor korting!' : 'Ontvang €10 welkomstkorting!' }}</h2>
+            <h2 class="np__title">{{ isHans ? 'Draai voor korting!' : isScratchLayout ? 'Kras voor korting!' : 'Ontvang €10 welkomstkorting!' }}</h2>
 
             <!-- Dopamine: kraskaart bedekt de kortingstekst; bij ~50%
                  weggekrast verschijnt het formulier eronder. -->
-            <template v-if="isScratchLayout">
-              <!-- Sweepstake: de garantie staat zichtbaar boven de kaart -->
-              <p v-if="isSweepstake" class="np__guarantee">Gegarandeerd €5, €10 of €50</p>
+            <!-- Hans van der Tocht: rad van fortuin -->
+            <template v-if="isHans">
+              <div class="np__wheelwrap" :class="{ 'np__wheelwrap--done': wheelSpun }" @click="spinWheel">
+                <div class="np__wheelpointer" aria-hidden="true" />
+                <div class="np__wheel" :style="{ transform: `rotate(${wheelRotation}deg)` }" @transitionend="finishWheel">
+                  <svg viewBox="0 0 240 240" width="100%" height="100%">
+                    <g v-for="(seg, i) in WHEEL_SEGMENTS" :key="i">
+                      <path :d="wheelSlicePath(i)" :fill="seg.color" stroke="#fff" stroke-width="2" />
+                      <g :transform="`rotate(${i * WHEEL_SEG_DEG + WHEEL_SEG_DEG / 2} 120 120)`">
+                        <text
+                          v-if="seg.label === 'Mystery korting'"
+                          x="120"
+                          y="38"
+                          text-anchor="middle"
+                          fill="#fff"
+                          font-size="10.5"
+                          font-weight="700"
+                        >
+                          <tspan x="120" dy="0">Mystery</tspan>
+                          <tspan x="120" dy="12">korting</tspan>
+                        </text>
+                        <text v-else x="120" y="46" text-anchor="middle" fill="#fff" font-size="16" font-weight="800">{{ seg.label }}</text>
+                      </g>
+                    </g>
+                    <circle cx="120" cy="120" r="16" fill="#fff" />
+                  </svg>
+                </div>
+                <p v-if="!wheelSpun" class="np__wheelhint">Klik om te draaien</p>
+              </div>
 
+              <!-- Formulier verschijnt zodra het rad stilstaat (ruimte is
+                   gereserveerd zodat het scherm niet verspringt). -->
+              <div class="np__reveal" :class="{ 'np__reveal--on': wheelSpun }">
+                <form class="np__form" novalidate @submit.prevent="npSubmit">
+                  <label class="np__label" for="np-email-h">Type je e-mailadres</label>
+                  <input
+                    id="np-email-h"
+                    v-model="npEmail"
+                    class="np__input"
+                    :class="{ 'np__input--invalid': npError }"
+                    type="email"
+                    placeholder="naam@voorbeeld.nl"
+                  />
+                  <p v-if="npError" class="np__errormsg">Vul een geldig e-mailadres in.</p>
+                  <button class="np__cta" type="submit">Schrijf je in en zie je korting</button>
+                </form>
+
+                <p class="np__terms">
+                  Je ontvangt de kortingscode direct per e-mail en schrijft je daarmee in
+                  voor onze e-mailupdates vol exclusieve aanbiedingen. Uitschrijven kan
+                  altijd met één klik via de link onderaan elke mail. De welkomstkorting
+                  geldt eenmalig en alleen voor nieuwe leden; niet geldig in combinatie
+                  met andere kortingen. Zie onze actievoorwaarden en privacyverklaring.
+                </p>
+              </div>
+            </template>
+
+            <template v-else-if="isScratchLayout">
               <div class="np__scratch" :class="{ 'np__scratch--done': scratchDone }">
                 <div class="np__scratch-under">
                   <p class="np__scratchtext" :class="{ 'np__scratchtext--big': isSweepstake }">{{ isSweepstake ? '€10' : 'Je krijgt €10 korting!' }}</p>
@@ -392,7 +497,7 @@ function npSubmit() {
                     placeholder="naam@voorbeeld.nl"
                   />
                   <p v-if="npError" class="np__errormsg">Vul een geldig e-mailadres in.</p>
-                  <button class="np__cta" type="submit">Claim mijn korting</button>
+                  <button class="np__cta" type="submit">{{ isSweepstake ? 'Schrijf je in en krijg je korting' : 'Claim mijn korting' }}</button>
                 </form>
 
                 <p class="np__terms">
@@ -437,8 +542,8 @@ function npSubmit() {
 
           <template v-else>
             <template v-if="npState === 'success'">
-              <h2 class="np__title">{{ isScratchLayout ? 'Je krijgt €10 korting' : 'Gelukt!' }}</h2>
-              <p class="np__para">{{ isScratchLayout ? 'Check je e-mail voor je kortingscode.' : 'Check je inbox voor de kortingscode.' }}</p>
+              <h2 class="np__title">{{ isScratchLayout || isHans ? 'Je krijgt €10 korting' : 'Gelukt!' }}</h2>
+              <p class="np__para">{{ isScratchLayout || isHans ? 'Check je e-mail voor je kortingscode.' : 'Check je inbox voor de kortingscode.' }}</p>
             </template>
             <template v-else>
               <h2 class="np__title">Welkom terug!</h2>
@@ -455,7 +560,7 @@ function npSubmit() {
         </div>
 
         <!-- Rechterhelft: afbeelding met variant-switcher -->
-        <div v-if="!isPhotoLayout" class="np__right">
+        <div v-if="!isPhotoLayout && !isNarrow" class="np__right">
           <img class="np__img" :src="POPUP_IMAGES[popupImage]" :style="{ transform: POPUP_IMAGE_TRANSFORMS[popupImage] }" alt="" />
           <p v-if="isJanPhoto" class="np__handnote">Leuk om je hier te zien<span class="np__handnote-sig">— Jan Wegenaar</span></p>
           <!-- Variant-switcher: kleine onderstreepte nummertjes rechts onderin -->
@@ -699,12 +804,7 @@ function npSubmit() {
   font-size: 44px;
   color: #e97132;
 }
-/* Sweepstake: zichtbare garantie boven de kraskaart */
-.np__guarantee {
-  font-size: 17px;
-  font-weight: 700;
-  color: #1a1e1e;
-}
+
 .np__scratch-canvas {
   position: absolute;
   inset: 0;
@@ -980,6 +1080,52 @@ function npSubmit() {
 }
 .nph__footerlink:hover {
   color: #e97132;
+}
+
+/* Smalle 1-koloms kaart (sweepstake / Hans van der Tocht) */
+.np__card--narrow {
+  width: 560px;
+  height: auto;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+}
+.np__card--narrow .np__left {
+  flex: 1 1 100%;
+  padding: 52px 44px 36px;
+}
+
+/* Rad van fortuin */
+.np__wheelwrap {
+  position: relative;
+  width: 280px;
+  align-self: center;
+  cursor: pointer;
+}
+.np__wheelwrap--done {
+  cursor: default;
+}
+.np__wheelpointer {
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-top: 18px solid #1a1e1e;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.3));
+}
+.np__wheel {
+  width: 280px;
+  height: 280px;
+  transition: transform 3.2s cubic-bezier(0.12, 0.8, 0.22, 1);
+  will-change: transform;
+}
+.np__wheelhint {
+  margin-top: 8px;
+  text-align: center;
+  font-size: 13px;
+  color: #6b6b6b;
 }
 
 /* Handgeschreven groet op de Jan Wegenaar-foto */
