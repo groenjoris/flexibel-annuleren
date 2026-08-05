@@ -39,7 +39,7 @@ const isFotobg = computed(() => npVariant.value === 'fotobg')
 const isSweepstake = computed(() => npVariant.value === 'sweepstake')
 // "VIP member" = huidige zonder usp's, met de disclaimer onderaan.
 const isVipmember = computed(() => npVariant.value === 'vipmember')
-// "Hans van der Tocht": rad van fortuin i.p.v. kraskaart.
+// "Hans van der Togt": rad van fortuin i.p.v. kraskaart.
 const isHans = computed(() => npVariant.value === 'hans')
 // "Foto bg" en "VIP member" delen het full-bleed frame van "Huidige".
 const isPhotoLayout = computed(() => isHuidige.value || isFotobg.value || isVipmember.value)
@@ -193,7 +193,7 @@ watch(popupOpen, (open) => {
   if (open && isScratchLayout.value && !scratchDone.value) nextTick(initScratch)
 })
 
-// Rad van fortuin (Hans van der Tocht): 7 vakken, stopt op Mystery korting.
+// Rad van fortuin (Hans van der Togt): 7 vakken, stopt op Mystery korting.
 const WHEEL_SEGMENTS = [
   { label: '€5', color: '#36c890' },
   { label: 'Mystery korting', color: '#1a1e1e' },
@@ -410,7 +410,7 @@ function npSubmit() {
 
             <!-- Dopamine: kraskaart bedekt de kortingstekst; bij ~50%
                  weggekrast verschijnt het formulier eronder. -->
-            <!-- Hans van der Tocht: rad van fortuin -->
+            <!-- Hans van der Togt: rad van fortuin -->
             <template v-if="isHans">
               <div class="np__wheelwrap" :class="{ 'np__wheelwrap--done': wheelSpun }" @click="spinWheel">
                 <div class="np__wheelpointer" aria-hidden="true" />
@@ -1082,7 +1082,7 @@ function npSubmit() {
   color: #e97132;
 }
 
-/* Smalle 1-koloms kaart (sweepstake / Hans van der Tocht) */
+/* Smalle 1-koloms kaart (sweepstake / Hans van der Togt) */
 .np__card--narrow {
   width: 560px;
   height: auto;
