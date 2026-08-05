@@ -25,18 +25,21 @@ useHead({
 
 // Popup-variant reist mee door de flow (de dealpagina heeft de
 // ?popup-query niet meer): eenmaal gezien op de URL -> gedeelde state.
-const npVariant = useState<'simple' | 'dopamine' | 'huidige' | 'fotobg' | 'sweepstake'>('np-variant', () => 'simple')
+const npVariant = useState<'simple' | 'dopamine' | 'huidige' | 'fotobg' | 'sweepstake' | 'vipmember'>('np-variant', () => 'simple')
 if (route.query.popup === 'dopamine') npVariant.value = 'dopamine'
 else if (route.query.popup === 'huidige') npVariant.value = 'huidige'
 else if (route.query.popup === 'fotobg') npVariant.value = 'fotobg'
 else if (route.query.popup === 'sweepstake') npVariant.value = 'sweepstake'
+else if (route.query.popup === 'vipmember') npVariant.value = 'vipmember'
 else if (route.query.popup === 'simple') npVariant.value = 'simple'
 const isDopamine = computed(() => npVariant.value === 'dopamine')
 const isHuidige = computed(() => npVariant.value === 'huidige')
 const isFotobg = computed(() => npVariant.value === 'fotobg')
 const isSweepstake = computed(() => npVariant.value === 'sweepstake')
-// "Foto bg" deelt het full-bleed frame van "Huidige".
-const isPhotoLayout = computed(() => isHuidige.value || isFotobg.value)
+// "VIP member" = huidige zonder usp's, met de disclaimer onderaan.
+const isVipmember = computed(() => npVariant.value === 'vipmember')
+// "Foto bg" en "VIP member" delen het full-bleed frame van "Huidige".
+const isPhotoLayout = computed(() => isHuidige.value || isFotobg.value || isVipmember.value)
 // "Sweepstake" deelt de kraskaart-opbouw van "Dopamine".
 const isScratchLayout = computed(() => isDopamine.value || isSweepstake.value)
 
@@ -71,11 +74,18 @@ function closePopup() {
     card.style.transition = 'transform 0.45s cubic-bezier(0.55, 0, 0.85, 0.36), opacity 0.45s ease'
     card.style.transform = `translate(${tx}px, ${ty}px) scale(0.05)`
     card.style.opacity = '0'
-    setTimeout(() => {
+    // Afronden op transitionend (robuust, ook als timers throttlen),
+    // met een timer als vangnet.
+    let done = false
+    const finish = () => {
+      if (done) return
+      done = true
       popupOpen.value = false
       npDismissed.value = true
       morphing.value = false
-    }, 450)
+    }
+    card.addEventListener('transitionend', finish, { once: true })
+    setTimeout(finish, 600)
     return
   }
   popupOpen.value = false
@@ -265,7 +275,7 @@ function npSubmit() {
             <template v-else-if="npState === 'form'">
               <h2 class="nph__title">Word gratis VIP member!<br />Ontvang €10</h2>
 
-              <ul class="nph__usps">
+              <ul v-if="!isVipmember" class="nph__usps">
                 <li v-for="usp in ['Gratis upgrades', 'Secret deals tot -80% korting', 'Voorrang op hotelboekingen']" :key="usp" class="nph__usp">
                   <svg class="nph__star" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6.2 6.6.8-4.9 4.6 1.3 6.6-5.9-3.3-5.9 3.3 1.3-6.6L2.5 9.5l6.6-.8L12 2.5z" /></svg>
                   <span>{{ usp }}</span>
@@ -286,6 +296,15 @@ function npSubmit() {
               <p v-if="npError" class="nph__error">Vul een geldig e-mailadres in.</p>
 
               <img class="nph__trust" src="/images/trustpilot-white.svg" alt="Trustpilot" />
+
+              <!-- VIP member: disclaimer onderaan -->
+              <p v-if="isVipmember" class="nph__terms">
+                Je ontvangt de kortingscode direct per e-mail en schrijft je daarmee in
+                voor onze e-mailupdates vol exclusieve aanbiedingen. Uitschrijven kan
+                altijd met één klik via de link onderaan elke mail. De welkomstkorting
+                geldt eenmalig en alleen voor nieuwe leden; niet geldig in combinatie
+                met andere kortingen. Zie onze actievoorwaarden en privacyverklaring.
+              </p>
             </template>
 
             <div v-else-if="npState === 'loading'" class="np__loading" aria-label="Bezig met verwerken">
