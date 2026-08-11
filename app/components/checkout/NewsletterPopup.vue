@@ -43,6 +43,19 @@ const isVipmember = computed(() => npVariant.value === 'vipmember')
 const isHans = computed(() => npVariant.value === 'hans')
 // Sweepstake en Hans: gecentreerde weergave op een foto-achtergrond.
 const isGamePhoto = computed(() => isSweepstake.value || isHans.value)
+// Alle "gok"-varianten krijgen een feestelijke stap 2 (confetti).
+const isGok = computed(() => isDopamine.value || isSweepstake.value || isHans.value)
+// Confetti: deterministisch gegenereerde snippers (geen Math.random,
+// dus SSR-veilig); CSS-animatie regent ze van boven naar beneden.
+const CONFETTI_COLORS = ['#e97132', '#36c890', '#f0c85c', '#2b6cb0', '#e53e3e', '#7a5ea8']
+const confettiPieces = Array.from({ length: 60 }, (_, i) => ({
+  left: `${(i * 37 + 11) % 100}%`,
+  delay: `${((i * 13) % 26) / 10}s`,
+  duration: `${2.6 + ((i * 7) % 18) / 10}s`,
+  color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+  w: `${6 + (i % 3) * 2}px`,
+  h: `${10 + (i % 4) * 3}px`,
+}))
 // "Foto bg", "VIP member", Sweepstake en Hans delen het full-bleed frame.
 const isPhotoLayout = computed(() => isHuidige.value || isFotobg.value || isVipmember.value || isGamePhoto.value)
 // "Sweepstake" deelt de kraskaart-opbouw van "Dopamine".
@@ -272,6 +285,16 @@ function npSubmit() {
     <!-- Kortingspopup -->
     <div v-if="popupOpen" class="np" :class="{ 'np--morph': morphing }" role="dialog" aria-modal="true" @click.self="closePopup">
       <div ref="npCardEl" class="np__card" :class="{ 'np__card--tall': isGamePhoto }">
+        <!-- Confetti bij een gewonnen korting (gok-varianten, stap 2) -->
+        <div v-if="npState === 'success' && isGok" class="np__confetti" aria-hidden="true">
+          <span
+            v-for="(piece, i) in confettiPieces"
+            :key="i"
+            class="np__confetti-piece"
+            :style="{ left: piece.left, animationDelay: piece.delay, animationDuration: piece.duration, background: piece.color, width: piece.w, height: piece.h }"
+          />
+        </div>
+
         <button class="np__close" type="button" aria-label="Sluiten" @click="closePopup">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
         </button>
@@ -429,8 +452,8 @@ function npSubmit() {
 
             <template v-else>
               <template v-if="npState === 'success'">
-                <h2 class="nph__title" :class="{ 'nph__title--normal': isGamePhoto }">{{ isGamePhoto ? 'Je krijgt €10 korting' : 'Gelukt!' }}</h2>
-                <p class="nph__para">{{ isGamePhoto ? 'Check je e-mail voor je kortingscode.' : 'Check je inbox voor de kortingscode.' }}</p>
+                <h2 class="nph__title" :class="{ 'nph__title--normal': isGamePhoto }">{{ isGamePhoto ? 'Gefeliciteerd!' : 'Gelukt!' }}</h2>
+                <p class="nph__para">{{ isGamePhoto ? 'Je krijgt €10 korting op je eerstvolgende boeking. Check je e-mail voor je kortingscode.' : 'Check je inbox voor de kortingscode.' }}</p>
               </template>
               <template v-else>
                 <h2 class="nph__title">Welkom terug!</h2>
@@ -550,8 +573,8 @@ function npSubmit() {
 
           <template v-else>
             <template v-if="npState === 'success'">
-              <h2 class="np__title">{{ isDopamine ? 'Je krijgt €10 korting' : 'Gelukt!' }}</h2>
-              <p class="np__para">{{ isDopamine ? 'Check je e-mail voor je kortingscode.' : 'Check je inbox voor de kortingscode.' }}</p>
+              <h2 class="np__title">{{ isDopamine ? 'Gefeliciteerd!' : 'Gelukt!' }}</h2>
+              <p class="np__para">{{ isDopamine ? 'Je krijgt €10 korting op je eerstvolgende boeking. Check je e-mail voor je kortingscode.' : 'Check je inbox voor de kortingscode.' }}</p>
             </template>
             <template v-else>
               <h2 class="np__title">Welkom terug!</h2>
@@ -1165,6 +1188,34 @@ function npSubmit() {
   display: block;
   font-size: 20px;
   margin-top: 2px;
+}
+
+/* Confetti (gok-varianten, stap 2) */
+.np__confetti {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 6;
+}
+.np__confetti-piece {
+  position: absolute;
+  top: -24px;
+  border-radius: 2px;
+  animation: np-confetti-fall linear infinite;
+}
+@keyframes np-confetti-fall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(850px) rotate(660deg);
+    opacity: 0;
+  }
 }
 
 /* Heropen-label aan de rechterrand (zie Sklum-voorbeeld) */
