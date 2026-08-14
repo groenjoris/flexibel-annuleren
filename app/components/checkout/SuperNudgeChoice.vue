@@ -51,8 +51,8 @@ const cancelUntil = computed(() => {
           </p>
           <p class="sn__bannerbody">
             Voor slechts €15 per kamer boek je met extra zekerheid. Zo kun je je boeking
-            tot 2 dagen voor aankomst annuleren of wijzigen en ontvang je de
-            arrangementskosten terug.
+            tot 2 dagen voor aankomst annuleren of wijzigen en krijg je het volledige
+            bedrag terug.
           </p>
         </div>
       </div>
@@ -103,8 +103,8 @@ const cancelUntil = computed(() => {
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M17.5 7A6.5 6.5 0 1 0 17.5 17M5 10.5h9M5 13.5h9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
             </span>
             <span class="sn__benefittext">
-              <span class="sn__benefittitle">Arrangementskosten terug</span>
-              <span class="sn__benefitsub">Je ontvangt de arrangementskosten retour.</span>
+              <span class="sn__benefittitle">Volledig bedrag terug</span>
+              <span class="sn__benefitsub">Arrangementsprijs én flex-toeslag storten we terug; de boekingskosten krijg je als voucher voor je volgende boeking.</span>
             </span>
           </span>
           <span class="sn__benefit">
