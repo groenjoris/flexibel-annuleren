@@ -10,14 +10,15 @@ export const JOURNEY_NAMES: Record<string, string> = {
   '5': 'Variant D — Forced choice €15 i.p.v. totaalprijs',
   '6': 'Variant A — Forced choice zonder extra\'s',
   '7': 'Variant A — Forced choice met extra\'s',
-  // Finale varianten (na klantfeedback).
-  '8': 'Final A — Forced choice zonder extra\'s',
-  '9': 'Final A — Forced choice met extra\'s',
-  '10': 'Final B — Room table met sidebar',
+  // Forced choice varianten (na klantfeedback).
+  '8': 'Forced choice — zonder extra\'s',
+  '9': 'Forced choice — met extra\'s',
+  // AB-test "Flexibel annuleren".
+  '10': 'Flexibel annuleren A — Room table',
   // Newsletter opt-in reeks: Base = Final A zonder extra's + gegevensstap.
   '11': 'Newsletter opt-in — Base',
-  // Final A met het super-nudge keuzeblok (banner + vergelijkingskaarten).
-  '12': 'Variant A — Yvette\'s Super Nudge',
+  // Super-nudge keuzeblok (banner + vergelijkingskaarten).
+  '12': 'Flexibel annuleren B — Yvette\'s Super Nudge',
 }
 
 // Eén kortingsfactor voor de hele journey: de kalender toont €459 van €867,

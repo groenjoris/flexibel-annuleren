@@ -25,6 +25,26 @@ interface StartSection {
 
 const sections = computed<StartSection[]>(() => [
   {
+    // Nieuwe AB-test: A = room table (was Final B), B = Yvette's Super
+    // Nudge (was onder Final variants), C = idee van Tijl (volgt nog).
+    heading: 'Flexibel annuleren',
+    groups: [
+      {
+        title: 'Variant A: Room table',
+        buttons: [{ label: 'Start', to: '/journey/10/deal' }],
+      },
+      {
+        title: 'Variant B: Yvette\u2019s Super Nudge',
+        buttons: [{ label: 'Start', to: '/journey/12/deal' }],
+      },
+      {
+        title: 'Variant C: Idee van Tijl',
+        note: 'volgt nog',
+        buttons: [],
+      },
+    ],
+  },
+  {
     heading: 'Newsletter opt-in',
     groups: [
       {
@@ -45,24 +65,19 @@ const sections = computed<StartSection[]>(() => [
     ],
   },
   {
-    heading: 'Final variants',
+    heading: 'Forced choice variants',
     groups: [
       {
         title: 'Variant A: Forced choice (+€0 / +€15)',
         buttons: [
           { label: 'Zonder extra’s', to: '/journey/8/deal' },
           { label: 'Met extra’s', to: '/journey/9/deal' },
-          { label: 'Yvette’s Super Nudge', to: '/journey/12/deal' },
         ],
-      },
-      {
-        title: 'Variant B: Room table met sidebar, zonder prijs in kalenderstap',
-        buttons: [{ label: 'Start', to: '/journey/10/deal' }],
       },
     ],
   },
   {
-    heading: 'Voorstel Joris',
+    heading: 'Oorspronkelijk voorstel Joris',
     groups: [
       {
         title: 'Variant A: Forced choice',
