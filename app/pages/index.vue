@@ -27,7 +27,7 @@ const sections = computed<StartSection[]>(() => [
   {
     // Nieuwe AB-test: A = room table (was Final B), B = Yvette's Super
     // Nudge (was onder Final variants), C = idee van Tijl (volgt nog).
-    heading: 'Flexibel annuleren',
+    heading: 'Follow-up test flexible cancellation',
     groups: [
       {
         title: 'Variant A: Room table',
@@ -121,7 +121,6 @@ const sections = computed<StartSection[]>(() => [
   <div class="start">
     <main class="start__main">
       <img class="start__logo" src="/images/logos/logo-vialuxury-horizontal-black.svg" alt="ViaLuxury" />
-      <h1 class="start__title">Flexibel annuleren</h1>
 
       <template v-for="section in sections" :key="section.heading">
         <h2 class="start__heading">{{ section.heading }}</h2>
@@ -174,12 +173,6 @@ const sections = computed<StartSection[]>(() => [
   width: auto;
   align-self: flex-start;
   margin-bottom: 16px;
-}
-.start__title {
-  font-size: var(--t-display);
-  line-height: var(--lh-display);
-  font-weight: var(--w-black);
-  margin-bottom: 8px;
 }
 .start__heading {
   font-size: var(--t-h1);
