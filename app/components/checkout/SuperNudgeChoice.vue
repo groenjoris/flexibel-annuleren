@@ -451,18 +451,8 @@ const cancelUntil = computed(() => {
 .sn__card--on .sn__choosecheck {
   display: inline-block;
 }
-/* Geselecteerde kaart: knop oogt 'disabled'/bevestigd (gedempt, met vinkje) */
-.sn__card--on .sn__choosebtn {
-  background: var(--c-surface);
-  border-color: var(--c-light-grey);
-  color: var(--c-medium-grey);
-  cursor: default;
-}
-.sn__card--flex.sn__card--on .sn__choosebtn {
-  background: var(--c-green-soft);
-  border-color: var(--sn-green);
-  color: var(--sn-green);
-}
+/* Geselecteerde kaart: knop behoudt zijn originele vormgeving (groen met
+   wit / outline); alleen de tekst en het vinkje veranderen. */
 
 /* Voetnoot */
 /* Tekst links uitgelijnd met het linkerblok, link rechts met het
