@@ -405,7 +405,7 @@ const arrangementIncludes = [
               <option v-for="n in 5" :key="n" :value="n">{{ row.quantity === n ? `${n} ${n === 1 ? 'kamer' : 'kamers'}` : `${n} ${n === 1 ? 'kamer' : 'kamers'} / ${n * 2} personen` }}</option>
             </select>
             <p v-if="row.quantity > 0" class="rt__max">
-              {{ row.quantity === 1 ? '(max.) 2 personen' : `Je kiest ${row.quantity} kamers, dus ook ${row.quantity} arrangementen (max. ${row.quantity * 2} personen)` }}
+              {{ row.quantity === 1 ? '(max.) 2 personen' : `= ${row.quantity} arrangementen (max. ${row.quantity * 2} personen)` }}
             </p>
           </td>
 
