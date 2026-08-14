@@ -401,11 +401,11 @@ const arrangementIncludes = [
             >
               <!-- Het gesloten veld toont alleen het getal: het geselecteerde
                    option-label bevat geen bedrag, de rest in het menu wel. -->
-              <option :value="0">0</option>
-              <option v-for="n in 5" :key="n" :value="n">{{ row.quantity === n ? n : `${n} ${n === 1 ? 'kamer' : 'kamers'} / ${n * 2} personen` }}</option>
+              <option :value="0">0 kamers</option>
+              <option v-for="n in 5" :key="n" :value="n">{{ row.quantity === n ? `${n} ${n === 1 ? 'kamer' : 'kamers'}` : `${n} ${n === 1 ? 'kamer' : 'kamers'} / ${n * 2} personen` }}</option>
             </select>
             <p v-if="row.quantity > 0" class="rt__max">
-              Je kiest {{ row.quantity }} {{ row.quantity === 1 ? 'arrangement voor' : 'arrangementen, dus' }} (max.) {{ row.quantity * 2 }} personen
+              {{ row.quantity === 1 ? '(max.) 2 personen' : `Je kiest ${row.quantity} kamers, dus ook ${row.quantity} arrangementen (max. ${row.quantity * 2} personen)` }}
             </p>
           </td>
 
@@ -764,7 +764,7 @@ const arrangementIncludes = [
   font-family: inherit;
   font-size: var(--t-body);
   background-color: var(--c-white);
-  width: 52px;
+  width: 100%;
   /* Eigen chevron zodat er 4px marge tot de rechterrand zit */
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M6 9l6 6 6-6' stroke='%231a1e1e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
