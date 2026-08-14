@@ -306,7 +306,7 @@ const arrangementIncludes = [
             </span>
           </th>
           <th class="rt__th rt__th--options">Je opties</th>
-          <th class="rt__th rt__th--select">Kies aantal</th>
+          <th class="rt__th rt__th--select">Kies aantal kamers</th>
           <th v-if="showReserve" class="rt__th rt__th--reserve" />
         </tr>
       </thead>
@@ -402,10 +402,10 @@ const arrangementIncludes = [
               <!-- Het gesloten veld toont alleen het getal: het geselecteerde
                    option-label bevat geen bedrag, de rest in het menu wel. -->
               <option :value="0">0</option>
-              <option v-for="n in 5" :key="n" :value="n">{{ row.quantity === n ? n : `${n} (€${n * rowPrice(row)})` }}</option>
+              <option v-for="n in 5" :key="n" :value="n">{{ row.quantity === n ? n : `${n} ${n === 1 ? 'kamer' : 'kamers'} / ${n * 2} personen` }}</option>
             </select>
             <p v-if="row.quantity > 0" class="rt__max">
-              (max.) {{ row.quantity * 2 }} personen
+              Je kiest {{ row.quantity }} {{ row.quantity === 1 ? 'arrangement voor' : 'arrangementen, dus' }} (max.) {{ row.quantity * 2 }} personen
             </p>
           </td>
 
@@ -634,9 +634,10 @@ const arrangementIncludes = [
    en de prijskolom genoeg breedte houden */
 .rt__th--guests { width: 74px; }
 .rt__th--options { width: 24%; }
-/* Prijskolom vaste, ruime breedte zodat "€597 €344" niet afbreekt */
-.rt__th--price { width: 140px; }
-.rt__th--select { width: 104px; }
+/* Prijskolom smaller (36px naar de keuze-kolom); van-prijs dichter op
+   de eindprijs zodat het blijft passen */
+.rt__th--price { width: 104px; }
+.rt__th--select { width: 140px; }
 /* Rechterkolom: groene headercel (band loopt door), daaronder één
    doorlopend grijs paneel zonder dividers. */
 .rt__th--reserve {
@@ -689,7 +690,7 @@ const arrangementIncludes = [
 .rt__price {
   white-space: nowrap;
 }
-.rt__price .price { margin-right: 6px; }
+.rt__price .price { margin-right: 2px; }
 /* Boekingskosten-toelichting (i) naast de kolomkop-tekst */
 /* Kolomkop "Prijs voor 2 nachten": altijd 2 regels, (i) na "nachten" */
 .rt__thprice {
