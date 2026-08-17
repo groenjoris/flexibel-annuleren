@@ -221,12 +221,11 @@ function v7TryContinue() {
   choiceHighlight.value = true
   // Instant scroll: smooth wordt hier afgebroken (focus-scroll van de knop
   // + de scroll-snap containers op de pagina).
-  // V12: de waarschuwing staat ónder de (gestapelde) kaarten; centreer die
-  // zodat de melding zelf in beeld komt.
+  // V12: de waarschuwing staat bóven de (gestapelde) kaarten; zet die
+  // bovenaan het viewport zodat de flex-optie eronder volledig zichtbaar is.
   setTimeout(() => {
     const warn = jv.value === '12' ? fcBlock.value?.querySelector('.sn__warn') : null
-    if (warn) warn.scrollIntoView({ block: 'center' })
-    else fcBlock.value?.scrollIntoView({ block: 'start' })
+    ;(warn ?? fcBlock.value)?.scrollIntoView({ block: 'start' })
   }, 100)
 }
 // V12 (Yvette Super Nudge): na een keuze even wachten en dan naar de

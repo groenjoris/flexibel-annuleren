@@ -33,6 +33,9 @@ const cancelUntil = computed(() => {
   const d = new Date(ymd.year, ymd.month, ymd.day - 2)
   return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()} 23:59`
 })
+
+// Annuleringsvoorwaarden-popup via de voetnoot-link.
+const termsOpen = ref(false)
 </script>
 
 <template>
@@ -57,6 +60,12 @@ const cancelUntil = computed(() => {
         </div>
       </div>
     </div>
+
+    <!-- Waarschuwing bij doorgaan zonder keuze: boven de opties (direct
+         boven flexibel annuleren); de pagina scrollt de melding naar de
+         bovenkant van het viewport zodat de flex-optie eronder volledig
+         zichtbaar is. -->
+    <p v-if="highlight" class="sn__warn">Maak een keuze om verder te gaan.</p>
 
     <!-- Vergelijkingskaarten -->
     <div class="sn__cards">
@@ -176,18 +185,16 @@ const cancelUntil = computed(() => {
       </button>
     </div>
 
-    <!-- Waarschuwing bij doorgaan zonder keuze: onder de opties, dicht bij
-         de CTA (zelfde patroon als andere Variant A's) -->
-    <p v-if="highlight" class="sn__warn">Maak een keuze om verder te gaan.</p>
-
     <!-- Voetnoot -->
     <p class="sn__foot">
       <span class="sn__footinfo">
         <span class="sn__footicon">i</span>
         Je keuze geldt voor de gehele boeking.
       </span>
-      <a class="sn__footlink" href="#">Meer informatie over onze annuleringsvoorwaarden</a>
+      <a class="sn__footlink" href="#" @click.prevent="termsOpen = true">Meer informatie over onze annuleringsvoorwaarden</a>
     </p>
+
+    <CheckoutCancellationTermsPopup v-if="termsOpen" @close="termsOpen = false" />
   </section>
 </template>
 
@@ -250,6 +257,8 @@ const cancelUntil = computed(() => {
 
 /* Waarschuwing bij doorgaan zonder keuze (zelfde stijl als ForcedChoice) */
 .sn__warn {
+  /* Ademruimte boven de melding wanneer de pagina ernaartoe scrollt */
+  scroll-margin-top: 16px;
   background: #fbebe9;
   color: #b3402e;
   font-weight: 500;
