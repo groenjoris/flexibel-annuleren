@@ -20,12 +20,10 @@ const emit = defineEmits<{
       <p class="t-body c-grey">Wat heeft je voorkeur?</p>
 
       <div class="pc__actions">
-        <div class="pc__option">
-          <span class="pc__label t-caption">Aanbevolen</span>
-          <button class="pc__btn pc__btn--flex" type="button" @click="emit('choose', 'flexible')">
-            Alle kamers gratis annuleren
-          </button>
-        </div>
+        <button class="pc__btn pc__btn--flex" type="button" @click="emit('choose', 'flexible')">
+          Alle kamers gratis annuleren
+          <span class="pc__btnsub">(aanbevolen)</span>
+        </button>
         <button class="pc__btn pc__btn--nonref" type="button" @click="emit('choose', 'nonrefundable')">
           Alle kamers niet-terugbetaalbaar
         </button>
@@ -82,18 +80,12 @@ const emit = defineEmits<{
   gap: 12px;
   margin-top: 12px;
 }
-.pc__option {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-.pc__label {
-  background: var(--c-via-green);
-  color: var(--c-white);
-  font-weight: var(--w-black);
-  padding: 2px 10px;
-  border-radius: 100px;
+/* Tweede regel in de groene knop, i.p.v. de "Aanbevolen"-sticker */
+.pc__btnsub {
+  display: block;
+  font-size: var(--t-body);
+  font-weight: 500;
+  margin-top: 2px;
 }
 .pc__btn {
   width: 100%;
