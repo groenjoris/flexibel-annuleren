@@ -283,6 +283,14 @@ const cancelUntil = computed(() => {
   color: var(--c-via-black);
   transition: border-color 0.15s ease;
 }
+/* Desktop: niet-terugbetaalbaar links, flexibel rechts; op mobiel staat
+   flexibel juist bovenaan (DOM-volgorde). */
+.sn__card--flex {
+  order: 2;
+}
+.sn--mobile .sn__card--flex {
+  order: 0;
+}
 /* Zelfde borderpatroon als het bestaande keuzeblok: zonder selectie zijn
    beide kaarten gelijk (1px grijs); bij selectie 2px met padding-
    compensatie zodat de kaart niet verspringt. */

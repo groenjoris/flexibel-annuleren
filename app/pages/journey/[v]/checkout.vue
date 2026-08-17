@@ -211,7 +211,13 @@ function v7TryContinue() {
   if (forcedChoice.value !== null) return
   choiceHighlight.value = true
   // Instant scroll: smooth wordt door de focus-scroll van de knop afgebroken.
-  setTimeout(() => fcBlock.value?.scrollIntoView({ block: 'start' }), 100)
+  // V12: de waarschuwing staat ónder de kaarten; centreer die zodat de
+  // melding zelf in beeld komt (met de opties erboven).
+  setTimeout(() => {
+    const warn = jv.value === '12' ? fcBlock.value?.querySelector('.sn__warn') : null
+    if (warn) warn.scrollIntoView({ block: 'center' })
+    else fcBlock.value?.scrollIntoView({ block: 'start' })
+  }, 100)
 }
 watch(forcedChoice, (v) => {
   if (v !== null) choiceHighlight.value = false
