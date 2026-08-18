@@ -302,7 +302,7 @@ const arrangementIncludes = [
           <th class="rt__th rt__th--price">
             <span class="rt__thprice">
               <span class="rt__thprice-line">Prijs voor</span>
-              <span class="rt__thprice-line">2 nachten<FirstReleasePriceInfoTooltip variant="deal" /></span>
+              <span class="rt__thprice-line">2 nachten<FirstReleasePriceInfoTooltip variant="deal" text="Prijs voor kamer + alle extra's, exclusief boekingskosten t.w.v. €27,50, eventuele servicekosten en lokale toeslagen." /></span>
             </span>
           </th>
           <th class="rt__th rt__th--options">Je opties</th>
@@ -642,7 +642,8 @@ const arrangementIncludes = [
 .rt__th--options { width: 24%; }
 /* Prijskolom smaller (36px naar de keuze-kolom); van-prijs dichter op
    de eindprijs zodat het blijft passen */
-.rt__th--price { width: 104px; }
+/* Breed genoeg zodat "2 nachten (i)" mét marge binnen de kolom past */
+.rt__th--price { width: 112px; }
 .rt__th--select { width: 140px; }
 /* Rechterkolom: groene headercel (band loopt door), daaronder één
    doorlopend grijs paneel zonder dividers. */

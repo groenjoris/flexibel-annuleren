@@ -47,10 +47,15 @@
 </template>
 
 <script setup lang="ts">
+// text: optionele override van de disclaimer-copy voor een specifieke
+// plek (bijv. de room-table kolomkop) zonder de gedeelde variant-teksten
+// te veranderen.
 const props = withDefaults(defineProps<{
   variant?: 'card' | 'deal'
+  text?: string
 }>(), {
   variant: 'card',
+  text: undefined,
 })
 
 const open = ref(false)
@@ -157,6 +162,7 @@ onBeforeUnmount(() => {
 })
 
 const disclaimer = computed(() => {
+  if (props.text) return props.text
   if (props.variant === 'deal') {
     return 'Prijs is exclusief boekingskosten t.w.v. €27,50, eventuele servicekosten en lokale toeslagen.'
   }
