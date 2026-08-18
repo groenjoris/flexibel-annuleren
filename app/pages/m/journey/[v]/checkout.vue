@@ -608,13 +608,10 @@ const fcTotals = computed(() => {
                 <p class="mrate__title" :class="{ 'c-green': row.rateKey === 'flexible' }">
                   {{ row.rateKey === 'flexible' ? 'Flexibel annuleren' : 'Niet-terugbetaalbaar' }}
                 </p>
-                <p v-if="row.rateKey === 'flexible'" class="mrate__line mrate__line--green">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
-                  Flexibel annuleren vóór 17 mei
-                </p>
-                <p v-if="row.rateKey === 'flexible'" class="mrate__line mrate__line--green">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
-                  Volledige terugbetaling van arrangementsprijs
+                <!-- Zelfde vlakke stijl als de nonref-regel (geen vinkjes),
+                     met een vaste afbreking na de datum -->
+                <p v-if="row.rateKey === 'flexible'" class="mrate__line mrate__line--block">
+                  Bij annuleren voor 17 mei 23:59<br />krijg je de volledige arrangementsprijs terug
                 </p>
                 <p v-else class="mrate__line">Geen geld terug bij annuleren of wijzigen</p>
                 <p v-if="row.scarcity" class="mrate__line mrate__line--red">· {{ row.scarcity }}</p>
@@ -932,6 +929,10 @@ const fcTotals = computed(() => {
   display: flex;
   align-items: center;
   gap: 6px;
+}
+/* Flex-uitleg over twee regels: block i.p.v. flex zodat de <br> werkt */
+.mrate__line--block {
+  display: block;
 }
 .mrate__line--green {
   color: var(--c-via-green);
