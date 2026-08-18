@@ -248,16 +248,14 @@ const termsOpen = ref(false)
   line-height: var(--lh-body);
 }
 
-/* Desktop-toast onder de flex-kaart (zelfde stijl als de room-table
-   toast, maar met het pijltje omhoog naar de kaart). Expliciet in het
-   grid geplaatst: kolom 2 (flex-kaart), rij 6 (onder de span-5 kaarten). */
+/* Desktop-toast onder de opties (zelfde stijl als de room-table toast):
+   banner over de volle breedte van beide kaarten, maar het pijltje wijst
+   omhoog naar de flex-kaart (extra nudge). Rij 6 = onder de span-5
+   kaarten. */
 .sn__toast {
-  grid-column: 2;
+  grid-column: 1 / -1;
   grid-row: 6;
-  justify-self: center;
   position: relative;
-  width: max-content;
-  max-width: 100%;
   text-align: center;
   background: #fff5f4;
   border: 1.5px solid #b3402e;
@@ -271,11 +269,14 @@ const termsOpen = ref(false)
   /* Ademruimte onder de toast wanneer de pagina ernaartoe scrollt */
   scroll-margin-bottom: 16px;
 }
+/* Pijltje op de as van de flex-kaart (rechterkolom): kolommen zijn
+   (100% − 24px kolomgap) / 2 breed, dus het midden van kolom 2 ligt op
+   75% + 6px van de banner. */
 .sn__toast::before {
   content: '';
   position: absolute;
   top: -9px;
-  left: 50%;
+  left: calc(75% + 6px);
   transform: translateX(-50%);
   border-left: 9px solid transparent;
   border-right: 9px solid transparent;
@@ -285,7 +286,7 @@ const termsOpen = ref(false)
   content: '';
   position: absolute;
   top: -7px;
-  left: 50%;
+  left: calc(75% + 6px);
   transform: translateX(-50%);
   border-left: 8px solid transparent;
   border-right: 8px solid transparent;
