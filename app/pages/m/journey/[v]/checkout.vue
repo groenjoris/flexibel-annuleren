@@ -624,7 +624,7 @@ const fcTotals = computed(() => {
                   <p class="mrate__prices">
                     <CheckoutPriceTag :value="rowWas(row)" :show-cents="false" size="sm" strike color="var(--c-medium-grey)" />
                     <CheckoutPriceTag :value="rowPrice(row)" :show-cents="false" size="lg" bold color="var(--c-via-orange)" />
-                    <FirstReleasePriceInfoTooltip variant="deal" />
+                    <FirstReleasePriceInfoTooltip variant="deal" text="Prijs voor kamer + alle extra's, exclusief boekingskosten t.w.v. €27,50, eventuele servicekosten en lokale toeslagen." />
                   </p>
                   <p class="t-caption c-mgrey">Prijs voor 2 nachten + compleet arrangement</p>
                 </div>
@@ -961,6 +961,16 @@ const fcTotals = computed(() => {
   display: flex;
   align-items: baseline;
   gap: 8px;
+}
+/* i-tje: iets groter en verticaal gecentreerd op de (grote) prijs —
+   baseline-uitlijning zette hem te laag. */
+.mrate__prices :deep(.price-info) {
+  align-self: center;
+}
+.mrate__prices :deep(.price-info__icon) {
+  width: 17px;
+  height: 17px;
+  font-size: 12px;
 }
 .mrate__stepper {
   display: flex;
