@@ -412,7 +412,7 @@ const arrangementIncludes = [
               <option v-for="n in 5" :key="n" :value="n">{{ row.quantity === n ? `${n} ${n === 1 ? 'kamer' : 'kamers'}` : `${n} ${n === 1 ? 'kamer' : 'kamers'} / ${n * 2} personen` }}</option>
             </select>
             <p v-if="row.quantity > 0" class="rt__max">
-              {{ row.quantity === 1 ? '(max.) 2 personen' : `(max. ${row.quantity * 2} personen)` }}
+              {{ `(max.) ${row.quantity * 2} personen` }}
             </p>
           </td>
 
@@ -800,11 +800,12 @@ const arrangementIncludes = [
   background-position: right 4px center;
 }
 /* Max personen onder de dropdown (2 regels) zodra er kamers gekozen zijn */
+/* Donker font: het maximum is belangrijke informatie */
 .rt__max {
   margin-top: 8px;
   font-size: var(--t-caption);
   line-height: 1.3;
-  color: var(--c-medium-grey);
+  color: var(--c-via-black);
 }
 /* Andere policy geselecteerd: uitgegrijsd, klik opent de keuze-popup */
 .rt__dropdown--inactive {
