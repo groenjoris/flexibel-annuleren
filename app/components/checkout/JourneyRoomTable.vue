@@ -371,7 +371,7 @@ const arrangementIncludes = [
                 Flexibel annuleren
               </p>
               <p class="rt__optsub">tot 3 mei 23:59</p>
-              <p class="rt__optsub"><span class="rt__bullet" aria-hidden="true">•</span> Volledige terugbetaling</p>
+              <p class="rt__optsub"><span class="rt__bullet" aria-hidden="true">•</span> Volledige terugbetaling van arrangementsprijs</p>
               <span class="rt__rec">Aanbevolen</span>
             </template>
             <template v-else>
