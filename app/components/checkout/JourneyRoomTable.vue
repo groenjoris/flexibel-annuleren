@@ -371,7 +371,10 @@ const arrangementIncludes = [
                 Flexibel annuleren
               </p>
               <p class="rt__optsub">tot 3 mei 23:59</p>
-              <p class="rt__optsub"><span class="rt__bullet" aria-hidden="true">•</span> Volledige terugbetaling van arrangementsprijs</p>
+              <p class="rt__optsub rt__optsub--flush rt__optsub--icon">
+                <svg class="rt__check" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                Volledige terugbetaling van arrangementsprijs
+              </p>
               <span class="rt__rec">Aanbevolen</span>
             </template>
             <template v-else>
@@ -379,7 +382,7 @@ const arrangementIncludes = [
                 <svg class="rt__check rt__check--nonref" width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" /><path d="M8 8l8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
                 Niet-terugbetaalbaar
               </p>
-              <p class="rt__optsub"><span class="rt__bullet" aria-hidden="true">•</span> Geen geld terug bij annuleren of wijzigen</p>
+              <p class="rt__optsub rt__optsub--flush"><span class="rt__bullet" aria-hidden="true">•</span> Geen geld terug bij annuleren of wijzigen</p>
             </template>
             <p v-if="row.scarcity" class="rt__scarcity">
               <span class="rt__bullet" aria-hidden="true">•</span>
@@ -728,6 +731,16 @@ const arrangementIncludes = [
   font-size: var(--t-body);
   color: var(--c-dark-grey);
   margin: -2px 0 6px 20px;
+}
+/* Sub-regels op hetzelfde niveau als de optietitel (geen inspringing) */
+.rt__optsub--flush {
+  margin-left: 0;
+}
+/* Sub-regel met een (groen) vinkje i.p.v. een bullet */
+.rt__optsub--icon {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
 }
 /* Groene "Aanbevolen"-tag onder de flexibele optie */
 .rt__rec {
