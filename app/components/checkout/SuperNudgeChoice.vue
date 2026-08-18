@@ -98,7 +98,7 @@ const termsOpen = ref(false)
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="4" y="5.5" width="16" height="15" rx="2" stroke="currentColor" stroke-width="1.6" /><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
             </span>
             <span class="sn__benefittext">
-              <span class="sn__benefittitle">Tot {{ cancelUntil }} annuleren</span>
+              <span class="sn__benefittitle">Tot {{ cancelUntil }}</span>
               <span class="sn__benefitsub">Kosteloos je boeking wijzigen en/of annuleren.</span>
             </span>
           </span>
