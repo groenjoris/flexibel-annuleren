@@ -48,8 +48,14 @@ const cancelBlock = computed<'flexible' | 'nonrefundable' | null>(() => {
   if (!['10', '11', '12'].includes(jv.value) || selection.value.length === 0) return null
   return selection.value.some((r) => r.rateKey === 'flexible') ? 'flexible' : 'nonrefundable'
 })
+// Switchen kan hier alleen van niet-flex naar flex; terug naar
+// niet-terugbetaalbaar alleen als 'undo' nadat de switch op deze
+// pagina is gebruikt (wie al flexibel binnenkwam kan niet wisselen).
+const flexAddedHere = ref(false)
 function toggleFlex() {
   const toFlex = cancelBlock.value === 'nonrefundable'
+  if (!toFlex && !flexAddedHere.value) return
+  flexAddedHere.value = toFlex
   const delta = toFlex ? FLEX_FEE : -FLEX_FEE
   selection.value = selection.value.map((r) => ({
     ...r,
@@ -84,7 +90,7 @@ const sideTop = useStickyFit(sideEl, 16)
         <div class="col-form">
           <h1 class="t-display">Gegevens en betaalwijze</h1>
           <!-- Nummering start op 1; v10/v11 tonen het Flexibel annuleren-blok -->
-          <CheckoutGegevensForm :start-at="1" :cancel-block="cancelBlock" @toggle-flex="toggleFlex" />
+          <CheckoutGegevensForm :start-at="1" :cancel-block="cancelBlock" :can-undo-flex="flexAddedHere" @toggle-flex="toggleFlex" />
 
           <div class="col-form__cta col-form__cta--split">
             <NuxtLink class="btn-back t-body" :to="`/journey/${jv}/checkout`">← Terug naar kamers</NuxtLink>

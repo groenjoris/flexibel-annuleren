@@ -5,9 +5,11 @@
 // cancelBlock: toont het "Flexibel annuleren"-blok (blok 2) met een
 // variatie op basis van de gekozen flexibiliteit; de link/knop erin
 // wisselt de keuze via het toggle-flex event.
+// canUndoFlex: alleen wie flexibel op DEZE pagina heeft toegevoegd mag
+// terug (undo); wie al flexibel binnenkwam ziet geen switch-link.
 withDefaults(
-  defineProps<{ startAt?: number; cancelBlock?: 'flexible' | 'nonrefundable' | null }>(),
-  { startAt: 2, cancelBlock: null },
+  defineProps<{ startAt?: number; cancelBlock?: 'flexible' | 'nonrefundable' | null; canUndoFlex?: boolean }>(),
+  { startAt: 2, cancelBlock: null, canUndoFlex: false },
 )
 defineEmits<{ 'toggle-flex': [] }>()
 </script>
@@ -102,6 +104,12 @@ defineEmits<{ 'toggle-flex': [] }>()
         <p class="gf__note">
           Je kunt dit arrangement tot <strong>24 oktober 2026 23:59:59</strong> annuleren.
           Je ontvangt dan het arrangementsbedrag plus eventueel bijgeboekte extra's terug.
+        </p>
+        <!-- Undo: alleen zichtbaar als flexibel zojuist hier is toegevoegd -->
+        <p v-if="canUndoFlex" class="gf__note">
+          <a class="gf__link" href="#" @click.prevent="$emit('toggle-flex')">
+            Toch verwijderen (−€15 per kamer)
+          </a>
         </p>
       </template>
 
