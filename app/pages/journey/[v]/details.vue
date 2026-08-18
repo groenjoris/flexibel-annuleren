@@ -127,7 +127,7 @@ const sideTop = useStickyFit(sideEl, 16)
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
                 {{ item }}
               </p>
-              <a class="side__link side__link--center t-body" href="#">Bekijk je volledige arrangement</a>
+              <a class="side__link side__link--left t-body" href="#">Bekijk je volledige arrangement</a>
             </div>
 
             <template v-if="roomsSel > 0">
@@ -291,6 +291,11 @@ const sideTop = useStickyFit(sideEl, 16)
 }
 .side__link--center {
   align-self: center;
+}
+/* Arrangement- en voorwaardenlinks: links uitgelijnd in de kassabon */
+.side__link--left {
+  text-align: left;
+  align-self: flex-start;
 }
 .side__hr {
   border: none;

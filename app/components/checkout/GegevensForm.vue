@@ -108,7 +108,7 @@ defineEmits<{ 'toggle-flex': [] }>()
         <!-- Undo: alleen zichtbaar als flexibel zojuist hier is toegevoegd -->
         <p v-if="canUndoFlex" class="gf__note">
           <a class="gf__link" href="#" @click.prevent="$emit('toggle-flex')">
-            Toch verwijderen (−€15 per kamer)
+            Kies toch niet-terugbetaalbaar
           </a>
         </p>
       </template>

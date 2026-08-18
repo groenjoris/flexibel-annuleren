@@ -371,7 +371,7 @@ const arrangementIncludes = [
                 Flexibel annuleren
               </p>
               <p class="rt__optsub">tot 3 mei 23:59</p>
-              <p class="rt__optsub">Volledige terugbetaling</p>
+              <p class="rt__optsub"><span class="rt__bullet" aria-hidden="true">•</span> Volledige terugbetaling</p>
               <span class="rt__rec">Aanbevolen</span>
             </template>
             <template v-else>
@@ -379,7 +379,7 @@ const arrangementIncludes = [
                 <svg class="rt__check rt__check--nonref" width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" /><path d="M8 8l8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
                 Niet-terugbetaalbaar
               </p>
-              <p class="rt__optsub">Geen geld terug bij annuleren of wijzigen</p>
+              <p class="rt__optsub"><span class="rt__bullet" aria-hidden="true">•</span> Geen geld terug bij annuleren of wijzigen</p>
             </template>
             <p v-if="row.scarcity" class="rt__scarcity">
               <span class="rt__bullet" aria-hidden="true">•</span>

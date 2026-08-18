@@ -612,7 +612,11 @@ const fcTotals = computed(() => {
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
                   Flexibel annuleren vóór 17 mei
                 </p>
-                <p v-else class="mrate__line">Als je je boeking wilt wijzigen of annuleren, ontvang je geen bedrag retour.</p>
+                <p v-if="row.rateKey === 'flexible'" class="mrate__line mrate__line--green">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                  Volledige terugbetaling
+                </p>
+                <p v-else class="mrate__line">Geen geld terug bij annuleren of wijzigen</p>
                 <p v-if="row.scarcity" class="mrate__line mrate__line--red">· {{ row.scarcity }}</p>
 
                 <div class="mrate__pricing">
