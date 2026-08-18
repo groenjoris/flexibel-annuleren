@@ -351,6 +351,7 @@ const arrangementIncludes = [
           <td class="rt__td rt__price">
             <CheckoutPriceTag :value="rowWas(row)" :show-cents="false" size="sm" bold strike color="var(--c-medium-grey)" />
             <CheckoutPriceTag :value="rowPrice(row)" :show-cents="false" size="md" bold color="var(--c-via-orange)" />
+            <p class="rt__pricenote">inclusief arrangement</p>
           </td>
 
           <!-- Je opties (1e: zonder de vaste vinkjes, begint met de voorwaarde) -->
@@ -698,6 +699,16 @@ const arrangementIncludes = [
   white-space: nowrap;
 }
 .rt__price .price { margin-right: 2px; }
+/* Kleine toelichting onder de prijs (caption 12/16, tertiair grijs);
+   mag over twee regels wikkelen ondanks de nowrap van de prijscel. */
+.rt__pricenote {
+  font-size: var(--t-caption);
+  line-height: var(--lh-caption);
+  font-weight: 500;
+  color: var(--c-medium-grey);
+  white-space: normal;
+  margin-top: 2px;
+}
 /* Boekingskosten-toelichting (i) naast de kolomkop-tekst */
 /* Kolomkop "Prijs voor 2 nachten": altijd 2 regels, (i) na "nachten" */
 .rt__thprice {
