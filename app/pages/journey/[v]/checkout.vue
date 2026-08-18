@@ -66,7 +66,7 @@ const hasExtras = computed(() => ['7', '9', '12'].includes(jv.value))
 // Final A (v8/v9) + v11/v12: keuzestap heet "Maak je boeking compleet".
 const isFinalA = computed(() => ['8', '9', '11', '12'].includes(jv.value))
 // V11: na de forced choice volgt nog de gegevenspagina.
-const hasDetailsStep = computed(() => jv.value === '11')
+const hasDetailsStep = computed(() => ['11', '12'].includes(jv.value))
 const stepTwoTitle = computed(() =>
   isFinalA.value
     ? 'Maak je boeking compleet'
@@ -211,11 +211,12 @@ function v7TryContinue() {
   if (forcedChoice.value !== null) return
   choiceHighlight.value = true
   // Instant scroll: smooth wordt door de focus-scroll van de knop afgebroken.
-  // V12: de waarschuwing staat bóven de kaarten; zet die bovenaan het
-  // viewport zodat de flex-optie eronder volledig zichtbaar is.
+  // V12: de toast staat direct ónder de opties; zet die onderaan het
+  // viewport zodat de opties erboven zichtbaar blijven.
   setTimeout(() => {
-    const warn = jv.value === '12' ? fcBlock.value?.querySelector('.sn__warn') : null
-    ;(warn ?? fcBlock.value)?.scrollIntoView({ block: 'start' })
+    const toast = jv.value === '12' ? fcBlock.value?.querySelector('.sn__toast') : null
+    if (toast) toast.scrollIntoView({ block: 'end' })
+    else fcBlock.value?.scrollIntoView({ block: 'start' })
   }, 100)
 }
 watch(forcedChoice, (v) => {
@@ -226,7 +227,7 @@ watch(forcedChoice, (v) => {
 <template>
   <!-- V5/V6 gebruiken de grijze paginakleur van de concepten (witte kaarten) -->
   <div class="page" :class="{ 'page--white': !isCardsVariant }">
-    <CheckoutTopNav :label="label" :nudge-switcher="jv === '12'" />
+    <CheckoutTopNav :label="label" />
 
     <div class="page__stepper">
       <CheckoutStepper :active="2" />

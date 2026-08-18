@@ -10,8 +10,6 @@ import { journeyKey, JOURNEY_WAS_FACTOR } from '~/data/journeys'
 const route = useRoute()
 const jv = computed(() => journeyKey(route.params.v))
 const isCardsVariant = computed(() => ['5', '6', '7', '8', '9', '12'].includes(jv.value))
-// V12: sub-variant (groene vs neutrale banner), gedeeld met SuperNudgeChoice.
-const nudgeVariant = useState<'a' | 'b'>('nudge-variant', () => 'a')
 // Varianten met het extra's-blok in de keuzestap.
 const hasExtras = computed(() => ['7', '9', '12'].includes(jv.value))
 // Final A (v8/v9) + v12: keuzestap heet "Maak je boeking compleet".
@@ -741,29 +739,6 @@ const fcTotals = computed(() => {
       </template>
     </main>
 
-    <!-- V12: sub-variant switcher onderin (i.p.v. in de header — minder intrusive) -->
-    <div v-if="jv === '12' && forcedStep === 2" class="mswitchfoot" role="group" aria-label="Banner-variant">
-      <span class="mswitchfoot__label">Banner-variant</span>
-      <div class="mswitchfoot__group">
-        <button
-          class="mswitchfoot__btn"
-          :class="{ 'mswitchfoot__btn--on': nudgeVariant === 'a' }"
-          type="button"
-          @click="nudgeVariant = 'a'"
-        >
-          Groen
-        </button>
-        <button
-          class="mswitchfoot__btn"
-          :class="{ 'mswitchfoot__btn--on': nudgeVariant === 'b' }"
-          type="button"
-          @click="nudgeVariant = 'b'"
-        >
-          Neutraal
-        </button>
-      </div>
-    </div>
-
     <CheckoutSiteFooter />
 
     <!-- Newsletter-flow (v11): heropen-label voor de kortingspopup -->
@@ -1232,35 +1207,6 @@ const fcTotals = computed(() => {
 }
 
 /* V12 sub-variant switcher onderin (footer-strip, minder intrusive) */
-.mswitchfoot {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 8px 20px 20px;
-}
-.mswitchfoot__label {
-  font-size: var(--t-caption);
-  color: var(--c-medium-grey);
-}
-.mswitchfoot__group {
-  display: inline-flex;
-  background: var(--c-surface);
-  border: 1px solid var(--c-light-grey);
-  border-radius: 100px;
-  padding: 2px;
-}
-.mswitchfoot__btn {
-  font-size: var(--t-caption);
-  font-weight: 500;
-  color: var(--c-via-black);
-  padding: 6px 14px;
-  border-radius: 100px;
-}
-.mswitchfoot__btn--on {
-  background: var(--c-via-black);
-  color: var(--c-white);
-}
 
 /* Annuleringskeuze zonder kader: de twee opties over de hele breedte */
 .mpage :deep(.fc) {

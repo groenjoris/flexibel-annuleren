@@ -40,12 +40,12 @@ function roomNameFor(baseId: string) {
 const checkInLabel = computed(() => journeyDay.value?.checkIn || hotel.checkInDate)
 const checkOutLabel = computed(() => journeyDay.value?.checkOut || hotel.checkOutDate)
 
-// Final B (v10) + Base (v11): "Flexibel annuleren"-blok in het formulier,
-// met een variatie op basis van de gekozen flexibiliteit. De link/knop
-// wisselt de keuze (± €15 per kamer in de rijprijs).
+// Final B (v10) + Base (v11) + Super Nudge (v12): "Flexibel annuleren"-blok
+// in het formulier, met een variatie op basis van de gekozen flexibiliteit.
+// De link/knop wisselt de keuze (± €15 per kamer in de rijprijs).
 const FLEX_FEE = 15
 const cancelBlock = computed<'flexible' | 'nonrefundable' | null>(() => {
-  if (!['10', '11'].includes(jv.value) || selection.value.length === 0) return null
+  if (!['10', '11', '12'].includes(jv.value) || selection.value.length === 0) return null
   return selection.value.some((r) => r.rateKey === 'flexible') ? 'flexible' : 'nonrefundable'
 })
 function toggleFlex() {

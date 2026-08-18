@@ -13,10 +13,6 @@ import type { CancelChoice } from '~/data/cancellation'
 defineProps<{ modelValue: CancelChoice; mobile?: boolean; highlight?: boolean }>()
 const emit = defineEmits<{ 'update:modelValue': [value: CancelChoice] }>()
 
-// Sub-variant (switcher in de top nav): 'a' = groene banner (default),
-// 'b' = neutrale banner zonder groene achtergrond.
-const nudgeVariant = useState<'a' | 'b'>('nudge-variant', () => 'a')
-
 // Variabele annuleerdatum: 2 dagen voor de gekozen aankomstdatum uit de
 // kalenderstap; zonder keuze valt hij terug op de vaste deal-datum
 // (di 20 mei 2026 -> 18 mei 2026).
@@ -39,7 +35,7 @@ const termsOpen = ref(false)
 </script>
 
 <template>
-  <section class="card sn" :class="{ 'sn--plain': nudgeVariant === 'b', 'sn--mobile': mobile }">
+  <section class="card sn" :class="{ 'sn--mobile': mobile }">
     <!-- Banner: social proof + uitleg -->
     <div class="sn__banner">
       <h2 class="sn__bannertitle">Boek met een gerust gevoel</h2>
@@ -61,11 +57,10 @@ const termsOpen = ref(false)
       </div>
     </div>
 
-    <!-- Waarschuwing bij doorgaan zonder keuze: boven de opties (direct
-         boven flexibel annuleren); de pagina scrollt de melding naar de
-         bovenkant van het viewport zodat de flex-optie eronder volledig
-         zichtbaar is. -->
-    <p v-if="highlight" class="sn__warn">Maak een keuze om verder te gaan.</p>
+    <!-- Waarschuwing bij doorgaan zonder keuze — mobiel: boven de opties;
+         de pagina scrollt de melding naar de bovenkant van het viewport
+         zodat de flex-optie eronder volledig zichtbaar is. -->
+    <p v-if="highlight && mobile" class="sn__warn">Maak een keuze om verder te gaan.</p>
 
     <!-- Vergelijkingskaarten -->
     <div class="sn__cards">
@@ -183,6 +178,11 @@ const termsOpen = ref(false)
           </span>
         </span>
       </button>
+
+      <!-- Waarschuwing bij doorgaan zonder keuze — desktop: toast direct
+           onder de opties, pijltje omhoog naar de flex-kaart (zelfde stijl
+           als de room-table toast). -->
+      <p v-if="highlight && !mobile" class="sn__toast">Maak een keuze om verder te gaan.</p>
     </div>
 
     <!-- Voetnoot -->
@@ -218,13 +218,6 @@ const termsOpen = ref(false)
   border-radius: var(--radius);
   padding: 28px 36px;
 }
-/* Sub-variant B: neutrale banner zonder groene achtergrond. Zonder de
-   box lijnt de banner-inhoud uit met de kaartranden eronder. */
-.sn--plain .sn__banner {
-  background: none;
-  border-radius: 0;
-  padding: 0;
-}
 .sn__bannerrow {
   display: flex;
   align-items: center;
@@ -253,6 +246,50 @@ const termsOpen = ref(false)
 .sn__bannerbody {
   font-size: var(--t-body);
   line-height: var(--lh-body);
+}
+
+/* Desktop-toast onder de flex-kaart (zelfde stijl als de room-table
+   toast, maar met het pijltje omhoog naar de kaart). Expliciet in het
+   grid geplaatst: kolom 2 (flex-kaart), rij 6 (onder de span-5 kaarten). */
+.sn__toast {
+  grid-column: 2;
+  grid-row: 6;
+  justify-self: center;
+  position: relative;
+  width: max-content;
+  max-width: 100%;
+  text-align: center;
+  background: #fff5f4;
+  border: 1.5px solid #b3402e;
+  color: #b3402e;
+  font-weight: var(--w-black);
+  font-size: var(--t-body);
+  line-height: 1.35;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  /* Ademruimte onder de toast wanneer de pagina ernaartoe scrollt */
+  scroll-margin-bottom: 16px;
+}
+.sn__toast::before {
+  content: '';
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-bottom: 9px solid #b3402e;
+}
+.sn__toast::after {
+  content: '';
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid #fff5f4;
 }
 
 /* Waarschuwing bij doorgaan zonder keuze (zelfde stijl als ForcedChoice) */
@@ -547,11 +584,6 @@ const termsOpen = ref(false)
   height: auto;
   background: none;
   margin-top: 2px;
-}
-
-/* Neutrale banner blijft ook op mobiel zonder achtergrond */
-.sn--mobile.sn--plain .sn__banner {
-  padding: 0;
 }
 
 /* Mobiel: badge "Aanbevolen" naast de titel i.p.v. eronder */
