@@ -32,12 +32,6 @@ function onSidebarBook() {
   navigateTo(`/journey/${jv.value}/details`)
 }
 const roomsSel = computed(() => tableSelection.value.reduce((s, r) => s + r.quantity, 0))
-// Bij een flexibele selectie toont de kassabon een link naar de
-// annuleringsvoorwaarden (opent de voorwaarden-popup).
-const hasFlexSelection = computed(() =>
-  tableSelection.value.some((r) => r.quantity > 0 && r.rateKey === 'flexible'),
-)
-const termsOpen = ref(false)
 const roomsPrice = computed(() => tableSelection.value.reduce((s, r) => s + r.quantity * r.price, 0))
 const roomsWas = computed(() => tableSelection.value.reduce((s, r) => s + r.quantity * r.priceWas, 0))
 const totalPrice = computed(() => roomsPrice.value + BOOKING_FEE)
@@ -284,14 +278,6 @@ watch(forcedChoice, (v) => {
                 {{ item }}
               </p>
               <a class="side__link side__link--left t-body" href="#">Bekijk je volledige arrangement</a>
-              <a
-                v-if="hasFlexSelection"
-                class="side__link side__link--left t-body"
-                href="#"
-                @click.prevent="termsOpen = true"
-              >
-                Annuleringsvoorwaarden
-              </a>
             </div>
 
             <template v-if="roomsSel > 0">
@@ -499,9 +485,6 @@ watch(forcedChoice, (v) => {
 
     <!-- Newsletter-flow (v11): heropen-label voor de kortingspopup -->
     <CheckoutNewsletterPopup v-if="jv === '11'" show-label />
-
-    <!-- Annuleringsvoorwaarden (link in de kassabon bij flexibele selectie) -->
-    <CheckoutCancellationTermsPopup v-if="termsOpen" @close="termsOpen = false" />
   </div>
 </template>
 

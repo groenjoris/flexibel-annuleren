@@ -29,9 +29,6 @@ const cancelUntil = computed(() => {
   const d = new Date(ymd.year, ymd.month, ymd.day - 2)
   return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()} 23:59`
 })
-
-// Annuleringsvoorwaarden-popup via de voetnoot-link.
-const termsOpen = ref(false)
 </script>
 
 <template>
@@ -191,10 +188,7 @@ const termsOpen = ref(false)
         <span class="sn__footicon">i</span>
         Je keuze geldt voor de gehele boeking.
       </span>
-      <a class="sn__footlink" href="#" @click.prevent="termsOpen = true">Meer informatie over onze annuleringsvoorwaarden</a>
     </p>
-
-    <CheckoutCancellationTermsPopup v-if="termsOpen" @close="termsOpen = false" />
   </section>
 </template>
 
@@ -538,14 +532,6 @@ const termsOpen = ref(false)
   font-size: var(--t-body);
   font-style: italic;
   flex-shrink: 0;
-}
-.sn__footlink {
-  color: var(--c-via-black);
-  text-decoration: underline;
-  font-weight: 500;
-}
-.sn__footlink:hover {
-  color: var(--c-via-orange);
 }
 
 /* Mobiel: blokken onder elkaar (gestuurd via de `mobile` prop).

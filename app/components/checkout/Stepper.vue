@@ -6,7 +6,7 @@ interface Step {
   state: 'done' | 'active' | 'todo'
 }
 
-const labels = ['Kies datum', 'Arrangement en kamers', 'Gegevens en betaalwijze']
+const labels = ['Kies datum', 'Kies kamertype', 'Gegevens en betaalwijze']
 
 const steps = computed<Step[]>(() =>
   labels.map((label, i) => ({
