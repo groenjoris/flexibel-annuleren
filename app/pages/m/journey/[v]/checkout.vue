@@ -605,7 +605,11 @@ const fcTotals = computed(() => {
                   'mrate--inactive': isInactive(row),
                 }"
               >
+                <!-- Titel met icoon, zoals in de desktop-tabel: groen vinkje
+                     bij flexibel, 'niet'-icoon bij niet-terugbetaalbaar -->
                 <p class="mrate__title" :class="{ 'c-green': row.rateKey === 'flexible' }">
+                  <svg v-if="row.rateKey === 'flexible'" class="mrate__titleicon" width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                  <svg v-else class="mrate__titleicon" width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" /><path d="M8 8l8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
                   {{ row.rateKey === 'flexible' ? 'Flexibel annuleren' : 'Niet-terugbetaalbaar' }}
                 </p>
                 <!-- Zelfde vlakke stijl als de nonref-regel (geen vinkjes),
@@ -922,6 +926,12 @@ const fcTotals = computed(() => {
 .mrate__title {
   font-size: 17px;
   font-weight: var(--w-black);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.mrate__titleicon {
+  flex-shrink: 0;
 }
 .mrate__line {
   font-size: 14px;
