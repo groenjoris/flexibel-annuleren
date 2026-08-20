@@ -162,11 +162,11 @@ function initScratch() {
   if (!ctx) return
   const grad = ctx.createLinearGradient(0, 0, w, h)
   if (isKras2.value) {
-    // Kraslot (R2): oranje kraslaag i.p.v. goud.
-    grad.addColorStop(0, '#ff9a3d')
-    grad.addColorStop(0.45, '#f07300')
-    grad.addColorStop(0.55, '#ff8b1f')
-    grad.addColorStop(1, '#ffb066')
+    // Kraslot (R2): zilvergrijze kraslaag (als een echt kraslot).
+    grad.addColorStop(0, '#e9eaec')
+    grad.addColorStop(0.45, '#bfc2c6')
+    grad.addColorStop(0.55, '#d6d8db')
+    grad.addColorStop(1, '#f1f2f4')
   } else {
     grad.addColorStop(0, '#e9c96b')
     grad.addColorStop(0.45, '#c9a437')
@@ -175,7 +175,7 @@ function initScratch() {
   }
   ctx.fillStyle = grad
   ctx.fillRect(0, 0, w, h)
-  ctx.fillStyle = isKras2.value ? 'rgba(255, 255, 255, 0.95)' : 'rgba(109, 84, 15, 0.9)'
+  ctx.fillStyle = isKras2.value ? 'rgba(88, 92, 97, 0.9)' : 'rgba(109, 84, 15, 0.9)'
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
   ctx.letterSpacing = '2px'
@@ -393,7 +393,7 @@ function npSubmit() {
                    knippert één keer -->
               <h2 class="nph__title nph__title--normal" :class="{ 'nph__title--blink': isGameR2 && r2Done }">{{ isGameR2 && r2Done ? 'Gefeliciteerd, €10,00!' : isWheel ? 'Draai voor welkomstkorting!' : isKras2 ? 'Kras voor welkomstkorting!' : 'Kras voor je welkomstgeschenk!' }}</h2>
 
-              <div v-if="isSweepstake || isKras2" class="np__scratch np__scratch--photo" :class="{ 'np__scratch--done': scratchDone }">
+              <div v-if="isSweepstake || isKras2" class="np__scratch np__scratch--photo" :class="{ 'np__scratch--done': scratchDone, 'np__scratch--kras': isKras2 }">
                 <div class="np__scratch-under">
                   <p class="np__scratchtext" :class="{ 'np__scratchtext--big': isKras2 }">{{ isKras2 ? '€10' : 'Gegarandeerd €5, €10 of €50' }}</p>
                 </div>
@@ -1471,6 +1471,15 @@ function npSubmit() {
   max-width: 100%;
   align-self: center;
   flex-shrink: 0;
+}
+/* Kraslot (R2): smaller en hoger dan de sweepstake-kaart, met extra
+   marge eronder zodat instructie + veld wat lager staan */
+.np__scratch--kras {
+  width: 340px;
+  margin-bottom: 20px;
+}
+.np__scratch--kras .np__scratch-under {
+  padding: 38px 18px;
 }
 .np__reveal--photo {
   width: 100%;
