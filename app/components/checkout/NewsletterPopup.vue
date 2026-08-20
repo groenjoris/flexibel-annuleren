@@ -1268,24 +1268,27 @@ function npSubmit() {
 .np__card--small.np__card--tall {
   height: 600px;
 }
+/* Geen logo in de kleine versies: de ruimte gaat naar padding boven
+   en onder */
+.np__card--small .nph__logo {
+  display: none;
+}
 .np__card--small .nph__inner {
-  padding: 28px 40px 36px;
+  padding: 44px 40px 44px;
   gap: 14px;
 }
-.np__card--small .nph--r2 .nph__logo {
-  top: 26px;
-}
 .np__card--small .nph--r2 .nph__inner--top {
-  padding-top: 62px;
+  padding-top: 46px;
   gap: 10px;
 }
 .np__card--small .nph__terms {
   max-width: 580px;
 }
-/* Zwarte achtergrond i.p.v. foto: de witte fototeksten en het
-   geïnverteerde logo werken hier ongewijzigd op. */
+/* Donkergroene achtergrond i.p.v. foto (huisstijl "Donker Teal"
+   #206861): de witte fototeksten en het geïnverteerde logo werken hier
+   ongewijzigd op. */
 .nph--solid {
-  background: #1a1e1e;
+  background: #206861;
 }
 .nph--solid .np__switch {
   display: none;
