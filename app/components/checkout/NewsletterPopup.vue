@@ -257,7 +257,7 @@ function finishWheel() {
       rad2RevealOn.value = true
       // Focus het e-mailveld: de knipperende cursor trekt de aandacht.
       nextTick(() => document.getElementById('np-email-g')?.focus())
-    }, 2000)
+    }, 3000)
   }
 }
 function spinWheel() {
@@ -352,8 +352,9 @@ function npSubmit() {
               <!-- R2-rad: eyebrow wordt na het draaien onzichtbaar maar
                    houdt zijn ruimte, zodat het rad niet verspringt -->
               <p class="nph__eyebrow" :class="{ 'nph__eyebrow--ghost': isRad2 && wheelSpun }">Nieuw bij ViaLuxury?</p>
-              <!-- R2-rad: titel wisselt na het draaien naar de uitkomst -->
-              <h2 class="nph__title nph__title--normal">{{ isRad2 && wheelSpun ? 'Gefeliciteerd, €10,00!' : isWheel ? 'Draai voor welkomstkorting!' : 'Kras voor je welkomstgeschenk!' }}</h2>
+              <!-- R2-rad: titel wisselt na het draaien naar de uitkomst en
+                   knippert één keer -->
+              <h2 class="nph__title nph__title--normal" :class="{ 'nph__title--blink': isRad2 && wheelSpun }">{{ isRad2 && wheelSpun ? 'Gefeliciteerd, €10,00!' : isWheel ? 'Draai voor welkomstkorting!' : 'Kras voor je welkomstgeschenk!' }}</h2>
 
               <div v-if="isSweepstake" class="np__scratch np__scratch--photo" :class="{ 'np__scratch--done': scratchDone }">
                 <div class="np__scratch-under">
@@ -1164,6 +1165,15 @@ function npSubmit() {
    gereserveerd zodat het rad niet verspringt */
 .nph__eyebrow--ghost {
   visibility: hidden;
+}
+/* R2-rad: "Gefeliciteerd" knippert één keer bij verschijnen
+   (CSS-keyframe, dus ook betrouwbaar in gethrottlede tabs) */
+.nph__title--blink {
+  animation: nph-title-blink 0.8s ease 1;
+}
+@keyframes nph-title-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
 }
 /* R2: logo vast bovenin het frame — verspringt niet tussen het
    formulier en het bevestigingsscherm */
