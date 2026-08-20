@@ -220,16 +220,17 @@ const WHEEL_SEGMENTS = [
   { label: 'Mystery korting', color: '#7a5ea8' },
   { label: '€15', color: '#d8a92d' },
 ]
-// R2-rad: 2x €1, 3x €5, 2x €10; cleaner zwart-wit palet. Stopt op €10
-// (index 1 — zelfde landingsindex als het originele rad).
+// R2-rad: 2x €1, 3x €5, 2x €10; clean palet — €10 oranje (wit font),
+// €1 zwart (wit font), €5 wit (zwart font). Stopt op €10 (index 1 —
+// zelfde landingsindex als het originele rad).
 const WHEEL_SEGMENTS_R2 = [
-  { label: '€5', color: '#1a1e1e', text: '#fff' },
-  { label: '€10', color: '#fff', text: '#1a1e1e' },
+  { label: '€5', color: '#fff', text: '#1a1e1e' },
+  { label: '€10', color: '#e97132', text: '#fff' },
   { label: '€1', color: '#1a1e1e', text: '#fff' },
   { label: '€5', color: '#fff', text: '#1a1e1e' },
-  { label: '€10', color: '#1a1e1e', text: '#fff' },
-  { label: '€1', color: '#fff', text: '#1a1e1e' },
-  { label: '€5', color: '#ececec', text: '#1a1e1e' },
+  { label: '€10', color: '#e97132', text: '#fff' },
+  { label: '€1', color: '#1a1e1e', text: '#fff' },
+  { label: '€5', color: '#fff', text: '#1a1e1e' },
 ]
 const wheelSegments = computed(() => (isRad2.value ? WHEEL_SEGMENTS_R2 : WHEEL_SEGMENTS))
 const WHEEL_SEG_DEG = 360 / WHEEL_SEGMENTS.length
@@ -244,10 +245,14 @@ function wheelSlicePath(i: number) {
 const wheelRotation = ref(0)
 const wheelSpun = ref(false)
 let wheelSpinning = false
+// R2-rad: na het draaien wisselt de titel naar "Gefeliciteerd" (met
+// confetti); het invoerveld verschijnt pas 2 seconden later.
+const rad2RevealOn = ref(false)
 function finishWheel() {
   if (wheelSpun.value) return
   wheelSpinning = false
   wheelSpun.value = true
+  if (isRad2.value) setTimeout(() => { rad2RevealOn.value = true }, 2000)
 }
 function spinWheel() {
   if (wheelSpinning || wheelSpun.value) return
@@ -310,8 +315,9 @@ function npSubmit() {
     <!-- Kortingspopup -->
     <div v-if="popupOpen" class="np" :class="{ 'np--morph': morphing }" role="dialog" aria-modal="true" @click.self="closePopup">
       <div ref="npCardEl" class="np__card" :class="{ 'np__card--tall': isGamePhoto }">
-        <!-- Confetti bij een gewonnen korting (gok-varianten, stap 2) -->
-        <div v-if="npState === 'success' && isGok" class="np__confetti" aria-hidden="true">
+        <!-- Confetti bij een gewonnen korting (gok-varianten stap 2;
+             R2-rad al direct na het draaien) -->
+        <div v-if="(npState === 'success' && isGok) || (isRad2 && wheelSpun)" class="np__confetti" aria-hidden="true">
           <span
             v-for="(piece, i) in confettiPieces"
             :key="i"
@@ -337,7 +343,8 @@ function npSubmit() {
             <!-- Sweepstake / Hans van der Togt: spel gecentreerd op de foto -->
             <template v-if="npState === 'form' && isGamePhoto">
               <p class="nph__eyebrow">Nieuw bij ViaLuxury?</p>
-              <h2 class="nph__title nph__title--normal">{{ isWheel ? 'Draai voor welkomstkorting!' : 'Kras voor je welkomstgeschenk!' }}</h2>
+              <!-- R2-rad: titel wisselt na het draaien naar de uitkomst -->
+              <h2 class="nph__title nph__title--normal">{{ isRad2 && wheelSpun ? 'Gefeliciteerd, €10,00!' : isWheel ? 'Draai voor welkomstkorting!' : 'Kras voor je welkomstgeschenk!' }}</h2>
 
               <div v-if="isSweepstake" class="np__scratch np__scratch--photo" :class="{ 'np__scratch--done': scratchDone }">
                 <div class="np__scratch-under">
@@ -383,21 +390,21 @@ function npSubmit() {
               </div>
 
               <!-- Formulier verschijnt na het krassen/draaien (ruimte gereserveerd) -->
-              <div class="np__reveal np__reveal--photo" :class="{ 'np__reveal--on': isWheel ? wheelSpun : scratchDone }">
+              <div class="np__reveal np__reveal--photo" :class="{ 'np__reveal--on': isRad2 ? rad2RevealOn : isWheel ? wheelSpun : scratchDone }">
                 <form class="nph__form nph__form--stacked" novalidate @submit.prevent="npSubmit">
-                  <!-- R2-rad: bevestig de uitkomst in tekst, veld direct eronder -->
-                  <p v-if="isRad2" class="nph__revealtitle">Ontvang jouw €10 welkomstkorting</p>
+                  <!-- R2-rad: gecentreerde tekst boven het veld -->
+                  <p v-if="isRad2" class="nph__revealtitle">Schrijf je in en ontvang je kortingscode</p>
                   <label v-if="!isR2" class="nph__label" for="np-email-g">Type je e-mailadres</label>
                   <!-- R2: zwevend label verschijnt bij typen + wis-kruis in het veld -->
                   <div v-if="isR2" class="nph__fieldwrap">
-                    <label class="nph__floatlabel" :class="{ 'nph__floatlabel--on': npEmail.length > 0 }" for="np-email-g">Je E-mailadres</label>
+                    <label class="nph__floatlabel" :class="{ 'nph__floatlabel--on': npEmail.length > 0 }" for="np-email-g">Je e-mailadres</label>
                     <input
                       id="np-email-g"
                       v-model="npEmail"
                       class="nph__input"
                       :class="{ 'nph__input--invalid': npError }"
                       type="email"
-                      placeholder="Je E-mailadres"
+                      placeholder="Je e-mailadres"
                     />
                     <button v-if="npEmail.length > 0" class="nph__clear" type="button" aria-label="Invoer wissen" @click="npEmail = ''">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" /></svg>
@@ -444,14 +451,14 @@ function npSubmit() {
                 <label v-if="!isR2" class="nph__label" for="np-email-f">Type je e-mailadres</label>
                 <!-- R2: zwevend label verschijnt bij typen + wis-kruis in het veld -->
                 <div v-if="isR2" class="nph__fieldwrap">
-                  <label class="nph__floatlabel" :class="{ 'nph__floatlabel--on': npEmail.length > 0 }" for="np-email-f">Je E-mailadres</label>
+                  <label class="nph__floatlabel" :class="{ 'nph__floatlabel--on': npEmail.length > 0 }" for="np-email-f">Je e-mailadres</label>
                   <input
                     id="np-email-f"
                     v-model="npEmail"
                     class="nph__input"
                     :class="{ 'nph__input--invalid': npError }"
                     type="email"
-                    placeholder="Je E-mailadres"
+                    placeholder="Je e-mailadres"
                   />
                   <button v-if="npEmail.length > 0" class="nph__clear" type="button" aria-label="Invoer wissen" @click="npEmail = ''">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" /></svg>
