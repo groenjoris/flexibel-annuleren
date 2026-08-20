@@ -230,6 +230,10 @@ function onScratchUp() {
 }
 // Canvas initialiseren zodra de popup (met kraskaart) in de DOM staat.
 watch(popupOpen, (open) => {
+  // Verse open: scroller altijd bovenaan (logo + sluitknop in beeld).
+  if (open && import.meta.client) {
+    nextTick(() => document.querySelector('.nph')?.scrollTo(0, 0))
+  }
   if (!open || !isScratchLayout.value || scratchDone.value) return
   nextTick(() => {
     initScratch()
@@ -343,6 +347,12 @@ function npSubmit() {
     return
   }
   npError.value = false
+  // Mobiel + kleine varianten: de kaart houdt in stap 2 (Gelukt)
+  // dezelfde hoogte als het formulier — anders krimpt de popup zodra de
+  // inhoud korter wordt.
+  if (import.meta.client && (window.innerWidth <= 760 || isSmall.value) && npCardEl.value) {
+    npCardEl.value.style.minHeight = `${npCardEl.value.getBoundingClientRect().height}px`
+  }
   // 2s laad-animatie tussen stap 1 en stap 2; bestaande leden (e-mail
   // eindigt op vialuxury.com) krijgen de "al bekend"-variant.
   npState.value = 'loading'
@@ -395,7 +405,7 @@ function npSubmit() {
 
               <div v-if="isSweepstake || isKras2" class="np__scratch np__scratch--photo" :class="{ 'np__scratch--done': scratchDone, 'np__scratch--kras': isKras2 }">
                 <div class="np__scratch-under">
-                  <p class="np__scratchtext" :class="{ 'np__scratchtext--big': isKras2 }">{{ isKras2 ? '€10' : 'Gegarandeerd €5, €10 of €50' }}</p>
+                  <p class="np__scratchtext" :class="{ 'np__scratchtext--kras': isKras2 }">{{ isKras2 ? '€10,00' : 'Gegarandeerd €5, €10 of €50' }}</p>
                 </div>
                 <canvas
                   ref="scratchCanvas"
@@ -444,10 +454,6 @@ function npSubmit() {
                     <path d="M13 5.5 L 3.5 10 L 12.5 15.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
                   <span class="np__handhint-text">Klik om te draaien</span>
-                </div>
-                <!-- Mobiel: tekstloze tap-indicator (pulserende ring) -->
-                <div v-if="!wheelSpun && isRad2" class="np__taphint" aria-hidden="true">
-                  <span class="np__taphint-dot" />
                 </div>
               </div>
 
@@ -596,6 +602,9 @@ function npSubmit() {
             </div>
 
             <template v-else>
+              <!-- Small: eyebrow-ruimte behouden zodat de titel niet
+                   verspringt tussen stap 1 en het bevestigingsscherm -->
+              <p v-if="isSmall" class="nph__eyebrow nph__eyebrow--ghost" aria-hidden="true">Nieuw bij ViaLuxury?</p>
               <!-- R2: beide varianten hetzelfde sobere bevestigingsscherm -->
               <template v-if="npState === 'success'">
                 <h2 class="nph__title" :class="{ 'nph__title--normal': isGamePhoto && !isGameR2 }">{{ isGamePhoto && !isGameR2 ? 'Gefeliciteerd!' : 'Gelukt!' }}</h2>
@@ -997,6 +1006,11 @@ function npSubmit() {
   text-align: center;
   white-space: nowrap;
 }
+/* Kraslot (R2): groot bedrag incl. decimalen onder de kraslaag */
+.np__scratchtext--kras {
+  font-size: 52px;
+  color: #ff7e00;
+}
 
 .np__scratch-canvas {
   position: absolute;
@@ -1164,43 +1178,6 @@ function npSubmit() {
 .nph__eyebrow--ghost {
   visibility: hidden;
 }
-/* Tap-indicator (mobiel): pulserende ring op het rad, zonder tekst */
-.np__taphint {
-  display: none;
-  position: absolute;
-  right: 22%;
-  top: 58%;
-  z-index: 3;
-  pointer-events: none;
-}
-.np__taphint-dot {
-  display: block;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
-  animation: np-tap 1.6s ease-out infinite;
-}
-.np__taphint-dot::after {
-  content: '';
-  position: absolute;
-  inset: -4px;
-  border-radius: 50%;
-  border: 2.5px solid rgba(255, 255, 255, 0.9);
-  animation: np-tap-ring 1.6s ease-out infinite;
-}
-@keyframes np-tap {
-  0%, 100% { transform: scale(1); }
-  30% { transform: scale(0.82); }
-  55% { transform: scale(1); }
-}
-@keyframes np-tap-ring {
-  0%, 25% { transform: scale(1); opacity: 0; }
-  30% { transform: scale(0.9); opacity: 1; }
-  80%, 100% { transform: scale(2.1); opacity: 0; }
-}
-
 /* R2-rad: handgeschreven "Klik om te draaien" rechts van het rad, met
    een pijltje richting het rad */
 .np__handhint {
@@ -1257,6 +1234,9 @@ function npSubmit() {
    ongewijzigd op. */
 .nph--solid {
   background: #206861;
+}
+.nph--solid .nph__inner {
+  justify-content: flex-start;
 }
 .nph--solid .np__switch {
   display: none;
@@ -1375,7 +1355,9 @@ function npSubmit() {
 }
 .nph__input {
   flex: 1;
-  border: none;
+  /* Altijd een lichtgrijze rand, in elke staat (geen oranje/UA-ringen) */
+  border: 1.5px solid #d9d9d9;
+  outline: none;
   border-radius: 8px;
   padding: 14px 16px;
   font-family: inherit;
@@ -1383,10 +1365,12 @@ function npSubmit() {
   color: #1a1e1e;
   background: #fff;
   min-width: 0;
+  -webkit-tap-highlight-color: transparent;
 }
-/* Focus: subtiele lichtgrijze rand (geen oranje) */
-.nph__input:focus {
-  outline: 2px solid #d9d9d9;
+.nph__input:focus,
+.nph__input:focus-visible {
+  outline: none;
+  border-color: #c7c7c7;
 }
 .nph__input--invalid {
   outline: 2px solid #b3402e;
@@ -1642,6 +1626,9 @@ function npSubmit() {
   .np__scratchtext {
     font-size: 20px;
   }
+  .np__scratchtext--kras {
+    font-size: 44px;
+  }
   .np__input {
     padding: 12px 14px;
   }
@@ -1689,6 +1676,20 @@ function npSubmit() {
     max-height: calc(100dvh - 40px);
     overflow-y: auto;
   }
+  /* Foto-varianten: de .nph scrolt (niet de kaart), zodat de sluitknop
+     rechtsboven op de kaart gepind blijft naast het logo */
+  .np__card:has(.nph) {
+    overflow: hidden;
+  }
+  .nph {
+    overflow-y: auto;
+    max-height: calc(100dvh - 40px);
+  }
+  /* Small-varianten behouden op mobiel het logo (identiek aan large,
+     alleen de achtergrondkleur verschilt) */
+  .np__card--small .nph__logo {
+    display: block;
+  }
   /* Sluitknop: vast rechtsboven op de kaart, met een eigen donker vlak
      zodat hij op elke foto zichtbaar is */
   .np__close {
@@ -1712,13 +1713,9 @@ function npSubmit() {
     top: auto;
     bottom: 16px;
   }
-  /* Handgeschreven hint valt buiten beeld -> vervangen door een
-     tekstloze tap-indicator op het rad */
+  /* Handgeschreven hint valt buiten beeld op mobiel */
   .np__handhint {
     display: none;
-  }
-  .np__taphint {
-    display: block;
   }
 }
 
