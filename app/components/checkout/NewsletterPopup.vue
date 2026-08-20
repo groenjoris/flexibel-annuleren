@@ -445,6 +445,10 @@ function npSubmit() {
                   </svg>
                   <span class="np__handhint-text">Klik om te draaien</span>
                 </div>
+                <!-- Mobiel: tekstloze tap-indicator (pulserende ring) -->
+                <div v-if="!wheelSpun && isRad2" class="np__taphint" aria-hidden="true">
+                  <span class="np__taphint-dot" />
+                </div>
               </div>
 
               <!-- Formulier verschijnt na het krassen/draaien (ruimte gereserveerd) -->
@@ -1027,78 +1031,6 @@ function npSubmit() {
 @keyframes np-spin {
   to { transform: rotate(360deg); }
 }
-@media (max-width: 760px) {
-  .np {
-    padding: 14px;
-  }
-  /* Gestapeld: foto boven, formulier eronder; kaart schaalt met de
-     inhoud en scrolt als het niet past. */
-  .np__card {
-    flex-direction: column-reverse;
-    height: auto;
-    max-height: calc(100vh - 28px);
-    overflow-y: auto;
-  }
-  .np__right {
-    flex: 0 0 auto;
-    min-height: 170px;
-  }
-  /* Camera-shifts zijn getuned op de hoge desktopkolom; op de lage
-     mobiele strook geven ze gaten — daar de standaard uitsnede. */
-  .np__img {
-    transform: none !important;
-  }
-  .np__left {
-    flex: 0 0 auto;
-    justify-content: flex-start;
-    padding: 22px 20px 20px;
-    gap: 12px;
-  }
-  .np__eyebrow {
-    font-size: 13px;
-  }
-  .np__title {
-    font-size: 24px;
-    line-height: 30px;
-  }
-  .np__scratchtext {
-    font-size: 20px;
-  }
-  .np__input {
-    padding: 12px 14px;
-  }
-  .np__cta {
-    padding: 14px 20px;
-  }
-  .np__terms {
-    font-size: 10.5px;
-    line-height: 15px;
-  }
-  .np__loading {
-    min-height: 140px;
-  }
-  /* Variant "Huidige" op mobiel: usp's onder elkaar, formulier gestapeld */
-  .nph__inner {
-    padding: 40px 20px 64px;
-    gap: 18px;
-  }
-  .nph__title {
-    font-size: 24px;
-    line-height: 31px;
-  }
-  .nph__usps {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-  .nph__form {
-    flex-direction: column;
-  }
-  .nph__footer {
-    gap: 18px;
-  }
-}
-
 /* Variant "Huidige": full-bleed foto, alles gecentreerd in wit */
 .nph {
   position: relative;
@@ -1232,6 +1164,43 @@ function npSubmit() {
 .nph__eyebrow--ghost {
   visibility: hidden;
 }
+/* Tap-indicator (mobiel): pulserende ring op het rad, zonder tekst */
+.np__taphint {
+  display: none;
+  position: absolute;
+  right: 22%;
+  top: 58%;
+  z-index: 3;
+  pointer-events: none;
+}
+.np__taphint-dot {
+  display: block;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+  animation: np-tap 1.6s ease-out infinite;
+}
+.np__taphint-dot::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2.5px solid rgba(255, 255, 255, 0.9);
+  animation: np-tap-ring 1.6s ease-out infinite;
+}
+@keyframes np-tap {
+  0%, 100% { transform: scale(1); }
+  30% { transform: scale(0.82); }
+  55% { transform: scale(1); }
+}
+@keyframes np-tap-ring {
+  0%, 25% { transform: scale(1); opacity: 0; }
+  30% { transform: scale(0.9); opacity: 1; }
+  80%, 100% { transform: scale(2.1); opacity: 0; }
+}
+
 /* R2-rad: handgeschreven "Klik om te draaien" rechts van het rad, met
    een pijltje richting het rad */
 .np__handhint {
@@ -1634,4 +1603,123 @@ function npSubmit() {
   text-transform: uppercase;
   white-space: nowrap;
 }
+
+/* ---- Mobiel (op het einde zodat deze regels de basis overschrijven) ---- */
+@media (max-width: 760px) {
+  .np {
+    padding: 14px;
+  }
+  /* Gestapeld: foto boven, formulier eronder; kaart schaalt met de
+     inhoud en scrolt als het niet past. */
+  .np__card {
+    flex-direction: column-reverse;
+    height: auto;
+    max-height: calc(100vh - 28px);
+    overflow-y: auto;
+  }
+  .np__right {
+    flex: 0 0 auto;
+    min-height: 170px;
+  }
+  /* Camera-shifts zijn getuned op de hoge desktopkolom; op de lage
+     mobiele strook geven ze gaten — daar de standaard uitsnede. */
+  .np__img {
+    transform: none !important;
+  }
+  .np__left {
+    flex: 0 0 auto;
+    justify-content: flex-start;
+    padding: 22px 20px 20px;
+    gap: 12px;
+  }
+  .np__eyebrow {
+    font-size: 13px;
+  }
+  .np__title {
+    font-size: 24px;
+    line-height: 30px;
+  }
+  .np__scratchtext {
+    font-size: 20px;
+  }
+  .np__input {
+    padding: 12px 14px;
+  }
+  .np__cta {
+    padding: 14px 20px;
+  }
+  .np__terms {
+    font-size: 10.5px;
+    line-height: 15px;
+  }
+  .np__loading {
+    min-height: 140px;
+  }
+  /* Variant "Huidige" op mobiel: usp's onder elkaar, formulier gestapeld */
+  .nph__inner {
+    padding: 40px 20px 64px;
+    gap: 18px;
+  }
+  .nph__title {
+    font-size: 24px;
+    line-height: 31px;
+  }
+  .nph__usps {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .nph__form {
+    flex-direction: column;
+  }
+  .nph__footer {
+    gap: 18px;
+  }
+
+  /* Marge tussen browserrand en popup; dvh voorkomt dat de kaart onder
+     de browser-chrome verdwijnt */
+  .np {
+    padding: 20px 14px;
+  }
+  .np__card,
+  .np__card--tall,
+  .np__card--small {
+    width: 100%;
+    height: auto;
+    max-height: calc(100dvh - 40px);
+    overflow-y: auto;
+  }
+  /* Sluitknop: vast rechtsboven op de kaart, met een eigen donker vlak
+     zodat hij op elke foto zichtbaar is */
+  .np__close {
+    top: 12px;
+    right: 12px;
+    background: rgba(26, 30, 30, 0.45);
+    color: #fff;
+  }
+  /* R2: gepind logo iets omlaag; content eronder beginnen */
+  .nph--r2 .nph__logo {
+    top: 18px;
+  }
+  .nph__inner--top,
+  .nph--r2 .nph__inner--top,
+  .np__card--small .nph--r2 .nph__inner--top {
+    padding: 64px 20px 48px;
+    gap: 14px;
+  }
+  /* Formaat-switch: zwevend onderin i.p.v. bovenin */
+  .npsize {
+    top: auto;
+    bottom: 16px;
+  }
+  /* Handgeschreven hint valt buiten beeld -> vervangen door een
+     tekstloze tap-indicator op het rad */
+  .np__handhint {
+    display: none;
+  }
+  .np__taphint {
+    display: block;
+  }
+}
+
 </style>
