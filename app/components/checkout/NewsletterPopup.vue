@@ -376,7 +376,7 @@ function npSubmit() {
 
         <!-- Variant "Huidige": full-bleed foto als achtergrond, alles
              gecentreerd in wit (naar de huidige live-site popup). -->
-        <div v-if="isPhotoLayout" class="nph" :class="{ 'nph--r2': isR2, 'nph--solid': isSmall }">
+        <div v-if="isPhotoLayout" class="nph" :class="{ 'nph--r2': isR2, 'nph--solid': isSmall, 'nph--claim2': isClaim2 }">
           <img v-if="!isSmall" class="nph__bg" :src="POPUP_IMAGES[popupImage]" alt="" />
           <div v-if="!isSmall" class="nph__scrim" />
           <p v-if="isJanPhoto" class="np__handnote np__handnote--bg">Leuk om je hier te zien!<span class="np__handnote-sig">— Jan Wegenaar, oprichter ViaLuxury</span></p>
@@ -437,9 +437,11 @@ function npSubmit() {
                 <!-- R2: handgeschreven hint rechts van het rad, met een
                      pijltje dat naar het rad wijst -->
                 <div v-if="!wheelSpun && isRad2" class="np__handhint" aria-hidden="true">
+                  <!-- Gespiegeld in de lengte-as: de boog welft nu naar
+                       boven en de punt komt horizontaal op het rad aan -->
                   <svg class="np__handhint-arrow" width="46" height="42" viewBox="0 0 46 42" fill="none">
-                    <path d="M44 38 C 28 36, 12 28, 5 10" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
-                    <path d="M1.5 17.5 L 4.5 7 L 14 10.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M44 38 C 37 23.5, 24 11, 5 10" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+                    <path d="M13 5.5 L 3.5 10 L 12.5 15.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
                   <span class="np__handhint-text">Klik om te draaien</span>
                 </div>
@@ -477,7 +479,7 @@ function npSubmit() {
                   />
                   <p v-if="isR2" class="nph__error nph__error--left nph__error--reserve" :class="{ 'nph__error--hidden': !npError }">Vul een geldig e-mailadres in.</p>
                   <p v-else-if="npError" class="nph__error nph__error--left">Vul een geldig e-mailadres in.</p>
-                  <button class="np__cta nph__cta nph__cta--full" type="submit">{{ isGameR2 ? 'Claim mijn korting' : 'Ontvang aanbiedingen en onthul je korting' }}</button>
+                  <button class="np__cta nph__cta nph__cta--full" type="submit">{{ isGameR2 ? 'Claim je korting' : 'Ontvang aanbiedingen en onthul je korting' }}</button>
                 </form>
 
                 <p v-if="isR2" class="nph__terms">
@@ -532,7 +534,7 @@ function npSubmit() {
                 />
                 <p v-if="isR2" class="nph__error nph__error--left nph__error--reserve" :class="{ 'nph__error--hidden': !npError }">Vul een geldig e-mailadres in.</p>
                 <p v-else-if="npError" class="nph__error nph__error--left">Vul een geldig e-mailadres in.</p>
-                <button class="np__cta nph__cta nph__cta--full" type="submit">Claim mijn korting</button>
+                <button class="np__cta nph__cta nph__cta--full" type="submit">{{ isR2 ? 'Claim je korting' : 'Claim mijn korting' }}</button>
               </form>
 
               <p v-if="isR2" class="nph__terms">
@@ -1261,12 +1263,11 @@ function npSubmit() {
    (960x640 -> 720x480, spelkaart 800 -> 600); de inhoud — rad, kraslot,
    CTA, teksten — behoudt zijn normale formaat, met compactere spacing
    zodat alles past. */
-.np__card--small {
-  width: 720px;
-  height: 480px;
-}
+/* Hoogte volgt de inhoud (alles past altijd); breedte blijft 720px */
+.np__card--small,
 .np__card--small.np__card--tall {
-  height: 600px;
+  width: 720px;
+  height: auto;
 }
 /* Geen logo in de kleine versies: de ruimte gaat naar padding boven
    en onder */
@@ -1292,6 +1293,21 @@ function npSubmit() {
 }
 .nph--solid .np__switch {
   display: none;
+}
+/* Kleine Claim je korting: veld + knop 75% breed, disclaimer even
+   breed als de titel "Ontvang €10 welkomstkorting!" */
+.nph--solid.nph--claim2 .nph__form {
+  max-width: 360px;
+}
+.nph--solid.nph--claim2 .nph__terms {
+  max-width: 490px;
+}
+/* Kleine variant: zwarte CTA i.p.v. oranje */
+.nph--solid .nph__cta {
+  background: #1a1e1e;
+}
+.nph--solid .nph__cta:hover {
+  background: #343a3a;
 }
 
 /* Formaat-switch: donkere pill midden in de navigatiebalk */
@@ -1408,8 +1424,9 @@ function npSubmit() {
   background: #fff;
   min-width: 0;
 }
+/* Focus: subtiele lichtgrijze rand (geen oranje) */
 .nph__input:focus {
-  outline: 2px solid #ff7e00;
+  outline: 2px solid #d9d9d9;
 }
 .nph__input--invalid {
   outline: 2px solid #b3402e;
