@@ -477,8 +477,7 @@ function npSubmit() {
                     type="email"
                     placeholder="naam@voorbeeld.nl"
                   />
-                  <p v-if="isR2" class="nph__error nph__error--left nph__error--reserve" :class="{ 'nph__error--hidden': !npError }">Vul een geldig e-mailadres in.</p>
-                  <p v-else-if="npError" class="nph__error nph__error--left">Vul een geldig e-mailadres in.</p>
+                  <p v-if="npError" class="nph__error nph__error--left">Vul een geldig e-mailadres in.</p>
                   <button class="np__cta nph__cta nph__cta--full" type="submit">{{ isGameR2 ? 'Claim je korting' : 'Ontvang aanbiedingen en onthul je korting' }}</button>
                 </form>
 
@@ -532,8 +531,7 @@ function npSubmit() {
                   type="email"
                   placeholder="naam@voorbeeld.nl"
                 />
-                <p v-if="isR2" class="nph__error nph__error--left nph__error--reserve" :class="{ 'nph__error--hidden': !npError }">Vul een geldig e-mailadres in.</p>
-                <p v-else-if="npError" class="nph__error nph__error--left">Vul een geldig e-mailadres in.</p>
+                <p v-if="npError" class="nph__error nph__error--left">Vul een geldig e-mailadres in.</p>
                 <button class="np__cta nph__cta nph__cta--full" type="submit">{{ isR2 ? 'Claim je korting' : 'Claim mijn korting' }}</button>
               </form>
 
@@ -1355,13 +1353,6 @@ function npSubmit() {
 }
 .nph--r2 .nph__inner--top {
   padding-top: 108px;
-}
-/* R2: foutmeldingsruimte is altijd gereserveerd zodat niets verspringt */
-.nph__error--reserve {
-  min-height: 17px;
-}
-.nph__error--hidden {
-  visibility: hidden;
 }
 /* R2-rad: bevestiging van de uitkomst boven het invoerveld */
 .nph__revealtitle {
