@@ -225,10 +225,10 @@ const WHEEL_SEGMENTS = [
 // zelfde landingsindex als het originele rad).
 const WHEEL_SEGMENTS_R2 = [
   { label: '€5', color: '#fff', text: '#1a1e1e' },
-  { label: '€10', color: '#e97132', text: '#fff' },
+  { label: '€10', color: '#ff7e00', text: '#fff' },
   { label: '€1', color: '#1a1e1e', text: '#fff' },
   { label: '€5', color: '#fff', text: '#1a1e1e' },
-  { label: '€10', color: '#e97132', text: '#fff' },
+  { label: '€10', color: '#ff7e00', text: '#fff' },
   { label: '€1', color: '#1a1e1e', text: '#fff' },
   { label: '€5', color: '#fff', text: '#1a1e1e' },
 ]
