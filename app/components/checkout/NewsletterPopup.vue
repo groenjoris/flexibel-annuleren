@@ -402,7 +402,16 @@ function npSubmit() {
                     <circle cx="120" cy="120" r="16" fill="#fff" :stroke="isRad2 ? '#1a1e1e' : 'none'" stroke-width="1.5" />
                   </svg>
                 </div>
-                <p v-if="!wheelSpun" class="np__wheelhint np__wheelhint--photo">Klik om te draaien</p>
+                <p v-if="!wheelSpun && !isRad2" class="np__wheelhint np__wheelhint--photo">Klik om te draaien</p>
+                <!-- R2: handgeschreven hint rechts van het rad, met een
+                     pijltje dat naar het rad wijst -->
+                <div v-if="!wheelSpun && isRad2" class="np__handhint" aria-hidden="true">
+                  <svg class="np__handhint-arrow" width="46" height="42" viewBox="0 0 46 42" fill="none">
+                    <path d="M44 38 C 28 36, 12 28, 5 10" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+                    <path d="M1.5 17.5 L 4.5 7 L 14 10.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  <span class="np__handhint-text">Klik om te draaien</span>
+                </div>
               </div>
 
               <!-- Formulier verschijnt na het krassen/draaien (ruimte gereserveerd) -->
@@ -1191,6 +1200,34 @@ function npSubmit() {
    gereserveerd zodat het rad niet verspringt */
 .nph__eyebrow--ghost {
   visibility: hidden;
+}
+/* R2-rad: handgeschreven "Klik om te draaien" rechts van het rad, met
+   een pijltje richting het rad */
+.np__handhint {
+  position: absolute;
+  left: calc(100% + 8px);
+  top: 52%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  color: #fff;
+  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.45));
+  pointer-events: none;
+  white-space: nowrap;
+}
+.np__handhint-arrow {
+  margin-left: 26px;
+}
+.np__handhint-text {
+  font-family: 'Oooh Baby', cursive;
+  font-size: 34px;
+  line-height: 1.1;
+  transform: rotate(-6deg);
+}
+.nph--white .np__handhint {
+  color: #1a1e1e;
+  filter: none;
 }
 /* ---- R2 subvariant "Small": exact 75% van de grote versie ----
    `zoom` schaalt de complete kaart (960x640 -> 720x480, rad-kaart
