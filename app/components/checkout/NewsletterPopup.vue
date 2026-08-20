@@ -25,7 +25,7 @@ useHead({
 
 // Popup-variant reist mee door de flow (de dealpagina heeft de
 // ?popup-query niet meer): eenmaal gezien op de URL -> gedeelde state.
-const npVariant = useState<'simple' | 'dopamine' | 'huidige' | 'fotobg' | 'sweepstake' | 'vipmember' | 'hans' | 'claim2' | 'rad2'>('np-variant', () => 'simple')
+const npVariant = useState<'simple' | 'dopamine' | 'huidige' | 'fotobg' | 'sweepstake' | 'vipmember' | 'hans' | 'claim2' | 'rad2' | 'kras2'>('np-variant', () => 'simple')
 if (route.query.popup === 'dopamine') npVariant.value = 'dopamine'
 else if (route.query.popup === 'huidige') npVariant.value = 'huidige'
 else if (route.query.popup === 'fotobg') npVariant.value = 'fotobg'
@@ -34,6 +34,7 @@ else if (route.query.popup === 'vipmember') npVariant.value = 'vipmember'
 else if (route.query.popup === 'hans') npVariant.value = 'hans'
 else if (route.query.popup === 'claim2') npVariant.value = 'claim2'
 else if (route.query.popup === 'rad2') npVariant.value = 'rad2'
+else if (route.query.popup === 'kras2') npVariant.value = 'kras2'
 else if (route.query.popup === 'simple') npVariant.value = 'simple'
 const isDopamine = computed(() => npVariant.value === 'dopamine')
 const isHuidige = computed(() => npVariant.value === 'huidige')
@@ -48,18 +49,22 @@ const isHans = computed(() => npVariant.value === 'hans')
 // en dezelfde tekstwijzigingen.
 const isClaim2 = computed(() => npVariant.value === 'claim2')
 const isRad2 = computed(() => npVariant.value === 'rad2')
-const isR2 = computed(() => isClaim2.value || isRad2.value)
+// "Kraslot": rad2-flow maar met een oranje kraskaart i.p.v. het rad.
+const isKras2 = computed(() => npVariant.value === 'kras2')
+const isR2 = computed(() => isClaim2.value || isRad2.value || isKras2.value)
+// R2-spelvarianten delen de Gefeliciteerd-flow (titel + confetti + veld na 3s).
+const isGameR2 = computed(() => isRad2.value || isKras2.value)
 // Rad-varianten (origineel + R2).
 const isWheel = computed(() => isHans.value || isRad2.value)
 // Sweepstake en de rad-varianten: gecentreerde weergave op een foto-achtergrond.
-const isGamePhoto = computed(() => isSweepstake.value || isWheel.value)
+const isGamePhoto = computed(() => isSweepstake.value || isWheel.value || isKras2.value)
 // Alle "gok"-varianten krijgen een feestelijke stap 2 (confetti).
-const isGok = computed(() => isDopamine.value || isSweepstake.value || isWheel.value)
+const isGok = computed(() => isDopamine.value || isSweepstake.value || isWheel.value || isKras2.value)
 // Heropen-label: bij R2-rad weet de gebruiker de korting nog niet.
-const nplText = computed(() => (isRad2.value ? 'Claim je korting!' : 'Krijg €10 korting'))
+const nplText = computed(() => (isGameR2.value ? 'Claim je korting!' : 'Krijg €10 korting'))
 // R2: formaat-subvariant via de switch in de navigatiebalk. 'large' =
-// de full-bleed fotoversie, 'small' = 75% (720x480 / 720x600) met een
-// witte achtergrond en zwart font.
+// de full-bleed fotoversie, 'small' = popup op 75% (720x480 / 720x600)
+// met een zwarte achtergrond; de inhoud behoudt zijn normale formaat.
 const npSize = useState<'large' | 'small'>('np-size', () => 'large')
 const isSmall = computed(() => isR2.value && npSize.value === 'small')
 // Confetti: deterministisch gegenereerde snippers (geen Math.random,
@@ -77,7 +82,7 @@ const confettiPieces = Array.from({ length: 60 }, (_, i) => ({
 // korting (R2) delen het full-bleed frame.
 const isPhotoLayout = computed(() => isHuidige.value || isFotobg.value || isVipmember.value || isGamePhoto.value || isClaim2.value)
 // "Sweepstake" deelt de kraskaart-opbouw van "Dopamine".
-const isScratchLayout = computed(() => isDopamine.value || isSweepstake.value)
+const isScratchLayout = computed(() => isDopamine.value || isSweepstake.value || isKras2.value)
 
 // Gedeelde popup-status over pagina's heen.
 const popupOpen = useState('np-open', () => false)
@@ -156,13 +161,21 @@ function initScratch() {
   const ctx = c.getContext('2d')
   if (!ctx) return
   const grad = ctx.createLinearGradient(0, 0, w, h)
-  grad.addColorStop(0, '#e9c96b')
-  grad.addColorStop(0.45, '#c9a437')
-  grad.addColorStop(0.55, '#dfbd55')
-  grad.addColorStop(1, '#f0d98c')
+  if (isKras2.value) {
+    // Kraslot (R2): oranje kraslaag i.p.v. goud.
+    grad.addColorStop(0, '#ff9a3d')
+    grad.addColorStop(0.45, '#f07300')
+    grad.addColorStop(0.55, '#ff8b1f')
+    grad.addColorStop(1, '#ffb066')
+  } else {
+    grad.addColorStop(0, '#e9c96b')
+    grad.addColorStop(0.45, '#c9a437')
+    grad.addColorStop(0.55, '#dfbd55')
+    grad.addColorStop(1, '#f0d98c')
+  }
   ctx.fillStyle = grad
   ctx.fillRect(0, 0, w, h)
-  ctx.fillStyle = 'rgba(109, 84, 15, 0.9)'
+  ctx.fillStyle = isKras2.value ? 'rgba(255, 255, 255, 0.95)' : 'rgba(109, 84, 15, 0.9)'
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
   ctx.letterSpacing = '2px'
@@ -185,7 +198,8 @@ function checkScratchProgress() {
     total++
     if (data[i] === 0) clear++
   }
-  if (clear / total > 0.5) scratchDone.value = true
+  // Kraslot (R2): sneller resultaat dan de oude kras-varianten.
+  if (clear / total > (isKras2.value ? 0.3 : 0.5)) scratchDone.value = true
 }
 function scratchAt(e: PointerEvent) {
   const c = scratchCanvas.value
@@ -200,6 +214,9 @@ function scratchAt(e: PointerEvent) {
   if (++strokeCount % 10 === 0) checkScratchProgress()
 }
 function onScratchDown(e: PointerEvent) {
+  // Vangnet: als de laag bij het openen op 0px breedte is geschilderd
+  // (verborgen/gethrottlede tab), alsnog initialiseren vóór de eerste kras.
+  if (scratchCanvas.value && scratchCanvas.value.width === 0) initScratch()
   scratching = true
   ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
   scratchAt(e)
@@ -213,7 +230,14 @@ function onScratchUp() {
 }
 // Canvas initialiseren zodra de popup (met kraskaart) in de DOM staat.
 watch(popupOpen, (open) => {
-  if (open && isScratchLayout.value && !scratchDone.value) nextTick(initScratch)
+  if (!open || !isScratchLayout.value || scratchDone.value) return
+  nextTick(() => {
+    initScratch()
+    // Nogmaals als de kaart tijdens het openen nog 0px breed was.
+    setTimeout(() => {
+      if (scratchCanvas.value && scratchCanvas.value.width === 0) initScratch()
+    }, 400)
+  })
 })
 
 // Rad van fortuin (Hans van der Togt): 7 vakken, stopt op Mystery korting.
@@ -251,21 +275,28 @@ function wheelSlicePath(i: number) {
 const wheelRotation = ref(0)
 const wheelSpun = ref(false)
 let wheelSpinning = false
-// R2-rad: na het draaien wisselt de titel naar "Gefeliciteerd" (met
-// confetti); het invoerveld verschijnt pas 2 seconden later.
-const rad2RevealOn = ref(false)
+// R2-spelvarianten: na het draaien/krassen wisselt de titel naar
+// "Gefeliciteerd" (met confetti); het invoerveld verschijnt 3s later.
+const r2RevealOn = ref(false)
+// Spel afgerond? (rad = gedraaid, kraslot = gekrast)
+const r2Done = computed(() => (isRad2.value ? wheelSpun.value : scratchDone.value))
+function r2Finish() {
+  setTimeout(() => {
+    r2RevealOn.value = true
+    // Focus het e-mailveld: de knipperende cursor trekt de aandacht.
+    nextTick(() => document.getElementById('np-email-g')?.focus())
+  }, 3000)
+}
 function finishWheel() {
   if (wheelSpun.value) return
   wheelSpinning = false
   wheelSpun.value = true
-  if (isRad2.value) {
-    setTimeout(() => {
-      rad2RevealOn.value = true
-      // Focus het e-mailveld: de knipperende cursor trekt de aandacht.
-      nextTick(() => document.getElementById('np-email-g')?.focus())
-    }, 3000)
-  }
+  if (isRad2.value) r2Finish()
 }
+// Kraslot: zelfde vervolg als het rad zodra er genoeg gekrast is.
+watch(scratchDone, (done) => {
+  if (done && isKras2.value) r2Finish()
+})
 function spinWheel() {
   if (wheelSpinning || wheelSpun.value) return
   wheelSpinning = true
@@ -330,7 +361,7 @@ function npSubmit() {
         <!-- Confetti bij een gewonnen korting (gok-varianten stap 2).
              R2-rad: alleen tussen het draaien en het verschijnen van het
              invoerveld; het bevestigingsscherm is daar sober ("Gelukt!"). -->
-        <div v-if="(npState === 'success' && isGok && !isRad2) || (isRad2 && wheelSpun && !rad2RevealOn)" class="np__confetti" aria-hidden="true">
+        <div v-if="(npState === 'success' && isGok && !isGameR2) || (isGameR2 && r2Done && !r2RevealOn)" class="np__confetti" aria-hidden="true">
           <span
             v-for="(piece, i) in confettiPieces"
             :key="i"
@@ -345,7 +376,7 @@ function npSubmit() {
 
         <!-- Variant "Huidige": full-bleed foto als achtergrond, alles
              gecentreerd in wit (naar de huidige live-site popup). -->
-        <div v-if="isPhotoLayout" class="nph" :class="{ 'nph--r2': isR2, 'nph--white': isSmall }">
+        <div v-if="isPhotoLayout" class="nph" :class="{ 'nph--r2': isR2, 'nph--solid': isSmall }">
           <img v-if="!isSmall" class="nph__bg" :src="POPUP_IMAGES[popupImage]" alt="" />
           <div v-if="!isSmall" class="nph__scrim" />
           <p v-if="isJanPhoto" class="np__handnote np__handnote--bg">Leuk om je hier te zien!<span class="np__handnote-sig">— Jan Wegenaar, oprichter ViaLuxury</span></p>
@@ -357,14 +388,14 @@ function npSubmit() {
             <template v-if="npState === 'form' && isGamePhoto">
               <!-- R2-rad: eyebrow wordt na het draaien onzichtbaar maar
                    houdt zijn ruimte, zodat het rad niet verspringt -->
-              <p class="nph__eyebrow" :class="{ 'nph__eyebrow--ghost': isRad2 && wheelSpun }">Nieuw bij ViaLuxury?</p>
+              <p class="nph__eyebrow" :class="{ 'nph__eyebrow--ghost': isGameR2 && r2Done }">Nieuw bij ViaLuxury?</p>
               <!-- R2-rad: titel wisselt na het draaien naar de uitkomst en
                    knippert één keer -->
-              <h2 class="nph__title nph__title--normal" :class="{ 'nph__title--blink': isRad2 && wheelSpun }">{{ isRad2 && wheelSpun ? 'Gefeliciteerd, €10,00!' : isWheel ? 'Draai voor welkomstkorting!' : 'Kras voor je welkomstgeschenk!' }}</h2>
+              <h2 class="nph__title nph__title--normal" :class="{ 'nph__title--blink': isGameR2 && r2Done }">{{ isGameR2 && r2Done ? 'Gefeliciteerd, €10,00!' : isWheel ? 'Draai voor welkomstkorting!' : isKras2 ? 'Kras voor welkomstkorting!' : 'Kras voor je welkomstgeschenk!' }}</h2>
 
-              <div v-if="isSweepstake" class="np__scratch np__scratch--photo" :class="{ 'np__scratch--done': scratchDone }">
+              <div v-if="isSweepstake || isKras2" class="np__scratch np__scratch--photo" :class="{ 'np__scratch--done': scratchDone }">
                 <div class="np__scratch-under">
-                  <p class="np__scratchtext">Gegarandeerd €5, €10 of €50</p>
+                  <p class="np__scratchtext" :class="{ 'np__scratchtext--big': isKras2 }">{{ isKras2 ? '€10' : 'Gegarandeerd €5, €10 of €50' }}</p>
                 </div>
                 <canvas
                   ref="scratchCanvas"
@@ -382,7 +413,7 @@ function npSubmit() {
                 <div class="np__wheel" :style="{ transform: `rotate(${wheelRotation}deg)` }" @transitionend="finishWheel">
                   <svg viewBox="0 0 240 240" width="100%" height="100%">
                     <g v-for="(seg, i) in wheelSegments" :key="i">
-                      <path :d="wheelSlicePath(i)" :fill="seg.color" :stroke="isRad2 ? '#1a1e1e' : '#fff'" :stroke-width="isRad2 ? 1 : 2" />
+                      <path :d="wheelSlicePath(i)" :fill="seg.color" :stroke="isRad2 ? (isSmall ? '#fff' : '#1a1e1e') : '#fff'" :stroke-width="isRad2 ? 1 : 2" />
                       <g :transform="`rotate(${i * WHEEL_SEG_DEG + WHEEL_SEG_DEG / 2} 120 120)`">
                         <text
                           v-if="seg.label === 'Mystery korting'"
@@ -415,10 +446,10 @@ function npSubmit() {
               </div>
 
               <!-- Formulier verschijnt na het krassen/draaien (ruimte gereserveerd) -->
-              <div class="np__reveal np__reveal--photo" :class="{ 'np__reveal--on': isRad2 ? rad2RevealOn : isWheel ? wheelSpun : scratchDone }">
+              <div class="np__reveal np__reveal--photo" :class="{ 'np__reveal--on': isGameR2 ? r2RevealOn : isWheel ? wheelSpun : scratchDone }">
                 <form class="nph__form nph__form--stacked" novalidate @submit.prevent="npSubmit">
                   <!-- R2-rad: gecentreerde tekst boven het veld -->
-                  <p v-if="isRad2" class="nph__revealtitle">Schrijf je in en ontvang je kortingscode</p>
+                  <p v-if="isGameR2" class="nph__revealtitle">Schrijf je in en ontvang je kortingscode</p>
                   <label v-if="!isR2" class="nph__label" for="np-email-g">Type je e-mailadres</label>
                   <!-- R2: zwevend label verschijnt bij typen + wis-kruis in het veld -->
                   <div v-if="isR2" class="nph__fieldwrap">
@@ -446,7 +477,7 @@ function npSubmit() {
                   />
                   <p v-if="isR2" class="nph__error nph__error--left nph__error--reserve" :class="{ 'nph__error--hidden': !npError }">Vul een geldig e-mailadres in.</p>
                   <p v-else-if="npError" class="nph__error nph__error--left">Vul een geldig e-mailadres in.</p>
-                  <button class="np__cta nph__cta nph__cta--full" type="submit">{{ isRad2 ? 'Claim mijn korting' : 'Ontvang aanbiedingen en onthul je korting' }}</button>
+                  <button class="np__cta nph__cta nph__cta--full" type="submit">{{ isGameR2 ? 'Claim mijn korting' : 'Ontvang aanbiedingen en onthul je korting' }}</button>
                 </form>
 
                 <p v-if="isR2" class="nph__terms">
@@ -563,8 +594,8 @@ function npSubmit() {
             <template v-else>
               <!-- R2: beide varianten hetzelfde sobere bevestigingsscherm -->
               <template v-if="npState === 'success'">
-                <h2 class="nph__title" :class="{ 'nph__title--normal': isGamePhoto && !isRad2 }">{{ isGamePhoto && !isRad2 ? 'Gefeliciteerd!' : 'Gelukt!' }}</h2>
-                <p class="nph__para">{{ isGamePhoto && !isRad2 ? 'Je krijgt €10 korting op je eerstvolgende boeking. Check je e-mail voor je kortingscode.' : 'Check je inbox voor de kortingscode.' }}</p>
+                <h2 class="nph__title" :class="{ 'nph__title--normal': isGamePhoto && !isGameR2 }">{{ isGamePhoto && !isGameR2 ? 'Gefeliciteerd!' : 'Gelukt!' }}</h2>
+                <p class="nph__para">{{ isGamePhoto && !isGameR2 ? 'Je krijgt €10 korting op je eerstvolgende boeking. Check je e-mail voor je kortingscode.' : 'Check je inbox voor de kortingscode.' }}</p>
               </template>
               <template v-else>
                 <h2 class="nph__title">Welkom terug!</h2>
@@ -1225,59 +1256,39 @@ function npSubmit() {
   line-height: 1.1;
   transform: rotate(-6deg);
 }
-.nph--white .np__handhint {
-  color: #1a1e1e;
-  filter: none;
-}
-/* ---- R2 subvariant "Small": exact 75% van de grote versie ----
-   `zoom` schaalt de complete kaart (960x640 -> 720x480, rad-kaart
-   800 -> 600) inclusief alle inhoud proportioneel mee, dus zonder
-   overloop of aparte compacte spacing. */
+
+/* ---- R2 subvariant "Small": alleen de popup zelf is 75%
+   (960x640 -> 720x480, spelkaart 800 -> 600); de inhoud — rad, kraslot,
+   CTA, teksten — behoudt zijn normale formaat, met compactere spacing
+   zodat alles past. */
 .np__card--small {
-  zoom: 0.75;
-  /* max-height van de basiskaart telt binnen zoom dubbel; delen door de
-     zoomfactor houdt het visuele maximum gelijk aan de grote versie */
-  max-height: calc((100vh - 48px) / 0.75);
+  width: 720px;
+  height: 480px;
 }
-/* Witte achtergrond: zwart font, geen foto/scrim/fotoswitcher */
-.nph--white {
-  background: #fff;
+.np__card--small.np__card--tall {
+  height: 600px;
 }
-.nph--white .np__switch {
+.np__card--small .nph__inner {
+  padding: 28px 40px 36px;
+  gap: 14px;
+}
+.np__card--small .nph--r2 .nph__logo {
+  top: 26px;
+}
+.np__card--small .nph--r2 .nph__inner--top {
+  padding-top: 62px;
+  gap: 10px;
+}
+.np__card--small .nph__terms {
+  max-width: 580px;
+}
+/* Zwarte achtergrond i.p.v. foto: de witte fototeksten en het
+   geïnverteerde logo werken hier ongewijzigd op. */
+.nph--solid {
+  background: #1a1e1e;
+}
+.nph--solid .np__switch {
   display: none;
-}
-.nph--white .nph__inner {
-  color: #1a1e1e;
-}
-.nph--white .nph__logo {
-  filter: none;
-}
-.nph--white .nph__eyebrow,
-.nph--white .nph__title,
-.nph--white .nph__label,
-.nph--white .nph__floatlabel,
-.nph--white .nph__revealtitle,
-.nph--white .nph__para {
-  color: #1a1e1e;
-  text-shadow: none;
-}
-.nph--white .nph__terms {
-  color: #5a5f5f;
-  text-shadow: none;
-}
-.nph--white .nph__termslink:hover {
-  color: #1a1e1e;
-}
-.nph--white .nph__input {
-  border: 1px solid #d5d5d5;
-}
-.nph--white .nph__error {
-  color: #b3402e;
-  text-shadow: none;
-}
-.nph--white .np__wheelhint--photo {
-  color: #1a1e1e;
-  text-shadow: none;
 }
 
 /* Formaat-switch: donkere pill midden in de navigatiebalk */

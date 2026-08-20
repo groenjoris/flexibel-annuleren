@@ -27,7 +27,7 @@ const sections = computed<StartSection[]>(() => [
   {
     // Tweede testronde van de newsletter-popup: 1 = Claim je korting
     // (fotobg + veld-/tekstwijzigingen), 2 = Rad van Fortuin (zwart-wit
-    // rad, uitkomst €10), 3 volgt nog.
+    // rad, uitkomst €10), 3 = Kraslot (oranje kraslaag, €10 eronder).
     heading: 'Newsletter opt-in, Second round',
     groups: [
       {
@@ -39,9 +39,8 @@ const sections = computed<StartSection[]>(() => [
         buttons: [{ label: 'Start', to: '/journey/11/home?popup=rad2' }],
       },
       {
-        title: 'Variant 3',
-        note: 'volgt nog',
-        buttons: [],
+        title: 'Variant 3: Kraslot',
+        buttons: [{ label: 'Start', to: '/journey/11/home?popup=kras2' }],
       },
     ],
   },
