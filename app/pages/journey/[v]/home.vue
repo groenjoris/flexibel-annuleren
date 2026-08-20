@@ -614,7 +614,7 @@ onMounted(() => {
   width: 6px;
   height: 6px;
   border-radius: 999px;
-  background: #e97132;
+  background: #ff7e00;
 }
 
 .home-hero__title {

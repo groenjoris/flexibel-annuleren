@@ -187,7 +187,7 @@ const disclaimer = computed(() => {
   outline: none;
 }
 .price-info:focus-visible .price-info__icon {
-  box-shadow: 0 0 0 2px var(--color-primary, #e97132);
+  box-shadow: 0 0 0 2px var(--color-primary, #ff7e00);
 }
 .price-info__icon {
   display: inline-flex;

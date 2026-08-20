@@ -259,7 +259,7 @@ watch(
 }
 /* Kalender exact als op de dealpagina: de variant-6 overrides uit
    fr-variant-6.css (mobiele waarden), R1-tokens hardcoded —
-   groen #00B67A, oranje #e97132, tekst #1A1A1A, rand #E5E5E5. */
+   groen #00B67A, oranje #ff7e00, tekst #1A1A1A, rand #E5E5E5. */
 .mcal__nav {
   display: flex;
   align-items: center;
@@ -378,7 +378,7 @@ watch(
   line-height: 1.4;
 }
 .mcal__price--cheapest {
-  color: #e97132;
+  color: #ff7e00;
 }
 .mcal__price--selected {
   color: #fff;
@@ -390,7 +390,7 @@ watch(
   right: 1px;
   font-size: 14px;
   line-height: 1;
-  color: #e97132;
+  color: #ff7e00;
   pointer-events: none;
 }
 /* In/uit-pil: doorschijnend wit, alleen linksonder afgerond */
@@ -431,7 +431,7 @@ watch(
 .mcal__legendstar {
   font-size: 14px;
   line-height: 1;
-  color: #e97132;
+  color: #ff7e00;
 }
 .mcal__swatch {
   width: 14px;

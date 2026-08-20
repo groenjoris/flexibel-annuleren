@@ -2409,7 +2409,7 @@ function handleSelectHotelInPopup(slug: string) {
 .verticals__item-accent {
   font-family: var(--font-heading);
   font-weight: 700;
-  color: #e97132;
+  color: #ff7e00;
 }
 
 /* "more" word styled one pt bigger than the rest of the nav item */

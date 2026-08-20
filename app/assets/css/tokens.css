@@ -7,8 +7,8 @@
   --c-white: #ffffff;
   --c-black: #000000;
   --c-via-black: #1a1e1e;      /* primary text / dark surfaces */
-  --c-via-orange: #fb862b;     /* primary CTA */
-  --c-via-orange-hover: #ec7716;
+  --c-via-orange: #ff7e00;     /* primary CTA */
+  --c-via-orange-hover: #e67100;
   --c-via-green: #36c890;      /* accent / recommended / discount */
   --c-dark-grey: #515454;      /* secondary text, radio outline */
   --c-medium-grey: #888989;    /* tertiary text */

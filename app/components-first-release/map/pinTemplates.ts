@@ -57,7 +57,7 @@ const teardropHtml = (cls: string, fill: string) => `
  *  other state uses the corresponding star asset. */
 export function pinHtml(state: PinState): string {
   if (state === 'focused') return teardropHtml('focused', '#1A1A1A')
-  if (state === 'focusedHover') return teardropHtml('focused-hover', '#e97132')
+  if (state === 'focusedHover') return teardropHtml('focused-hover', '#ff7e00')
   return `<img class="hotel-pin-img hotel-pin-img--${state}" src="${URLS[state]}" alt="" />`
 }
 

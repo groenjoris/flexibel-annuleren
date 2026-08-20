@@ -59,7 +59,7 @@ const isGok = computed(() => isDopamine.value || isSweepstake.value || isWheel.v
 const nplText = computed(() => (isRad2.value ? 'Claim je korting!' : 'Krijg €10 korting'))
 // Confetti: deterministisch gegenereerde snippers (geen Math.random,
 // dus SSR-veilig); CSS-animatie regent ze van boven naar beneden.
-const CONFETTI_COLORS = ['#e97132', '#36c890', '#f0c85c', '#2b6cb0', '#e53e3e', '#7a5ea8']
+const CONFETTI_COLORS = ['#ff7e00', '#36c890', '#f0c85c', '#2b6cb0', '#e53e3e', '#7a5ea8']
 const confettiPieces = Array.from({ length: 60 }, (_, i) => ({
   left: `${(i * 37 + 11) % 100}%`,
   delay: `${((i * 13) % 26) / 10}s`,
@@ -214,7 +214,7 @@ watch(popupOpen, (open) => {
 const WHEEL_SEGMENTS = [
   { label: '€5', color: '#36c890' },
   { label: 'Mystery korting', color: '#1a1e1e' },
-  { label: '€10', color: '#e97132' },
+  { label: '€10', color: '#ff7e00' },
   { label: '€1', color: '#2b6cb0' },
   { label: '€50', color: '#e53e3e' },
   { label: 'Mystery korting', color: '#7a5ea8' },
@@ -252,7 +252,13 @@ function finishWheel() {
   if (wheelSpun.value) return
   wheelSpinning = false
   wheelSpun.value = true
-  if (isRad2.value) setTimeout(() => { rad2RevealOn.value = true }, 2000)
+  if (isRad2.value) {
+    setTimeout(() => {
+      rad2RevealOn.value = true
+      // Focus het e-mailveld: de knipperende cursor trekt de aandacht.
+      nextTick(() => document.getElementById('np-email-g')?.focus())
+    }, 2000)
+  }
 }
 function spinWheel() {
   if (wheelSpinning || wheelSpun.value) return
@@ -315,9 +321,10 @@ function npSubmit() {
     <!-- Kortingspopup -->
     <div v-if="popupOpen" class="np" :class="{ 'np--morph': morphing }" role="dialog" aria-modal="true" @click.self="closePopup">
       <div ref="npCardEl" class="np__card" :class="{ 'np__card--tall': isGamePhoto }">
-        <!-- Confetti bij een gewonnen korting (gok-varianten stap 2;
-             R2-rad al direct na het draaien) -->
-        <div v-if="(npState === 'success' && isGok) || (isRad2 && wheelSpun)" class="np__confetti" aria-hidden="true">
+        <!-- Confetti bij een gewonnen korting (gok-varianten stap 2).
+             R2-rad: alleen tussen het draaien en het verschijnen van het
+             invoerveld; het bevestigingsscherm is daar sober ("Gelukt!"). -->
+        <div v-if="(npState === 'success' && isGok && !isRad2) || (isRad2 && wheelSpun && !rad2RevealOn)" class="np__confetti" aria-hidden="true">
           <span
             v-for="(piece, i) in confettiPieces"
             :key="i"
@@ -332,7 +339,7 @@ function npSubmit() {
 
         <!-- Variant "Huidige": full-bleed foto als achtergrond, alles
              gecentreerd in wit (naar de huidige live-site popup). -->
-        <div v-if="isPhotoLayout" class="nph">
+        <div v-if="isPhotoLayout" class="nph" :class="{ 'nph--r2': isR2 }">
           <img class="nph__bg" :src="POPUP_IMAGES[popupImage]" alt="" />
           <div class="nph__scrim" />
           <p v-if="isJanPhoto" class="np__handnote np__handnote--bg">Leuk om je hier te zien!<span class="np__handnote-sig">— Jan Wegenaar, oprichter ViaLuxury</span></p>
@@ -342,7 +349,8 @@ function npSubmit() {
 
             <!-- Sweepstake / Hans van der Togt: spel gecentreerd op de foto -->
             <template v-if="npState === 'form' && isGamePhoto">
-              <p class="nph__eyebrow">Nieuw bij ViaLuxury?</p>
+              <!-- R2-rad: eyebrow verdwijnt na het draaien -->
+              <p v-if="!(isRad2 && wheelSpun)" class="nph__eyebrow">Nieuw bij ViaLuxury?</p>
               <!-- R2-rad: titel wisselt na het draaien naar de uitkomst -->
               <h2 class="nph__title nph__title--normal">{{ isRad2 && wheelSpun ? 'Gefeliciteerd, €10,00!' : isWheel ? 'Draai voor welkomstkorting!' : 'Kras voor je welkomstgeschenk!' }}</h2>
 
@@ -419,7 +427,8 @@ function npSubmit() {
                     type="email"
                     placeholder="naam@voorbeeld.nl"
                   />
-                  <p v-if="npError" class="nph__error nph__error--left">Vul een geldig e-mailadres in.</p>
+                  <p v-if="isR2" class="nph__error nph__error--left nph__error--reserve" :class="{ 'nph__error--hidden': !npError }">Vul een geldig e-mailadres in.</p>
+                  <p v-else-if="npError" class="nph__error nph__error--left">Vul een geldig e-mailadres in.</p>
                   <button class="np__cta nph__cta nph__cta--full" type="submit">{{ isRad2 ? 'Claim mijn korting' : 'Ontvang aanbiedingen en onthul je korting' }}</button>
                 </form>
 
@@ -473,7 +482,8 @@ function npSubmit() {
                   type="email"
                   placeholder="naam@voorbeeld.nl"
                 />
-                <p v-if="npError" class="nph__error nph__error--left">Vul een geldig e-mailadres in.</p>
+                <p v-if="isR2" class="nph__error nph__error--left nph__error--reserve" :class="{ 'nph__error--hidden': !npError }">Vul een geldig e-mailadres in.</p>
+                <p v-else-if="npError" class="nph__error nph__error--left">Vul een geldig e-mailadres in.</p>
                 <button class="np__cta nph__cta nph__cta--full" type="submit">Claim mijn korting</button>
               </form>
 
@@ -534,9 +544,10 @@ function npSubmit() {
             </div>
 
             <template v-else>
+              <!-- R2: beide varianten hetzelfde sobere bevestigingsscherm -->
               <template v-if="npState === 'success'">
-                <h2 class="nph__title" :class="{ 'nph__title--normal': isGamePhoto }">{{ isGamePhoto ? 'Gefeliciteerd!' : 'Gelukt!' }}</h2>
-                <p class="nph__para">{{ isGamePhoto ? 'Je krijgt €10 korting op je eerstvolgende boeking. Check je e-mail voor je kortingscode.' : 'Check je inbox voor de kortingscode.' }}</p>
+                <h2 class="nph__title" :class="{ 'nph__title--normal': isGamePhoto && !isRad2 }">{{ isGamePhoto && !isRad2 ? 'Gefeliciteerd!' : 'Gelukt!' }}</h2>
+                <p class="nph__para">{{ isGamePhoto && !isRad2 ? 'Je krijgt €10 korting op je eerstvolgende boeking. Check je e-mail voor je kortingscode.' : 'Check je inbox voor de kortingscode.' }}</p>
               </template>
               <template v-else>
                 <h2 class="nph__title">Welkom terug!</h2>
@@ -821,7 +832,7 @@ function npSubmit() {
   color: #b3402e;
 }
 .np__cta {
-  background: #e97132;
+  background: #ff7e00;
   color: #fff;
   font-weight: 700;
   font-size: 16px;
@@ -870,7 +881,7 @@ function npSubmit() {
 }
 .np__switchnr--on {
   text-decoration: none;
-  color: #e97132;
+  color: #ff7e00;
 }
 /* Stap 2: terug-CTA onder de melding */
 .np__cta--back {
@@ -942,7 +953,7 @@ function npSubmit() {
   height: 44px;
   border-radius: 50%;
   border: 4px solid #e5e5e5;
-  border-top-color: #e97132;
+  border-top-color: #ff7e00;
   animation: np-spin 0.8s linear infinite;
 }
 @keyframes np-spin {
@@ -1148,6 +1159,25 @@ function npSubmit() {
   background: #efefef;
   color: #1a1e1e;
 }
+/* R2: logo vast bovenin het frame — verspringt niet tussen het
+   formulier en het bevestigingsscherm */
+.nph--r2 .nph__logo {
+  position: absolute;
+  top: 56px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+.nph--r2 .nph__inner--top {
+  padding-top: 108px;
+}
+/* R2: foutmeldingsruimte is altijd gereserveerd zodat niets verspringt */
+.nph__error--reserve {
+  min-height: 17px;
+}
+.nph__error--hidden {
+  visibility: hidden;
+}
 /* R2-rad: bevestiging van de uitkomst boven het invoerveld */
 .nph__revealtitle {
   font-size: 19px;
@@ -1210,7 +1240,7 @@ function npSubmit() {
   min-width: 0;
 }
 .nph__input:focus {
-  outline: 2px solid #e97132;
+  outline: 2px solid #ff7e00;
 }
 .nph__input--invalid {
   outline: 2px solid #b3402e;
@@ -1257,7 +1287,7 @@ function npSubmit() {
   text-decoration: underline;
 }
 .nph__footerlink:hover {
-  color: #e97132;
+  color: #ff7e00;
 }
 
 /* Spelvarianten op foto-achtergrond: hogere kaart, content vanaf boven */
