@@ -57,6 +57,11 @@ const isGamePhoto = computed(() => isSweepstake.value || isWheel.value)
 const isGok = computed(() => isDopamine.value || isSweepstake.value || isWheel.value)
 // Heropen-label: bij R2-rad weet de gebruiker de korting nog niet.
 const nplText = computed(() => (isRad2.value ? 'Claim je korting!' : 'Krijg €10 korting'))
+// R2: formaat-subvariant via de switch in de navigatiebalk. 'large' =
+// de full-bleed fotoversie, 'small' = 75% (720x480 / 720x600) met een
+// witte achtergrond en zwart font.
+const npSize = useState<'large' | 'small'>('np-size', () => 'large')
+const isSmall = computed(() => isR2.value && npSize.value === 'small')
 // Confetti: deterministisch gegenereerde snippers (geen Math.random,
 // dus SSR-veilig); CSS-animatie regent ze van boven naar beneden.
 const CONFETTI_COLORS = ['#ff7e00', '#36c890', '#f0c85c', '#2b6cb0', '#e53e3e', '#7a5ea8']
@@ -87,6 +92,7 @@ if (route.query.popup) {
   npDismissed.value = false
   npCompleted.value = false
   npLabelHidden.value = false
+  npSize.value = 'large'
 }
 
 // Sluiten zonder afgeronde inschrijving: de popup morft naar het
@@ -320,7 +326,7 @@ function npSubmit() {
   <div>
     <!-- Kortingspopup -->
     <div v-if="popupOpen" class="np" :class="{ 'np--morph': morphing }" role="dialog" aria-modal="true" @click.self="closePopup">
-      <div ref="npCardEl" class="np__card" :class="{ 'np__card--tall': isGamePhoto }">
+      <div ref="npCardEl" class="np__card" :class="{ 'np__card--tall': isGamePhoto, 'np__card--small': isSmall }">
         <!-- Confetti bij een gewonnen korting (gok-varianten stap 2).
              R2-rad: alleen tussen het draaien en het verschijnen van het
              invoerveld; het bevestigingsscherm is daar sober ("Gelukt!"). -->
@@ -339,9 +345,9 @@ function npSubmit() {
 
         <!-- Variant "Huidige": full-bleed foto als achtergrond, alles
              gecentreerd in wit (naar de huidige live-site popup). -->
-        <div v-if="isPhotoLayout" class="nph" :class="{ 'nph--r2': isR2 }">
-          <img class="nph__bg" :src="POPUP_IMAGES[popupImage]" alt="" />
-          <div class="nph__scrim" />
+        <div v-if="isPhotoLayout" class="nph" :class="{ 'nph--r2': isR2, 'nph--white': isSmall }">
+          <img v-if="!isSmall" class="nph__bg" :src="POPUP_IMAGES[popupImage]" alt="" />
+          <div v-if="!isSmall" class="nph__scrim" />
           <p v-if="isJanPhoto" class="np__handnote np__handnote--bg">Leuk om je hier te zien!<span class="np__handnote-sig">— Jan Wegenaar, oprichter ViaLuxury</span></p>
 
           <div class="nph__inner" :class="{ 'nph__inner--top': isGamePhoto }">
@@ -706,6 +712,26 @@ function npSubmit() {
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- R2: formaat-switch (large vs small) in de navigatiebalk bovenin -->
+    <div v-if="isR2" class="npsize" role="group" aria-label="Popup-formaat">
+      <button
+        class="npsize__btn"
+        :class="{ 'npsize__btn--on': npSize === 'large' }"
+        type="button"
+        @click="npSize = 'large'"
+      >
+        Large
+      </button>
+      <button
+        class="npsize__btn"
+        :class="{ 'npsize__btn--on': npSize === 'small' }"
+        type="button"
+        @click="npSize = 'small'"
+      >
+        Small
+      </button>
     </div>
 
     <!-- Heropen-label aan de rechterrand (na het wegklikken van de popup) -->
@@ -1165,6 +1191,82 @@ function npSubmit() {
    gereserveerd zodat het rad niet verspringt */
 .nph__eyebrow--ghost {
   visibility: hidden;
+}
+/* ---- R2 subvariant "Small": exact 75% van de grote versie ----
+   `zoom` schaalt de complete kaart (960x640 -> 720x480, rad-kaart
+   800 -> 600) inclusief alle inhoud proportioneel mee, dus zonder
+   overloop of aparte compacte spacing. */
+.np__card--small {
+  zoom: 0.75;
+  /* max-height van de basiskaart telt binnen zoom dubbel; delen door de
+     zoomfactor houdt het visuele maximum gelijk aan de grote versie */
+  max-height: calc((100vh - 48px) / 0.75);
+}
+/* Witte achtergrond: zwart font, geen foto/scrim/fotoswitcher */
+.nph--white {
+  background: #fff;
+}
+.nph--white .np__switch {
+  display: none;
+}
+.nph--white .nph__inner {
+  color: #1a1e1e;
+}
+.nph--white .nph__logo {
+  filter: none;
+}
+.nph--white .nph__eyebrow,
+.nph--white .nph__title,
+.nph--white .nph__label,
+.nph--white .nph__floatlabel,
+.nph--white .nph__revealtitle,
+.nph--white .nph__para {
+  color: #1a1e1e;
+  text-shadow: none;
+}
+.nph--white .nph__terms {
+  color: #5a5f5f;
+  text-shadow: none;
+}
+.nph--white .nph__termslink:hover {
+  color: #1a1e1e;
+}
+.nph--white .nph__input {
+  border: 1px solid #d5d5d5;
+}
+.nph--white .nph__error {
+  color: #b3402e;
+  text-shadow: none;
+}
+.nph--white .np__wheelhint--photo {
+  color: #1a1e1e;
+  text-shadow: none;
+}
+
+/* Formaat-switch: donkere pill midden in de navigatiebalk */
+.npsize {
+  position: fixed;
+  top: 34px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 600;
+  display: inline-flex;
+  background: rgba(26, 30, 30, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 100px;
+  padding: 2px;
+}
+.npsize__btn {
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+  padding: 4px 14px;
+  border-radius: 100px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.npsize__btn--on {
+  background: #fff;
+  color: #1a1e1e;
 }
 /* R2-rad: "Gefeliciteerd" knippert één keer bij verschijnen
    (CSS-keyframe, dus ook betrouwbaar in gethrottlede tabs) */
