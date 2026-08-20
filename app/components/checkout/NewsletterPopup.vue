@@ -271,25 +271,25 @@ function spinWheel() {
 }
 
 // Afbeeldingsvarianten (switcher rechts onderin de popup).
+// Jan Wegenaar-foto verwijderd; de voormalige foto 7 (istock) staat
+// nu voorop als default.
 const POPUP_IMAGES = [
+  '/images/pop-up/istock-1270074974.jpg',
   '/images/pop-up/inntel-marina-beach.jpg',
   '/images/pop-up/welness.jpg',
   '/images/pop-up/FotoMetSMaak-8423.jpg',
-  '/images/pop-up/Jan_Wegenaar_Via_Luxury_Crowdfunding_Campagne_d61420d1bc.jpg',
   '/images/pop-up/3-gangendiner.jpg',
   '/images/pop-up/des-indes-exterior.jpg',
-  '/images/pop-up/istock-1270074974.jpg',
 ]
 // Per-foto "camerapositie": translate verschuift de uitsnede, scale
 // voorkomt gaten (cover heeft verticaal geen speling).
 const POPUP_IMAGE_TRANSFORMS = [
-  'none',                            // 1: Inntel Marina Beach
-  'translateY(-100px) scale(1.35)', // 2: wellness, camera 100px omlaag
-  'translateY(100px) scale(1.35)',  // 3: restaurant, camera 100px omhoog
-  'none',                            // 4: Jan Wegenaar
-  'none',                            // 5
-  'none',                            // 6
-  'none',                            // 7
+  'none',                            // 1: istock
+  'none',                            // 2: Inntel Marina Beach
+  'translateY(-100px) scale(1.35)', // 3: wellness, camera 100px omlaag
+  'translateY(100px) scale(1.35)',  // 4: restaurant, camera 100px omhoog
+  'none',                            // 5: 3-gangendiner
+  'none',                            // 6: Des Indes
 ]
 // De Jan Wegenaar-foto krijgt een handgeschreven groet als overlay.
 const isJanPhoto = computed(() => POPUP_IMAGES[popupImage.value].includes('Jan_Wegenaar'))
@@ -349,8 +349,9 @@ function npSubmit() {
 
             <!-- Sweepstake / Hans van der Togt: spel gecentreerd op de foto -->
             <template v-if="npState === 'form' && isGamePhoto">
-              <!-- R2-rad: eyebrow verdwijnt na het draaien -->
-              <p v-if="!(isRad2 && wheelSpun)" class="nph__eyebrow">Nieuw bij ViaLuxury?</p>
+              <!-- R2-rad: eyebrow wordt na het draaien onzichtbaar maar
+                   houdt zijn ruimte, zodat het rad niet verspringt -->
+              <p class="nph__eyebrow" :class="{ 'nph__eyebrow--ghost': isRad2 && wheelSpun }">Nieuw bij ViaLuxury?</p>
               <!-- R2-rad: titel wisselt na het draaien naar de uitkomst -->
               <h2 class="nph__title nph__title--normal">{{ isRad2 && wheelSpun ? 'Gefeliciteerd, €10,00!' : isWheel ? 'Draai voor welkomstkorting!' : 'Kras voor je welkomstgeschenk!' }}</h2>
 
@@ -1158,6 +1159,11 @@ function npSubmit() {
 .nph__clear:hover {
   background: #efefef;
   color: #1a1e1e;
+}
+/* R2-rad: eyebrow onzichtbaar na het draaien, maar ruimte blijft
+   gereserveerd zodat het rad niet verspringt */
+.nph__eyebrow--ghost {
+  visibility: hidden;
 }
 /* R2: logo vast bovenin het frame — verspringt niet tussen het
    formulier en het bevestigingsscherm */
