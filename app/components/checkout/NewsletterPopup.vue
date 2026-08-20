@@ -25,13 +25,15 @@ useHead({
 
 // Popup-variant reist mee door de flow (de dealpagina heeft de
 // ?popup-query niet meer): eenmaal gezien op de URL -> gedeelde state.
-const npVariant = useState<'simple' | 'dopamine' | 'huidige' | 'fotobg' | 'sweepstake' | 'vipmember' | 'hans'>('np-variant', () => 'simple')
+const npVariant = useState<'simple' | 'dopamine' | 'huidige' | 'fotobg' | 'sweepstake' | 'vipmember' | 'hans' | 'claim2' | 'rad2'>('np-variant', () => 'simple')
 if (route.query.popup === 'dopamine') npVariant.value = 'dopamine'
 else if (route.query.popup === 'huidige') npVariant.value = 'huidige'
 else if (route.query.popup === 'fotobg') npVariant.value = 'fotobg'
 else if (route.query.popup === 'sweepstake') npVariant.value = 'sweepstake'
 else if (route.query.popup === 'vipmember') npVariant.value = 'vipmember'
 else if (route.query.popup === 'hans') npVariant.value = 'hans'
+else if (route.query.popup === 'claim2') npVariant.value = 'claim2'
+else if (route.query.popup === 'rad2') npVariant.value = 'rad2'
 else if (route.query.popup === 'simple') npVariant.value = 'simple'
 const isDopamine = computed(() => npVariant.value === 'dopamine')
 const isHuidige = computed(() => npVariant.value === 'huidige')
@@ -41,10 +43,20 @@ const isSweepstake = computed(() => npVariant.value === 'sweepstake')
 const isVipmember = computed(() => npVariant.value === 'vipmember')
 // "Hans van der Togt": rad van fortuin i.p.v. kraskaart.
 const isHans = computed(() => npVariant.value === 'hans')
-// Sweepstake en Hans: gecentreerde weergave op een foto-achtergrond.
-const isGamePhoto = computed(() => isSweepstake.value || isHans.value)
+// SECOND ROUND (R2): "Claim je korting" = fotobg met veld-/tekstwijzigingen;
+// "Rad van Fortuin" = hans met ander rad (2x €1, 3x €5, 2x €10, zwart-wit)
+// en dezelfde tekstwijzigingen.
+const isClaim2 = computed(() => npVariant.value === 'claim2')
+const isRad2 = computed(() => npVariant.value === 'rad2')
+const isR2 = computed(() => isClaim2.value || isRad2.value)
+// Rad-varianten (origineel + R2).
+const isWheel = computed(() => isHans.value || isRad2.value)
+// Sweepstake en de rad-varianten: gecentreerde weergave op een foto-achtergrond.
+const isGamePhoto = computed(() => isSweepstake.value || isWheel.value)
 // Alle "gok"-varianten krijgen een feestelijke stap 2 (confetti).
-const isGok = computed(() => isDopamine.value || isSweepstake.value || isHans.value)
+const isGok = computed(() => isDopamine.value || isSweepstake.value || isWheel.value)
+// Heropen-label: bij R2-rad weet de gebruiker de korting nog niet.
+const nplText = computed(() => (isRad2.value ? 'Claim je korting!' : 'Krijg €10 korting'))
 // Confetti: deterministisch gegenereerde snippers (geen Math.random,
 // dus SSR-veilig); CSS-animatie regent ze van boven naar beneden.
 const CONFETTI_COLORS = ['#e97132', '#36c890', '#f0c85c', '#2b6cb0', '#e53e3e', '#7a5ea8']
@@ -56,8 +68,9 @@ const confettiPieces = Array.from({ length: 60 }, (_, i) => ({
   w: `${6 + (i % 3) * 2}px`,
   h: `${10 + (i % 4) * 3}px`,
 }))
-// "Foto bg", "VIP member", Sweepstake en Hans delen het full-bleed frame.
-const isPhotoLayout = computed(() => isHuidige.value || isFotobg.value || isVipmember.value || isGamePhoto.value)
+// "Foto bg", "VIP member", Sweepstake, de rad-varianten en Claim je
+// korting (R2) delen het full-bleed frame.
+const isPhotoLayout = computed(() => isHuidige.value || isFotobg.value || isVipmember.value || isGamePhoto.value || isClaim2.value)
 // "Sweepstake" deelt de kraskaart-opbouw van "Dopamine".
 const isScratchLayout = computed(() => isDopamine.value || isSweepstake.value)
 
@@ -207,6 +220,18 @@ const WHEEL_SEGMENTS = [
   { label: 'Mystery korting', color: '#7a5ea8' },
   { label: '€15', color: '#d8a92d' },
 ]
+// R2-rad: 2x €1, 3x €5, 2x €10; cleaner zwart-wit palet. Stopt op €10
+// (index 1 — zelfde landingsindex als het originele rad).
+const WHEEL_SEGMENTS_R2 = [
+  { label: '€5', color: '#1a1e1e', text: '#fff' },
+  { label: '€10', color: '#fff', text: '#1a1e1e' },
+  { label: '€1', color: '#1a1e1e', text: '#fff' },
+  { label: '€5', color: '#fff', text: '#1a1e1e' },
+  { label: '€10', color: '#1a1e1e', text: '#fff' },
+  { label: '€1', color: '#fff', text: '#1a1e1e' },
+  { label: '€5', color: '#ececec', text: '#1a1e1e' },
+]
+const wheelSegments = computed(() => (isRad2.value ? WHEEL_SEGMENTS_R2 : WHEEL_SEGMENTS))
 const WHEEL_SEG_DEG = 360 / WHEEL_SEGMENTS.length
 function wheelSlicePath(i: number) {
   const r = 118
@@ -227,9 +252,9 @@ function finishWheel() {
 function spinWheel() {
   if (wheelSpinning || wheelSpun.value) return
   wheelSpinning = true
-  // Stopt altijd op het eerste Mystery korting-vak (index 1), na 4 rondjes.
-  const mysteryIndex = 1
-  wheelRotation.value = 4 * 360 - (mysteryIndex * WHEEL_SEG_DEG + WHEEL_SEG_DEG / 2)
+  // Stopt altijd op index 1 (origineel: Mystery korting; R2: €10), na 4 rondjes.
+  const targetIndex = 1
+  wheelRotation.value = 4 * 360 - (targetIndex * WHEEL_SEG_DEG + WHEEL_SEG_DEG / 2)
   // Vangnet voor het geval transitionend niet vuurt (tab-throttling).
   setTimeout(finishWheel, 3600)
 }
@@ -312,7 +337,7 @@ function npSubmit() {
             <!-- Sweepstake / Hans van der Togt: spel gecentreerd op de foto -->
             <template v-if="npState === 'form' && isGamePhoto">
               <p class="nph__eyebrow">Nieuw bij ViaLuxury?</p>
-              <h2 class="nph__title nph__title--normal">{{ isHans ? 'Draai voor welkomstkorting!' : 'Kras voor je welkomstgeschenk!' }}</h2>
+              <h2 class="nph__title nph__title--normal">{{ isWheel ? 'Draai voor welkomstkorting!' : 'Kras voor je welkomstgeschenk!' }}</h2>
 
               <div v-if="isSweepstake" class="np__scratch np__scratch--photo" :class="{ 'np__scratch--done': scratchDone }">
                 <div class="np__scratch-under">
@@ -333,8 +358,8 @@ function npSubmit() {
                 <div class="np__wheelpointer" aria-hidden="true" />
                 <div class="np__wheel" :style="{ transform: `rotate(${wheelRotation}deg)` }" @transitionend="finishWheel">
                   <svg viewBox="0 0 240 240" width="100%" height="100%">
-                    <g v-for="(seg, i) in WHEEL_SEGMENTS" :key="i">
-                      <path :d="wheelSlicePath(i)" :fill="seg.color" stroke="#fff" stroke-width="2" />
+                    <g v-for="(seg, i) in wheelSegments" :key="i">
+                      <path :d="wheelSlicePath(i)" :fill="seg.color" :stroke="isRad2 ? '#1a1e1e' : '#fff'" :stroke-width="isRad2 ? 1 : 2" />
                       <g :transform="`rotate(${i * WHEEL_SEG_DEG + WHEEL_SEG_DEG / 2} 120 120)`">
                         <text
                           v-if="seg.label === 'Mystery korting'"
@@ -348,20 +373,38 @@ function npSubmit() {
                           <tspan x="120" dy="0">Mystery</tspan>
                           <tspan x="120" dy="12">korting</tspan>
                         </text>
-                        <text v-else x="120" y="46" text-anchor="middle" fill="#fff" font-size="16" font-weight="800">{{ seg.label }}</text>
+                        <text v-else x="120" y="46" text-anchor="middle" :fill="seg.text ?? '#fff'" font-size="16" font-weight="800">{{ seg.label }}</text>
                       </g>
                     </g>
-                    <circle cx="120" cy="120" r="16" fill="#fff" />
+                    <circle cx="120" cy="120" r="16" fill="#fff" :stroke="isRad2 ? '#1a1e1e' : 'none'" stroke-width="1.5" />
                   </svg>
                 </div>
                 <p v-if="!wheelSpun" class="np__wheelhint np__wheelhint--photo">Klik om te draaien</p>
               </div>
 
               <!-- Formulier verschijnt na het krassen/draaien (ruimte gereserveerd) -->
-              <div class="np__reveal np__reveal--photo" :class="{ 'np__reveal--on': isHans ? wheelSpun : scratchDone }">
+              <div class="np__reveal np__reveal--photo" :class="{ 'np__reveal--on': isWheel ? wheelSpun : scratchDone }">
                 <form class="nph__form nph__form--stacked" novalidate @submit.prevent="npSubmit">
-                  <label class="nph__label" for="np-email-g">Type je e-mailadres</label>
+                  <!-- R2-rad: bevestig de uitkomst in tekst, veld direct eronder -->
+                  <p v-if="isRad2" class="nph__revealtitle">Ontvang jouw €10 welkomstkorting</p>
+                  <label v-if="!isR2" class="nph__label" for="np-email-g">Type je e-mailadres</label>
+                  <!-- R2: zwevend label verschijnt bij typen + wis-kruis in het veld -->
+                  <div v-if="isR2" class="nph__fieldwrap">
+                    <label class="nph__floatlabel" :class="{ 'nph__floatlabel--on': npEmail.length > 0 }" for="np-email-g">Je E-mailadres</label>
+                    <input
+                      id="np-email-g"
+                      v-model="npEmail"
+                      class="nph__input"
+                      :class="{ 'nph__input--invalid': npError }"
+                      type="email"
+                      placeholder="Je E-mailadres"
+                    />
+                    <button v-if="npEmail.length > 0" class="nph__clear" type="button" aria-label="Invoer wissen" @click="npEmail = ''">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" /></svg>
+                    </button>
+                  </div>
                   <input
+                    v-else
                     id="np-email-g"
                     v-model="npEmail"
                     class="nph__input"
@@ -370,10 +413,18 @@ function npSubmit() {
                     placeholder="naam@voorbeeld.nl"
                   />
                   <p v-if="npError" class="nph__error nph__error--left">Vul een geldig e-mailadres in.</p>
-                  <button class="np__cta nph__cta nph__cta--full" type="submit">Ontvang aanbiedingen en onthul je korting</button>
+                  <button class="np__cta nph__cta nph__cta--full" type="submit">{{ isRad2 ? 'Claim mijn korting' : 'Ontvang aanbiedingen en onthul je korting' }}</button>
                 </form>
 
-                <p class="nph__terms">
+                <p v-if="isR2" class="nph__terms">
+                  Je ontvangt de kortingscode direct per e-mail en schrijft je daarmee in
+                  voor onze e-mailnieuwsbrief vol exclusieve aanbiedingen. Uitschrijven kan
+                  altijd met één klik via de link onderaan elke mail. De welkomstkorting
+                  geldt eenmalig en alleen voor nieuwe leden; niet geldig in combinatie
+                  met andere kortingen. Zie onze <a class="nph__termslink" href="#" @click.prevent>actievoorwaarden</a>
+                  en <a class="nph__termslink" href="#" @click.prevent>privacyverklaring</a>.
+                </p>
+                <p v-else class="nph__terms">
                   Je ontvangt de kortingscode direct per e-mail en schrijft je daarmee in
                   voor onze e-mailupdates vol exclusieve aanbiedingen. Uitschrijven kan
                   altijd met één klik via de link onderaan elke mail. De welkomstkorting
@@ -383,14 +434,31 @@ function npSubmit() {
               </div>
             </template>
 
-            <!-- "Foto bg": content van de simple-variant, gecentreerd op de foto -->
-            <template v-else-if="npState === 'form' && isFotobg">
+            <!-- "Foto bg" + R2 "Claim je korting": content van de
+                 simple-variant, gecentreerd op de foto -->
+            <template v-else-if="npState === 'form' && (isFotobg || isClaim2)">
               <p class="nph__eyebrow">Nieuw bij ViaLuxury?</p>
               <h2 class="nph__title nph__title--normal">Ontvang €10 welkomstkorting!</h2>
 
               <form class="nph__form nph__form--stacked" novalidate @submit.prevent="npSubmit">
-                <label class="nph__label" for="np-email-f">Type je e-mailadres</label>
+                <label v-if="!isR2" class="nph__label" for="np-email-f">Type je e-mailadres</label>
+                <!-- R2: zwevend label verschijnt bij typen + wis-kruis in het veld -->
+                <div v-if="isR2" class="nph__fieldwrap">
+                  <label class="nph__floatlabel" :class="{ 'nph__floatlabel--on': npEmail.length > 0 }" for="np-email-f">Je E-mailadres</label>
+                  <input
+                    id="np-email-f"
+                    v-model="npEmail"
+                    class="nph__input"
+                    :class="{ 'nph__input--invalid': npError }"
+                    type="email"
+                    placeholder="Je E-mailadres"
+                  />
+                  <button v-if="npEmail.length > 0" class="nph__clear" type="button" aria-label="Invoer wissen" @click="npEmail = ''">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" /></svg>
+                  </button>
+                </div>
                 <input
+                  v-else
                   id="np-email-f"
                   v-model="npEmail"
                   class="nph__input"
@@ -402,7 +470,15 @@ function npSubmit() {
                 <button class="np__cta nph__cta nph__cta--full" type="submit">Claim mijn korting</button>
               </form>
 
-              <p class="nph__terms">
+              <p v-if="isR2" class="nph__terms">
+                Je ontvangt de kortingscode direct per e-mail en schrijft je daarmee in
+                voor onze e-mailnieuwsbrief vol exclusieve aanbiedingen. Uitschrijven kan
+                altijd met één klik via de link onderaan elke mail. De welkomstkorting
+                geldt eenmalig en alleen voor nieuwe leden; niet geldig in combinatie
+                met andere kortingen. Zie onze <a class="nph__termslink" href="#" @click.prevent>actievoorwaarden</a>
+                en <a class="nph__termslink" href="#" @click.prevent>privacyverklaring</a>.
+              </p>
+              <p v-else class="nph__terms">
                 Je ontvangt de kortingscode direct per e-mail en schrijft je daarmee in
                 voor onze e-mailupdates vol exclusieve aanbiedingen. Uitschrijven kan
                 altijd met één klik via de link onderaan elke mail. De welkomstkorting
@@ -469,8 +545,8 @@ function npSubmit() {
             </template>
           </div>
 
-          <!-- Variant-switcher (boven de voorwaardenbalk) -->
-          <div class="np__switch nph__switchpos">
+          <!-- Variant-switcher (boven de voorwaardenbalk; R2 heeft geen balk) -->
+          <div class="np__switch nph__switchpos" :class="{ 'nph__switchpos--nofooter': isR2 }">
             <button
               v-for="(img, i) in POPUP_IMAGES"
               :key="img"
@@ -483,8 +559,9 @@ function npSubmit() {
             </button>
           </div>
 
-          <!-- Halftransparante voorwaardenbalk -->
-          <div class="nph__footer">
+          <!-- Halftransparante voorwaardenbalk (R2: vervangen door links in
+               de lopende voorwaardentekst) -->
+          <div v-if="!isR2" class="nph__footer">
             <a class="nph__footerlink" href="#">Algemene voorwaarden</a>
             <a class="nph__footerlink" href="#">Privacyvoorwaarden</a>
           </div>
@@ -617,7 +694,7 @@ function npSubmit() {
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" /></svg>
       </button>
       <button class="npl__body" type="button" @click="popupOpen = true">
-        <span class="npl__text">Krijg €10 korting</span>
+        <span class="npl__text">{{ nplText }}</span>
         <svg class="npl__icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="5.5" width="18" height="13" rx="2" stroke="currentColor" stroke-width="1.8" /><path d="M3.5 7l8.5 6 8.5-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
       </button>
     </div>
@@ -1008,6 +1085,70 @@ function npSubmit() {
   max-width: 480px;
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
 }
+/* R2: voorwaardenlinks in de lopende tekst (i.p.v. de balk onderaan) */
+.nph__termslink {
+  color: inherit;
+  text-decoration: underline;
+}
+.nph__termslink:hover {
+  color: #fff;
+}
+/* R2: veld met zwevend label (verschijnt bij typen, klein en dicht op
+   het veld) + wis-kruis rechts in het veld */
+.nph__fieldwrap {
+  position: relative;
+  width: 100%;
+  margin-top: 8px;
+}
+.nph__fieldwrap .nph__input {
+  width: 100%;
+  padding-right: 46px;
+}
+.nph__floatlabel {
+  position: absolute;
+  top: -17px;
+  left: 2px;
+  line-height: 1.2;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  text-align: left;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+}
+.nph__floatlabel--on {
+  opacity: 1;
+}
+.nph__clear {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b6b6b;
+  background: transparent;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.nph__clear:hover {
+  background: #efefef;
+  color: #1a1e1e;
+}
+/* R2-rad: bevestiging van de uitkomst boven het invoerveld */
+.nph__revealtitle {
+  font-size: 19px;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+}
 .nph__form--stacked {
   flex-direction: column;
   align-items: stretch;
@@ -1085,6 +1226,10 @@ function npSubmit() {
 /* Switcher boven de voorwaardenbalk */
 .nph__switchpos {
   bottom: 46px;
+}
+/* R2: geen voorwaardenbalk, switcher zakt naar de rand */
+.nph__switchpos--nofooter {
+  bottom: 14px;
 }
 /* Halftransparante witte voorwaardenbalk */
 .nph__footer {

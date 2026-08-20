@@ -9,6 +9,9 @@ const POPUP_VARIANT_NAMES: Record<string, string> = {
   sweepstake: 'Sweepstake',
   vipmember: 'VIP member',
   hans: 'Hans van der Togt',
+  // Second round
+  claim2: 'R2 — Claim je korting',
+  rad2: 'R2 — Rad van Fortuin',
 }
 
 /**

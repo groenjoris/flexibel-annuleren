@@ -25,6 +25,27 @@ interface StartSection {
 
 const sections = computed<StartSection[]>(() => [
   {
+    // Tweede testronde van de newsletter-popup: 1 = Claim je korting
+    // (fotobg + veld-/tekstwijzigingen), 2 = Rad van Fortuin (zwart-wit
+    // rad, uitkomst €10), 3 volgt nog.
+    heading: 'Newsletter opt-in, Second round',
+    groups: [
+      {
+        title: 'Variant 1: Claim je korting',
+        buttons: [{ label: 'Start', to: '/journey/11/home?popup=claim2' }],
+      },
+      {
+        title: 'Variant 2: Rad van Fortuin',
+        buttons: [{ label: 'Start', to: '/journey/11/home?popup=rad2' }],
+      },
+      {
+        title: 'Variant 3',
+        note: 'volgt nog',
+        buttons: [],
+      },
+    ],
+  },
+  {
     // Nieuwe AB-test: A = room table (was Final B), B = Yvette's Super
     // Nudge (was onder Final variants), C = idee van Tijl (volgt nog).
     heading: 'Follow-up test flexible cancellation',
