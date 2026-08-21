@@ -346,6 +346,12 @@ const cancelUntil = computed(() => {
 .sn__cardhead {
   display: flex;
   align-items: flex-start;
+  /* Titel lijnt horizontaal uit met de usp-teksten eronder:
+     kop-icoon 44px + 10px = usp-icoon 40px + 14px */
+  gap: 10px;
+}
+/* Mobiel heeft eigen (grotere) kop-iconen; daar blijft de oude marge */
+.sn--mobile .sn__cardhead {
   gap: 16px;
 }
 .sn__headmain {
